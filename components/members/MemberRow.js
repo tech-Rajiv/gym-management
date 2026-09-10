@@ -25,16 +25,16 @@ export default function MemberRow({ member, onDelete }) {
         </Link>
         <p className={styles.subtext}>{orDash(member.email)}</p>
       </td>
-      <td className={tableStyles.muted}>{member.phone}</td>
-      <td className={tableStyles.muted}>{titleCase(member.gender)}</td>
-      <td>{orDash(member.plan_name)}</td>
-      <td className={`${tableStyles.muted} ${tableStyles.numeric}`}>
+      <td data-label="Phone" className={tableStyles.muted}>{member.phone}</td>
+      <td data-label="Gender" className={tableStyles.muted}>{titleCase(member.gender)}</td>
+      <td data-label="Plan">{orDash(member.plan_name)}</td>
+      <td data-label="Joined" className={`${tableStyles.muted} ${tableStyles.numeric}`}>
         {formatDate(member.join_date)}
       </td>
-      <td className={tableStyles.numeric}>
+      <td data-label="Expires" className={tableStyles.numeric}>
         {member.membership_end_date ? formatDate(member.membership_end_date) : "—"}
       </td>
-      <td>
+      <td data-label="Status">
         <Badge variant={membership.variant}>{membership.label}</Badge>
       </td>
       <td className={tableStyles.actionsCell}>

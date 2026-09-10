@@ -56,18 +56,23 @@ export default async function DashboardPage() {
         }
       />
 
+      {/* The three cards that match a members filter link straight to it.
+          New This Month has no equivalent filter, so it stays a plain figure
+          rather than linking somewhere that would show a different number. */}
       <div className={styles.stats}>
         <StatCard
           label="Total Members"
           value={stats.total_members}
           hint="All time"
           icon={MembersIcon}
+          href="/members"
         />
         <StatCard
           label="Active Members"
           value={stats.active_members}
           hint="Membership still running"
           icon={UsersCheckIcon}
+          href="/members?status=active"
         />
         <StatCard
           label="New This Month"
@@ -81,6 +86,7 @@ export default async function DashboardPage() {
           hint={`Within ${EXPIRING_SOON_DAYS} days`}
           icon={ClockIcon}
           accent={stats.expiring_this_week > 0}
+          href="/members?status=expiring"
         />
       </div>
 

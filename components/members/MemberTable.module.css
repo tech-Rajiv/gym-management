@@ -51,3 +51,22 @@
 .wide {
   min-width: 900px;
 }
+
+@media (max-width: 768px) {
+  /* Rows become stacked cards here (see Table.module.css), so the minimum
+     width that keeps columns readable no longer applies. */
+  .wide {
+    min-width: 0;
+  }
+
+  /* Comfortable tap targets - 30px is fine for a mouse, not for a thumb. */
+  .actionButton {
+    width: 40px;
+    height: 40px;
+    border-color: var(--color-border);
+  }
+
+  .actions {
+    gap: var(--space-2);
+  }
+}

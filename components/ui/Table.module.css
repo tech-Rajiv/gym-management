@@ -16,6 +16,14 @@
   min-width: 560px;
 }
 
+/* For the dashboard's three- and four-column lists. They sit side by side
+   from 1280px up, where each column is roughly 470px - narrower than the
+   default minimum above, which would otherwise put a scrollbar inside every
+   card at exactly the width the two-column layout begins. */
+.compact {
+  min-width: 420px;
+}
+
 .table thead th {
   padding: var(--space-3) var(--space-5);
   background-color: var(--color-surface-secondary);
@@ -60,4 +68,96 @@
 
 .numeric {
   font-variant-numeric: tabular-nums;
+}
+
+/* --- Mobile ----------------------------------------------------------------
+   Below the tablet breakpoint a table is the wrong shape: eight columns on a
+   375px screen means either unreadable text or sideways scrolling.
+
+   Each row becomes a stacked card instead. The column headings are hidden and
+   re-attached to each cell through `data-label`, so the markup stays a single
+   real <table> - correct for screen readers and for copy-paste - and only its
+   presentation changes.
+
+   Every cell therefore needs a `data-label` attribute; the first cell is
+   treated as the row's heading and needs none.                              */
+
+@media (max-width: 768px) {
+  .wrapper {
+    overflow-x: visible;
+  }
+
+  .table {
+    display: block;
+    min-width: 0;
+  }
+
+  .table thead {
+    /* Hidden visually and from screen readers, since each cell now carries
+       its own label. */
+    display: none;
+  }
+
+  .table tbody {
+    display: block;
+  }
+
+  .table tbody tr {
+    display: block;
+    padding: var(--space-4) var(--space-4) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* Hover highlighting is meaningless on touch and makes the tapped row look
+     stuck, so it is dropped here. */
+  .table tbody tr:hover {
+    background-color: transparent;
+  }
+
+  .table tbody td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-1) 0;
+    border-bottom: none;
+    text-align: right;
+  }
+
+  .table tbody td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+  }
+
+  /* The first cell is the card's title: full width, left aligned, no label. */
+  .table tbody td:first-child {
+    display: block;
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    font-size: 0.9375rem;
+  }
+
+  .table tbody td:first-child::before {
+    content: none;
+  }
+
+  /* Row actions sit on their own line at the bottom of the card. */
+  .table tbody td.actionsCell {
+    justify-content: flex-end;
+    margin-top: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .table tbody td.actionsCell::before {
+    content: none;
+  }
 }

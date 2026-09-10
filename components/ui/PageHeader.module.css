@@ -36,3 +36,24 @@
 .back:hover {
   color: var(--color-primary);
 }
+
+@media (max-width: 640px) {
+  .header {
+    margin-bottom: var(--space-5);
+  }
+
+  .title {
+    font-size: 1.1875rem;
+  }
+
+  /* Actions take the full width and split it evenly, which gives each a
+     comfortable tap target instead of two small buttons in a corner. */
+  .actions {
+    width: 100%;
+  }
+
+  .actions > * {
+    flex: 1;
+    justify-content: center;
+  }
+}

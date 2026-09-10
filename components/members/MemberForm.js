@@ -205,7 +205,9 @@ export default function MemberForm({ action, member, plans, today, submitLabel =
             error={errorFor("joinDate")}
             hint="When they first joined the gym"
           />
-          <div />
+          {/* Keeps the two membership dates together on the row below on
+              desktop. It collapses away once the grid is a single column. */}
+          <div className={styles.spacer} />
           <Input
             id="membershipStartDate"
             label="Membership Start Date"

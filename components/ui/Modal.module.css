@@ -1,5 +1,8 @@
 .dialog {
   width: min(440px, calc(100vw - 2 * var(--space-4)));
+  /* Centring comes from `margin: auto`, restored in globals.css. */
+  max-height: calc(100dvh - 2 * var(--space-5));
+  overflow: auto;
   padding: 0;
   background-color: var(--color-surface);
   color: var(--color-text);
@@ -37,7 +40,7 @@
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .footer {
     flex-direction: column-reverse;
   }

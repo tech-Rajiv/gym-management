@@ -10,8 +10,18 @@ import styles from "./Modal.module.css";
  * the browser handles the parts that are easy to get wrong: focus moves into
  * the dialog and comes back on close, the rest of the page is inert, and
  * Escape closes it.
+ *
+ * @param {boolean} [dismissible] set false while work is in flight, so the
+ *                                dialog cannot be dismissed part-way through
  */
-export default function Modal({ open, onClose, title, children, footer }) {
+export default function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  dismissible = true,
+}) {
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -25,8 +35,22 @@ export default function Modal({ open, onClose, title, children, footer }) {
     }
   }, [open]);
 
-  // Escape and the backdrop both fire the dialog's own close event, so the
-  // parent's state is kept in step from one place.
+  // Escape fires `cancel` before `close`. Blocking it there stops the browser
+  // closing the dialog behind React's back, which would otherwise leave the
+  // element shut while this component still believed it was open.
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const handleCancel = (event) => {
+      if (!dismissible) event.preventDefault();
+    };
+    dialog.addEventListener("cancel", handleCancel);
+    return () => dialog.removeEventListener("cancel", handleCancel);
+  }, [dismissible]);
+
+  // Whatever closed the dialog - Escape, the backdrop, or a button - ends up
+  // here, so the parent's state is kept in step from one place.
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
@@ -38,7 +62,7 @@ export default function Modal({ open, onClose, title, children, footer }) {
 
   /** Clicking the backdrop lands on the dialog element itself, not its content. */
   const handleBackdropClick = (event) => {
-    if (event.target === dialogRef.current) onClose?.();
+    if (dismissible && event.target === dialogRef.current) onClose?.();
   };
 
   return (

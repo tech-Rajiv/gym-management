@@ -44,7 +44,6 @@ export default function DeleteMemberDialog({ member, open, onClose, onDeleted })
   };
 
   const handleClose = () => {
-    if (isPending) return; // Don't let the dialog close mid-delete.
     setError(null);
     onClose();
   };
@@ -53,6 +52,7 @@ export default function DeleteMemberDialog({ member, open, onClose, onDeleted })
     <Modal
       open={open}
       onClose={handleClose}
+      dismissible={!isPending}
       title="Delete Member?"
       footer={
         <>

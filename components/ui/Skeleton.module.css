@@ -40,13 +40,13 @@
   padding: var(--space-5);
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1024px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .stats {
     grid-template-columns: 1fr;
   }

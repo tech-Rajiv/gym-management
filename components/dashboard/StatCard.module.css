@@ -1,4 +1,5 @@
 .card {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: var(--space-4);
@@ -7,6 +8,39 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md), var(--highlight-top);
+}
+
+/* Cards that lead somewhere lift slightly on hover, so it is obvious which
+   figures can be opened and which are read-only. */
+.cardLink {
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.cardLink:hover {
+  background-color: var(--color-surface-secondary);
+  border-color: var(--color-border-strong);
+}
+
+.arrow {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  color: var(--color-text-muted);
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+}
+
+.cardLink:hover .arrow,
+.cardLink:focus-visible .arrow {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+/* Touch devices have no hover, so the arrow is always visible there. */
+@media (hover: none) {
+  .arrow {
+    opacity: 1;
+  }
 }
 
 .icon {

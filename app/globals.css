@@ -83,6 +83,18 @@
 
   --transition: 140ms ease;
 
+  /* --- Breakpoints --------------------------------------------------------
+     Custom properties cannot be used inside a media query, so these four
+     widths are written out wherever they are needed. They are listed here so
+     the set stays deliberate rather than drifting into a dozen near-identical
+     values:
+
+       640px   phones - one column, stacked buttons, full-width controls
+       768px   large phones and small tablets - tables become stacked cards
+       1024px  tablets - the sidebar turns into a drawer
+       1280px  wide desktop - the dashboard lists sit side by side
+     --------------------------------------------------------------------- */
+
   color-scheme: dark;
 }
 
@@ -96,6 +108,13 @@
 
 * {
   margin: 0;
+}
+
+/* The blanket margin reset above also cancels the `margin: auto` that browsers
+   use to centre a modal <dialog>, which pins it to the top-left corner of the
+   viewport instead. Put it back for dialogs specifically. */
+dialog {
+  margin: auto;
 }
 
 html,

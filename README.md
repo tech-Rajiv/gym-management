@@ -82,6 +82,24 @@ The `member_overview` view pairs each member with their current term — the
 non-cancelled one running latest — so the list and dashboard show what is
 current while the detail page shows the whole history.
 
+### Filtering happens in the URL
+
+The members list reads its search term and status filter from the query string
+(`?q=` and `?status=`), not from component state. The page re-runs on the
+server and PostgreSQL does the filtering, so:
+
+- a filtered view can be bookmarked, shared or refreshed;
+- the browser never holds the full member list;
+- the dashboard's stat cards can link straight to a filtered list —
+  **Active Members** opens `/members?status=active`, and **Expiring This Week**
+  opens `/members?status=expiring`, each showing exactly the number on the card.
+
+The filter's SQL uses the same date comparisons and the same window as the
+badges do in JavaScript, so a filtered list always agrees with the statuses
+shown inside it. "Active" includes memberships expiring soon — someone whose
+term ends on Friday is still training this week — which is what makes the
+dashboard count and the filter match.
+
 ### Status is calculated, never stored
 
 `Active`, `Expiring Soon` and `Expired` are derived from the membership end
@@ -90,6 +108,26 @@ stored, so nothing can go stale overnight.
 
 `memberships.status` is a different thing: it records whether a term was
 cancelled, which no date can tell you.
+
+### Tables become cards on mobile
+
+Below 768px a members row is eight columns on a 375px screen, which means
+either unreadable text or sideways scrolling. Instead each row restyles into a
+stacked card: the column headings are hidden and re-attached to each cell
+through a `data-label` attribute in CSS.
+
+The markup stays one real `<table>` — correct for screen readers and for
+copy-paste — and only its presentation changes. Every cell therefore needs a
+`data-label`; the first cell becomes the card's title and needs none.
+
+Four breakpoints are used throughout, listed in `app/globals.css`:
+
+| Width | What changes |
+| --- | --- |
+| 640px | One column, stacked full-width buttons |
+| 768px | Tables become stacked cards |
+| 1024px | The sidebar turns into a drawer |
+| 1280px | The dashboard lists sit side by side |
 
 ### Dates avoid timezones entirely
 

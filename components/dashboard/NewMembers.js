@@ -34,7 +34,7 @@ export default function NewMembers({ members }) {
       flush
     >
       <div className={tableStyles.wrapper}>
-        <table className={tableStyles.table}>
+        <table className={`${tableStyles.table} ${tableStyles.compact}`}>
           <thead>
             <tr>
               <th>Member</th>
@@ -51,8 +51,10 @@ export default function NewMembers({ members }) {
                   </Link>
                   <p className={styles.subtext}>{member.phone}</p>
                 </td>
-                <td className={tableStyles.numeric}>{formatDate(member.join_date)}</td>
-                <td>
+                <td data-label="Joined Date" className={tableStyles.numeric}>
+                  {formatDate(member.join_date)}
+                </td>
+                <td data-label="Plan">
                   <Badge variant="primary" dot={false}>
                     {member.plan_name}
                   </Badge>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import styles from "./DashboardLayout.module.css";
@@ -18,6 +18,21 @@ import styles from "./DashboardLayout.module.css";
  */
 export default function DashboardLayout({ todayLabel, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  /**
+   * Stops the page behind the mobile sidebar from scrolling while it is open.
+   * Without this, dragging on the backdrop scrolls the content underneath and
+   * the drawer appears to float over a moving page.
+   */
+  useEffect(() => {
+    if (!sidebarOpen) return;
+
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [sidebarOpen]);
 
   return (
     <div className={styles.shell}>

@@ -14,9 +14,20 @@
   white-space: nowrap;
 }
 
-@media (max-width: 560px) {
+.filterBar {
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (max-width: 640px) {
   .toolbar {
     align-items: stretch;
     flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .toolbar,
+  .filterBar {
+    padding-inline: var(--space-4);
   }
 }

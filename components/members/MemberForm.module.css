@@ -46,19 +46,35 @@
   padding-bottom: var(--space-4);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .grid,
   .gridThree {
     grid-template-columns: 1fr;
   }
+
+  /* With one column there is no row to balance, so the spacer would just add
+     an empty gap between the fields. */
+  .spacer {
+    display: none;
+  }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .footer {
     flex-direction: column-reverse;
   }
 
+  /* Full-width buttons are easier to hit with a thumb, and stacking Save
+     above Cancel keeps the primary action nearest the keyboard. */
+  .footer > * {
+    width: 100%;
+  }
+
   .section {
     padding: var(--space-4);
+  }
+
+  .form {
+    gap: var(--space-4);
   }
 }

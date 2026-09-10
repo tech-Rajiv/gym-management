@@ -33,6 +33,9 @@
 .title {
   font-size: 0.9375rem;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .spacer {
@@ -48,7 +51,7 @@
   white-space: nowrap;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .menuButton {
     display: inline-flex;
   }
@@ -58,7 +61,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .date {
     display: none;
   }

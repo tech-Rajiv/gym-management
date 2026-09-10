@@ -146,3 +146,9 @@ export const DumbbellIcon = (props) => (
     <path d="M6.5 6.5v11M3 9v6M17.5 6.5v11M21 9v6M6.5 12h11" />
   </Icon>
 );
+
+export const ArrowRightIcon = (props) => (
+  <Icon {...props}>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </Icon>
+);

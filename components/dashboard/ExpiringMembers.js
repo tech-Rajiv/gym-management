@@ -40,7 +40,7 @@ export default function ExpiringMembers({ members }) {
       flush
     >
       <div className={tableStyles.wrapper}>
-        <table className={tableStyles.table}>
+        <table className={`${tableStyles.table} ${tableStyles.compact}`}>
           <thead>
             <tr>
               <th>Member</th>
@@ -60,8 +60,8 @@ export default function ExpiringMembers({ members }) {
                     </Link>
                     <p className={styles.subtext}>{member.phone}</p>
                   </td>
-                  <td className={tableStyles.muted}>{member.plan_name}</td>
-                  <td className={tableStyles.numeric}>
+                  <td data-label="Plan" className={tableStyles.muted}>{member.plan_name}</td>
+                  <td data-label="Expiry Date" className={tableStyles.numeric}>
                     {formatDate(member.membership_end_date)}
                     <p className={styles.subtext}>
                       {membership.daysRemaining === 0
@@ -71,7 +71,7 @@ export default function ExpiringMembers({ members }) {
                           }`}
                     </p>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <Badge variant={membership.variant}>{membership.label}</Badge>
                   </td>
                 </tr>

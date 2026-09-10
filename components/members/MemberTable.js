@@ -5,7 +5,8 @@ import MemberRow from "./MemberRow";
 import DeleteMemberDialog from "./DeleteMemberDialog";
 import EmptyState from "@/components/ui/EmptyState";
 import Button from "@/components/ui/Button";
-import { MembersIcon, SearchIcon } from "@/components/ui/icons";
+import { MembersIcon, SearchIcon, InboxIcon } from "@/components/ui/icons";
+import { MEMBER_FILTERS, DEFAULT_MEMBER_FILTER } from "@/lib/utils/membershipStatus";
 import tableStyles from "@/components/ui/Table.module.css";
 import styles from "./MemberTable.module.css";
 
@@ -16,21 +17,43 @@ import styles from "./MemberTable.module.css";
  * dialog is asking about. The rows themselves are plain presentational
  * components, and the data was fetched on the server by the page above.
  *
- * @param {boolean} isSearching changes the empty state - "no results for this
- *                              search" is a different situation from "no
- *                              members yet", and they need different advice
+ * An empty list has three different meanings, and each needs its own advice:
+ * nothing matched the search, nothing matched the filter, or there are no
+ * members at all. Only the last one is worth offering an Add button for.
+ *
+ * @param {boolean} isSearching whether a search term is applied
+ * @param {string}  filter      the status filter currently applied
  */
-export default function MemberTable({ members, isSearching = false }) {
+export default function MemberTable({
+  members,
+  isSearching = false,
+  filter = DEFAULT_MEMBER_FILTER,
+}) {
   const [memberToDelete, setMemberToDelete] = useState(null);
 
   if (members.length === 0) {
-    return isSearching ? (
-      <EmptyState
-        icon={<SearchIcon size={20} />}
-        title="No members found."
-        description="No members match your search. Try a different name, phone number or email."
-      />
-    ) : (
+    if (isSearching) {
+      return (
+        <EmptyState
+          icon={<SearchIcon size={20} />}
+          title="No members found."
+          description="No members match your search. Try a different name, phone number or email."
+        />
+      );
+    }
+
+    if (filter !== DEFAULT_MEMBER_FILTER) {
+      const label = MEMBER_FILTERS.find((option) => option.value === filter)?.label;
+      return (
+        <EmptyState
+          icon={<InboxIcon size={20} />}
+          title={`No ${label?.toLowerCase()} members.`}
+          description="Nobody falls into this group right now. Try a different filter."
+        />
+      );
+    }
+
+    return (
       <EmptyState
         icon={<MembersIcon size={20} />}
         title="No members found."

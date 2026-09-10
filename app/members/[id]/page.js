@@ -179,16 +179,19 @@ export default async function MemberDetailPage({ params }) {
                       return (
                         <tr key={term.id}>
                           <td>{term.plan_name}</td>
-                          <td className={`${tableStyles.muted} ${tableStyles.numeric}`}>
+                          <td
+                            data-label="Start Date"
+                            className={`${tableStyles.muted} ${tableStyles.numeric}`}
+                          >
                             {formatDate(term.start_date)}
                           </td>
-                          <td className={tableStyles.numeric}>
+                          <td data-label="End Date" className={tableStyles.numeric}>
                             {formatDate(term.end_date)}
                           </td>
-                          <td className={tableStyles.numeric}>
+                          <td data-label="Price" className={tableStyles.numeric}>
                             {formatCurrency(term.price)}
                           </td>
-                          <td>
+                          <td data-label="Status">
                             <Badge variant={termStatus.variant}>
                               {termStatus.label}
                             </Badge>

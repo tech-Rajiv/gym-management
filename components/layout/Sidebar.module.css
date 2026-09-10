@@ -108,7 +108,7 @@
 /* --- Mobile ---------------------------------------------------------------
    Below the tablet breakpoint the sidebar slides in over the content instead
    of taking a permanent column.                                             */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);
     transition: transform var(--transition);
@@ -124,7 +124,7 @@
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .backdrop {
     display: block;
     position: fixed;
