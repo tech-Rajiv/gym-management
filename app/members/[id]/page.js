@@ -6,10 +6,14 @@ import EmptyState from "@/components/ui/EmptyState";
 import MemberActions from "@/components/members/MemberActions";
 import { getMemberById } from "@/lib/db/members";
 import { getMembershipsByMemberId } from "@/lib/db/memberships";
+import { getPaymentsByMemberId } from "@/lib/db/payments";
+import PaymentTable from "@/components/payments/PaymentTable";
+import { describePayment } from "@/lib/utils/paymentStatus";
 import { describeMembership } from "@/lib/utils/membershipStatus";
 import { formatDate, calculateAge } from "@/lib/utils/dates";
 import { formatCurrency, orDash, titleCase, getInitials } from "@/lib/utils/format";
-import { PhoneIcon, MailIcon, InboxIcon } from "@/components/ui/icons";
+import Button from "@/components/ui/Button";
+import { PhoneIcon, MailIcon, InboxIcon, PlusIcon } from "@/components/ui/icons";
 import tableStyles from "@/components/ui/Table.module.css";
 import styles from "./member.module.css";
 
@@ -47,7 +51,16 @@ export default async function MemberDetailPage({ params }) {
   // answer for a member id that does not exist.
   if (!member) notFound();
 
-  const memberships = await getMembershipsByMemberId(member.id);
+  const [memberships, payments] = await Promise.all([
+    getMembershipsByMemberId(member.id),
+    getPaymentsByMemberId(member.id),
+  ]);
+
+  // What this member still owes on their current term.
+  const dues = describePayment(
+    member.membership_price,
+    member.membership_amount_paid
+  );
   const membership = describeMembership(member.membership_end_date);
   const age = calculateAge(member.date_of_birth);
 
@@ -97,7 +110,11 @@ export default async function MemberDetailPage({ params }) {
                     {member.plan_name}
                   </Badge>
                   <p className={styles.termHint}>
-                    {formatCurrency(member.membership_price)} paid
+                    {formatCurrency(dues.amountPaid)} of{" "}
+                    {formatCurrency(dues.price)}
+                    {dues.amountDue > 0
+                      ? ` — ${formatCurrency(dues.amountDue)} due`
+                      : ""}
                   </p>
                 </div>
                 <div>
@@ -115,7 +132,10 @@ export default async function MemberDetailPage({ params }) {
                         } ago`}
                   </p>
                 </div>
-                <Badge variant={membership.variant}>{membership.label}</Badge>
+                <div className={styles.termBadges}>
+                  <Badge variant={membership.variant}>{membership.label}</Badge>
+                  <Badge variant={dues.variant}>{dues.label}</Badge>
+                </div>
               </div>
             ) : (
               <p className={styles.notes}>This member has no active membership.</p>
@@ -203,6 +223,30 @@ export default async function MemberDetailPage({ params }) {
                 </table>
               </div>
             )}
+          </Card>
+
+          <Card
+            title="Payment History"
+            description={`${payments.length} ${
+              payments.length === 1 ? "payment" : "payments"
+            } on record`}
+            action={
+              <Button
+                href={`/payments/new?member=${member.id}`}
+                variant="secondary"
+                size="small"
+              >
+                <PlusIcon size={15} />
+                Record Payment
+              </Button>
+            }
+            flush
+          >
+            <PaymentTable
+              payments={payments}
+              showMember={false}
+              addHref={`/payments/new?member=${member.id}`}
+            />
           </Card>
         </div>
       </div>

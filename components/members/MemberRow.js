@@ -3,6 +3,8 @@ import Badge from "@/components/ui/Badge";
 import { EyeIcon, EditIcon, TrashIcon } from "@/components/ui/icons";
 import { formatDate } from "@/lib/utils/dates";
 import { describeMembership } from "@/lib/utils/membershipStatus";
+import { describePayment } from "@/lib/utils/paymentStatus";
+import { formatCurrency } from "@/lib/utils/format";
 import { orDash, titleCase } from "@/lib/utils/format";
 import tableStyles from "@/components/ui/Table.module.css";
 import styles from "./MemberTable.module.css";
@@ -16,6 +18,12 @@ import styles from "./MemberTable.module.css";
  */
 export default function MemberRow({ member, onDelete }) {
   const membership = describeMembership(member.membership_end_date);
+  // What the member still owes on that term. Derived, never stored - see
+  // lib/utils/paymentStatus.js.
+  const payment = describePayment(
+    member.membership_price,
+    member.membership_amount_paid
+  );
 
   return (
     <tr>
@@ -37,11 +45,22 @@ export default function MemberRow({ member, onDelete }) {
       <td data-label="Status">
         <Badge variant={membership.variant}>{membership.label}</Badge>
       </td>
+
+      <td data-label="Payment">
+        <Badge variant={payment.variant}>{payment.label}</Badge>
+        {payment.price !== null && (
+          <span className={styles.subtext}>
+            {payment.amountDue > 0
+              ? `${formatCurrency(payment.amountPaid)} of ${formatCurrency(payment.price)}`
+              : formatCurrency(payment.amountPaid)}
+          </span>
+        )}
+      </td>
       <td className={tableStyles.actionsCell}>
-        <span className={styles.actions}>
+        <span className={tableStyles.actions}>
           <Link
             href={`/members/${member.id}`}
-            className={styles.actionButton}
+            className={tableStyles.actionButton}
             title="View member"
             aria-label={`View ${member.full_name}`}
           >
@@ -49,7 +68,7 @@ export default function MemberRow({ member, onDelete }) {
           </Link>
           <Link
             href={`/members/${member.id}/edit`}
-            className={styles.actionButton}
+            className={tableStyles.actionButton}
             title="Edit member"
             aria-label={`Edit ${member.full_name}`}
           >
@@ -58,7 +77,7 @@ export default function MemberRow({ member, onDelete }) {
           <button
             type="button"
             onClick={() => onDelete(member)}
-            className={`${styles.actionButton} ${styles.deleteButton}`}
+            className={`${tableStyles.actionButton} ${tableStyles.deleteButton}`}
             title="Delete member"
             aria-label={`Delete ${member.full_name}`}
           >

@@ -3,10 +3,10 @@
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SearchIcon } from "@/components/ui/icons";
-import styles from "./MemberSearch.module.css";
+import styles from "./SearchInput.module.css";
 
 /**
- * The members search box.
+ * A search box that filters a server-rendered list.
  *
  * This component does not filter anything. It writes the search term into the
  * URL as `?q=`, the page re-runs on the server, and PostgreSQL does the
@@ -16,8 +16,11 @@ import styles from "./MemberSearch.module.css";
  *
  * Typing is debounced so a query is not fired on every keystroke, and
  * `useTransition` keeps the input responsive while the server re-renders.
+ *
+ * Shared by the members list and the payment history - they differ only in
+ * their wording, not their behaviour.
  */
-export default function MemberSearch({ placeholder = "Search members..." }) {
+export default function SearchInput({ placeholder = "Search...", label }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -57,7 +60,7 @@ export default function MemberSearch({ placeholder = "Search members..." }) {
         placeholder={placeholder}
         value={term}
         onChange={(event) => setTerm(event.target.value)}
-        aria-label="Search members by name, phone or email"
+        aria-label={label ?? placeholder}
       />
       {isPending && <span className={styles.spinner} aria-hidden="true" />}
     </div>

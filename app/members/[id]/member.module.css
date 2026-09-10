@@ -127,3 +127,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* The membership badge and the payment badge sit together, wrapping onto a
+   second line rather than squeezing the dates when space is tight. */
+.termBadges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

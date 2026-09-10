@@ -1,0 +1,57 @@
+/* Payment history is read date-first, so the date is the row's heading and the
+   member's name sits under it. */
+.date {
+  display: block;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.member {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.term,
+.reference {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.reference {
+  font-variant-numeric: tabular-nums;
+}
+
+.amount {
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+/* Long notes must not push the amount column off the table. */
+.remarkCell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wide {
+  min-width: 940px;
+}
+
+@media (max-width: 768px) {
+  .wide {
+    min-width: 0;
+  }
+
+  /* Once rows are cards there is room for the note to wrap. */
+  .remarkCell {
+    max-width: none;
+    white-space: normal;
+    text-align: right;
+  }
+}

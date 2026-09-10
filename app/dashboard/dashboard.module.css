@@ -1,6 +1,8 @@
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* auto-fit means the row reflows as cards are added, instead of a fixed
+     column count that has to be edited every time. */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-4);
   margin-bottom: var(--space-5);
 }

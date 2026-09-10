@@ -13,43 +13,10 @@
   color: var(--color-text-muted);
 }
 
-.actions {
-  display: inline-flex;
-  gap: var(--space-1);
-  justify-content: flex-end;
-}
-
-.actionButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background-color: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition), color var(--transition),
-    border-color var(--transition);
-}
-
-.actionButton:hover {
-  background-color: var(--color-surface-hover);
-  border-color: var(--color-border);
-  color: var(--color-text);
-}
-
-.deleteButton:hover {
-  background-color: var(--color-danger-soft);
-  border-color: var(--color-danger-soft);
-  color: var(--color-danger);
-}
-
 /* The members table carries more columns than the dashboard lists, so it needs
    more room before it starts scrolling sideways. */
 .wide {
-  min-width: 900px;
+  min-width: 1040px;
 }
 
 @media (max-width: 768px) {
@@ -59,14 +26,4 @@
     min-width: 0;
   }
 
-  /* Comfortable tap targets - 30px is fine for a mouse, not for a thumb. */
-  .actionButton {
-    width: 40px;
-    height: 40px;
-    border-color: var(--color-border);
-  }
-
-  .actions {
-    gap: var(--space-2);
-  }
 }

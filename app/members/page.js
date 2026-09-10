@@ -3,10 +3,14 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import PageHeader from "@/components/ui/PageHeader";
 import MemberTable from "@/components/members/MemberTable";
-import MemberSearch from "@/components/members/MemberSearch";
-import MemberFilters from "@/components/members/MemberFilters";
+import SearchInput from "@/components/ui/SearchInput";
+import FilterTabs from "@/components/ui/FilterTabs";
 import { getMembers, getMemberStatusCounts } from "@/lib/db/members";
-import { normalizeMemberFilter } from "@/lib/utils/membershipStatus";
+import {
+  normalizeMemberFilter,
+  MEMBER_FILTERS,
+  DEFAULT_MEMBER_FILTER,
+} from "@/lib/utils/membershipStatus";
 import { PlusIcon } from "@/components/ui/icons";
 import styles from "./members.module.css";
 
@@ -53,7 +57,10 @@ export default async function MembersPage({ searchParams }) {
             the page can still be prerendered. */}
         <Suspense fallback={null}>
           <div className={styles.toolbar}>
-            <MemberSearch />
+            <SearchInput
+              placeholder="Search members..."
+              label="Search members by name, phone or email"
+            />
             <span className={styles.count}>
               {members.length} {members.length === 1 ? "member" : "members"}
               {search ? ` matching "${search}"` : ""}
@@ -61,7 +68,16 @@ export default async function MembersPage({ searchParams }) {
           </div>
 
           <div className={styles.filterBar}>
-            <MemberFilters active={filter} counts={counts} />
+            <FilterTabs
+              param="status"
+              active={filter}
+              defaultValue={DEFAULT_MEMBER_FILTER}
+              label="Filter members by membership status"
+              options={MEMBER_FILTERS.map((option) => ({
+                ...option,
+                count: counts[option.value] ?? 0,
+              }))}
+            />
           </div>
         </Suspense>
 

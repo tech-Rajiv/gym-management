@@ -104,7 +104,9 @@ const commands = {
   },
 
   async reset() {
+    await sql`DROP VIEW IF EXISTS payment_overview`;
     await sql`DROP VIEW IF EXISTS member_overview`;
+    await sql`DROP TABLE IF EXISTS payments`;
     await sql`DROP TABLE IF EXISTS memberships`;
     await sql`DROP TABLE IF EXISTS members`;
     await sql`DROP TABLE IF EXISTS membership_plans`;

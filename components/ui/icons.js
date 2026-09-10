@@ -152,3 +152,10 @@ export const ArrowRightIcon = (props) => (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </Icon>
 );
+
+export const CardIcon = (props) => (
+  <Icon {...props}>
+    <rect x="2" y="5" width="20" height="14" rx="2" />
+    <path d="M2 10h20" />
+  </Icon>
+);

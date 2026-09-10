@@ -70,6 +70,55 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Visible to screen readers only. Used for a column header that would be
+   clutter on screen but is needed to announce the column. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Row actions -----------------------------------------------------------
+   Shared by every table that has per-row buttons, so the members list and the
+   payment history cannot drift apart on size, colour or hover behaviour.    */
+
+.actions {
+  display: inline-flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background-color: transparent;
+  border: 1px solid #0000;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition),
+    border-color var(--transition);
+}
+
+.actionButton:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.deleteButton:hover {
+  background-color: var(--color-danger-soft);
+  border-color: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
 /* --- Mobile ----------------------------------------------------------------
    Below the tablet breakpoint a table is the wrong shape: eight columns on a
    375px screen means either unreadable text or sideways scrolling.
@@ -159,5 +208,16 @@
 
   .table tbody td.actionsCell::before {
     content: none;
+  }
+
+  /* Comfortable tap targets - 30px is fine for a mouse, not for a thumb. */
+  .actionButton {
+    width: 40px;
+    height: 40px;
+    border-color: var(--color-border);
+  }
+
+  .actions {
+    gap: var(--space-2);
   }
 }

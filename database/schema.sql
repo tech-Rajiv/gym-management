@@ -107,6 +107,61 @@ CREATE INDEX IF NOT EXISTS idx_memberships_member_id ON memberships (member_id);
 CREATE INDEX IF NOT EXISTS idx_memberships_end_date ON memberships (end_date);
 
 -- ---------------------------------------------------------------------------
+-- payments
+-- Money the gym has actually received. This records payments, it does not
+-- process them - the owner enters what was handed over at the desk or sent
+-- over UPI.
+--
+-- A payment usually pays for one membership term, but the link is optional so
+-- a one-off charge can be recorded against a member without inventing a term
+-- for it.
+--
+-- Several payments can point at the same term. That is what makes part
+-- payments possible: 2,000 today and 2,000 next week against a 4,000 term.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS payments (
+  id            integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+  -- A payment belongs to a person. Deleting the member removes their payment
+  -- history along with the rest of their record.
+  member_id     integer NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+
+  -- The term this money paid for. Nullable, and set to NULL rather than
+  -- deleted if the term ever goes away: money received is a financial record
+  -- and must not disappear because a membership was tidied up.
+  membership_id integer REFERENCES memberships (id) ON DELETE SET NULL,
+
+  amount        numeric(10, 2) NOT NULL CHECK (amount > 0),
+
+  method        text NOT NULL CHECK (method IN ('upi', 'cash')),
+
+  -- The day the money changed hands, which is not necessarily the day it was
+  -- entered. Cash collected yesterday is often recorded this morning.
+  paid_on       date NOT NULL,
+
+  -- The UPI transaction reference (UTR). Only meaningful for UPI, and even
+  -- then optional - an owner will not always have it to hand.
+  reference     text,
+
+  remark        text,
+
+  -- Marks rows created by the seed, matching members.is_demo.
+  is_demo       boolean NOT NULL DEFAULT false,
+
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now(),
+
+  -- A reference only makes sense against a UPI payment.
+  CONSTRAINT payments_reference_requires_upi
+    CHECK (method = 'upi' OR reference IS NULL)
+);
+
+CREATE INDEX IF NOT EXISTS idx_payments_member_id ON payments (member_id);
+CREATE INDEX IF NOT EXISTS idx_payments_membership_id ON payments (membership_id);
+-- Drives the payment history list, which is always newest first.
+CREATE INDEX IF NOT EXISTS idx_payments_paid_on ON payments (paid_on DESC);
+
+-- ---------------------------------------------------------------------------
 -- updated_at maintenance
 -- One trigger function shared by every table, so no query has to remember to
 -- set updated_at by hand.
@@ -132,6 +187,11 @@ CREATE TRIGGER trg_members_updated_at
 DROP TRIGGER IF EXISTS trg_memberships_updated_at ON memberships;
 CREATE TRIGGER trg_memberships_updated_at
   BEFORE UPDATE ON memberships
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_payments_updated_at ON payments;
+CREATE TRIGGER trg_payments_updated_at
+  BEFORE UPDATE ON payments
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ---------------------------------------------------------------------------
@@ -166,7 +226,12 @@ SELECT
   cm.start_date         AS membership_start_date,
   cm.end_date           AS membership_end_date,
   cm.price              AS membership_price,
-  cm.status             AS membership_status
+  cm.status             AS membership_status,
+  -- What has been received against that term so far. COALESCE turns "no
+  -- payments yet" into 0 rather than NULL, so the members list can work out
+  -- Paid / Partial / Unpaid without a second query per row.
+  COALESCE(paid.amount_paid, 0) AS membership_amount_paid,
+  paid.last_paid_on
 FROM members m
 LEFT JOIN LATERAL (
   SELECT ms.*
@@ -176,4 +241,41 @@ LEFT JOIN LATERAL (
   ORDER BY ms.end_date DESC, ms.id DESC
   LIMIT 1
 ) cm ON true
-LEFT JOIN membership_plans p ON p.id = cm.membership_plan_id;
+LEFT JOIN membership_plans p ON p.id = cm.membership_plan_id
+LEFT JOIN LATERAL (
+  SELECT
+    sum(pay.amount) AS amount_paid,
+    max(pay.paid_on) AS last_paid_on
+  FROM payments pay
+  WHERE pay.membership_id = cm.id
+) paid ON true;
+
+-- ---------------------------------------------------------------------------
+-- payment_overview
+-- A payment together with who made it and which term it paid for.
+--
+-- Defined once here so the payment history, a member's own history and the
+-- totals all read the same shape, rather than repeating this join in every
+-- repository function.
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE VIEW payment_overview AS
+SELECT
+  pay.id,
+  pay.member_id,
+  pay.membership_id,
+  pay.amount,
+  pay.method,
+  pay.paid_on,
+  pay.reference,
+  pay.remark,
+  pay.created_at,
+  m.first_name || ' ' || m.last_name AS member_name,
+  m.phone                            AS member_phone,
+  plan.name                          AS plan_name,
+  ms.start_date                      AS membership_start_date,
+  ms.end_date                        AS membership_end_date,
+  ms.price                           AS membership_price
+FROM payments pay
+JOIN members m ON m.id = pay.member_id
+LEFT JOIN memberships ms ON ms.id = pay.membership_id
+LEFT JOIN membership_plans plan ON plan.id = ms.membership_plan_id;

@@ -80,6 +80,7 @@ export default function MemberTable({
               <th>Join Date</th>
               <th>Expiry Date</th>
               <th>Status</th>
+              <th>Payment</th>
               <th className={tableStyles.actionsHeader}>Actions</th>
             </tr>
           </thead>

@@ -1,6 +1,7 @@
 import {
   DashboardIcon,
   MembersIcon,
+  CardIcon,
 } from "@/components/ui/icons";
 
 /**
@@ -19,11 +20,11 @@ export const NAV_SECTIONS = [
     items: [
       { href: "/dashboard", label: "Dashboard", icon: DashboardIcon },
       { href: "/members", label: "Members", icon: MembersIcon },
+      { href: "/payments", label: "Payments", icon: CardIcon },
 
       // Coming later:
       // { href: "/attendance", label: "Attendance", icon: CalendarIcon },
       // { href: "/plans", label: "Membership Plans", icon: TagIcon },
-      // { href: "/payments", label: "Payments", icon: CardIcon },
       // { href: "/trainers", label: "Trainers", icon: WhistleIcon },
       // { href: "/expenses", label: "Expenses", icon: WalletIcon },
       // { href: "/reports", label: "Reports", icon: ChartIcon },

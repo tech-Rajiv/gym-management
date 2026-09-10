@@ -100,6 +100,47 @@ shown inside it. "Active" includes memberships expiring soon — someone whose
 term ends on Friday is still training this week — which is what makes the
 dashboard count and the filter match.
 
+### Payments record money, they do not move it
+
+Aura never touches a payment gateway. The owner enters what was already handed
+over at the desk or sent by UPI, and a payment is one row in `payments`.
+
+Several payments can point at the same membership term, which is what makes
+**part payments** work — ₹2,000 today, ₹2,000 next week against a ₹4,000 term.
+That is also where the payment status comes from: it compares what has been
+received against what the term costs, so it is **Paid**, **Partial** or
+**Unpaid** without anything being stored.
+
+Recording a payment can also create the term it pays for. That is how a renewal
+happens — the money and the membership it bought come into existence together,
+in a single SQL statement, so a payment can never be left pointing at a term
+that failed to be created.
+
+Deleting a payment deliberately leaves the membership alone. Correcting a
+mistyped receipt should never take away somebody's gym access; the term simply
+reads as unpaid again.
+
+### Everything auto-filled is editable
+
+The payment form fills in what it can and then gets out of the way, because the
+owner knows things the database does not:
+
+| Field | Filled with | Why it must stay editable |
+| --- | --- | --- |
+| Payment date | Today | Cash taken yesterday is often entered this morning |
+| Term start | The day after the last term ended | The member may really have started on another day |
+| Term end | Start + the plan's length | Terms get extended as a goodwill gesture |
+| Amount | The plan's price | Discounts, and part payments |
+
+The term start rule is worth spelling out. A member whose membership ran out
+three days ago and pays today is buying a term that **started three days ago**,
+not one starting this morning. If it started today, those three days quietly
+vanish and their renewal date drifts later with every late payment.
+
+When a member is selected the form shows how long they are covered for
+("Expired on Sep 07, 2026 — 3 days ago") and what they still owe, so the owner
+can see why a date was chosen before accepting it.
+
 ### Status is calculated, never stored
 
 `Active`, `Expiring Soon` and `Expired` are derived from the membership end
@@ -169,8 +210,18 @@ accent-coloured buttons stays readable.
    sidebar needs no other change. The intended modules are already listed
    there, commented out.
 
+Payments were added exactly this way, and reused what was already there rather
+than copying it: `SearchInput` and `FilterTabs` in `components/ui/` came out of
+the members list when the payment history needed the same behaviour, and the
+row-action buttons moved into `Table.module.css` so both tables cannot drift
+apart.
+
 ## Not in this version
 
-Attendance, payments, trainers, expenses, reports, notifications and
-authentication are all deliberately absent. The foundation is built for them;
-none of them are implemented.
+Attendance, trainers, expenses, reports, notifications and authentication are
+all deliberately absent. The foundation is built for them; none of them are
+implemented.
+
+Within Payments, two things are knowingly left out: a payment cannot be edited
+(delete it and record it again), and there is no payment gateway — Aura records
+money that has already changed hands and never moves any itself.

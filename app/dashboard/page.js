@@ -8,12 +8,16 @@ import {
   getExpiringMembers,
   getNewMembersThisMonth,
 } from "@/lib/db/dashboard";
+import { getRevenueThisMonth } from "@/lib/db/payments";
+import { today, startOfMonth } from "@/lib/utils/dates";
+import { formatCurrency } from "@/lib/utils/format";
 import {
   MembersIcon,
   UsersCheckIcon,
   UserPlusIcon,
   ClockIcon,
   PlusIcon,
+  CardIcon,
 } from "@/components/ui/icons";
 import { EXPIRING_SOON_DAYS } from "@/lib/config";
 import styles from "./dashboard.module.css";
@@ -37,11 +41,18 @@ export const dynamic = "force-dynamic";
  * Every figure comes from PostgreSQL - there are no fixed numbers here.
  */
 export default async function DashboardPage() {
-  const [stats, expiringMembers, newMembers] = await Promise.all([
-    getDashboardStats(),
-    getExpiringMembers(),
-    getNewMembersThisMonth(),
-  ]);
+  const referenceDate = today();
+
+  const [stats, expiringMembers, newMembers, revenueThisMonth] =
+    await Promise.all([
+      getDashboardStats(),
+      getExpiringMembers(),
+      getNewMembersThisMonth(),
+      getRevenueThisMonth({
+        monthStart: startOfMonth(referenceDate),
+        referenceDate,
+      }),
+    ]);
 
   return (
     <div>
@@ -49,10 +60,16 @@ export default async function DashboardPage() {
         title="Dashboard"
         description="An overview of your gym's membership activity."
         actions={
-          <Button href="/members/new" variant="primary">
-            <PlusIcon size={16} />
-            Add Member
-          </Button>
+          <>
+            <Button href="/payments/new" variant="secondary">
+              <CardIcon size={16} />
+              Record Payment
+            </Button>
+            <Button href="/members/new" variant="primary">
+              <PlusIcon size={16} />
+              Add Member
+            </Button>
+          </>
         }
       />
 
@@ -79,6 +96,13 @@ export default async function DashboardPage() {
           value={stats.new_this_month}
           hint="Joined this calendar month"
           icon={UserPlusIcon}
+        />
+        <StatCard
+          label="Collected This Month"
+          value={formatCurrency(revenueThisMonth)}
+          hint="Payments recorded this month"
+          icon={CardIcon}
+          href="/payments"
         />
         <StatCard
           label="Expiring This Week"
