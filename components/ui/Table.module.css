@@ -1,0 +1,63 @@
+/* Shared table styling, imported by every table in the application so the
+   members list and the dashboard lists look like the same component. */
+
+/* Tables scroll sideways on small screens rather than squashing or breaking
+   the page layout. */
+.wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  /* Keeps columns readable while scrolling instead of crushing them. */
+  min-width: 560px;
+}
+
+.table thead th {
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-surface-secondary);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr {
+  transition: background-color var(--transition);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-surface-secondary);
+}
+
+/* Right-aligned final column for row actions. */
+.actionsHeader,
+.actionsCell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--color-text-secondary);
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+}

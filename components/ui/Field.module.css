@@ -1,0 +1,97 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.required {
+  color: var(--color-primary);
+  margin-left: 2px;
+}
+
+.control {
+  width: 100%;
+  padding: 0 var(--space-3);
+  height: 38px;
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  /* A slight inner shadow makes inputs read as recessed, the opposite of
+     the raised cards around them. */
+  box-shadow: var(--shadow-inset);
+  font-size: 0.875rem;
+  transition: border-color var(--transition), background-color var(--transition);
+}
+
+.control::placeholder {
+  color: var(--color-text-muted);
+}
+
+.control:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+
+.control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-hover);
+}
+
+.textarea {
+  height: auto;
+  min-height: 84px;
+  padding: var(--space-3);
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.select {
+  appearance: none;
+  /* Room for the chevron drawn by the wrapper. */
+  padding-right: var(--space-6);
+  cursor: pointer;
+}
+
+.selectWrapper {
+  position: relative;
+  display: flex;
+}
+
+.chevron {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-secondary);
+}
+
+/* Native date inputs render a light calendar icon; invert it for dark UI. */
+.control[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+.invalid {
+  border-color: var(--color-danger);
+}
+
+.invalid:focus {
+  border-color: var(--color-danger);
+}
+
+.error {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

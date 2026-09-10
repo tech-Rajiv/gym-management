@@ -1,0 +1,16 @@
+/* Shared bits for the two dashboard lists. */
+
+.nameLink {
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.nameLink:hover {
+  color: var(--color-primary);
+}
+
+.subtext {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

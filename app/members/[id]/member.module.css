@@ -1,0 +1,129 @@
+.layout {
+  display: grid;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (min-width: 1000px) {
+  .layout {
+    grid-template-columns: 320px 1fr;
+  }
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+/* The avatar circle is one of the few accented elements on this page. */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-2);
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.profileName {
+  font-size: 1.0625rem;
+}
+
+.profileMeta {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.contact {
+  width: 100%;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  text-align: left;
+}
+
+.contactRow svg {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+/* A two-column list of label/value pairs. */
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5) var(--space-4);
+  margin: 0;
+}
+
+.detail dt {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail dd {
+  margin: var(--space-1) 0 0;
+  font-size: 0.875rem;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.notes {
+  white-space: pre-wrap;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.currentTerm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.termDates {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.termHint {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 560px) {
+  .details {
+    grid-template-columns: 1fr;
+  }
+}

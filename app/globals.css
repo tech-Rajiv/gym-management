@@ -1,26 +1,151 @@
-@import "tailwindcss";
+/* ==========================================================================
+   Aura Fitness Management - design tokens and base styles
+
+   The colour scheme follows a 60 / 30 / 10 split:
+     60%  near-black page background
+     30%  dark grey surfaces - cards, sidebar, table headers
+     10%  the accent, used only where attention should go
+
+   Every component reads these variables. Changing --color-primary below
+   re-themes the whole application, so no component hardcodes a colour.
+   ========================================================================== */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- 60%: background ---------------------------------------------------- */
+  --color-background: #000000;
+
+  /* --- 30%: surfaces, raised in steps to give depth without gradients ----- */
+  --color-surface: #131313;
+  --color-surface-secondary: #1c1c1c;
+  --color-surface-hover: #242424;
+  --color-border: #2e2e2e;
+  --color-border-strong: #3d3d3d;
+
+  /* --- Text --------------------------------------------------------------- */
+  --color-text: #f5f5f5;
+  --color-text-secondary: #9a9a9a;
+  --color-text-muted: #6b6b6b;
+
+  /* --- 10%: the accent ---------------------------------------------------- */
+  --color-primary: #f5c400;
+  --color-primary-hover: #ffd426;
+  --color-primary-soft: rgba(245, 196, 0, 0.12);
+  --color-primary-border: rgba(245, 196, 0, 0.35);
+  /* Text placed on top of the accent. Yellow needs dark text to stay legible;
+     this is defined as a token so a darker accent can flip it to white. */
+  --color-on-primary: #14130c;
+
+  /* --- Status colours ----------------------------------------------------- */
+  --color-success: #4ade80;
+  --color-success-soft: rgba(74, 222, 128, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgba(251, 191, 36, 0.12);
+  --color-danger: #f87171;
+  --color-danger-soft: rgba(248, 113, 113, 0.12);
+  --color-danger-strong: #dc2626;
+  --color-danger-strong-hover: #b91c1c;
+  /* Text on top of the solid danger colour. */
+  --color-on-danger: #ffffff;
+
+  /* --- Spacing scale ------------------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* --- Radii -------------------------------------------------------------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* --- Elevation ---------------------------------------------------------
+     Depth comes from a light top edge plus a shadow below, which reads as a
+     surface catching light from above. No gradients, no glass.              */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* Inputs are recessed rather than raised - the opposite of a card. */
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  /* Dims the page behind a dialog or the mobile sidebar. */
+  --color-backdrop: rgba(0, 0, 0, 0.7);
+
+  /* --- Layout ------------------------------------------------------------- */
+  --sidebar-width: 248px;
+  --header-height: 64px;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+
+  --transition: 140ms ease;
+
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* --- Reset ---------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* A single visible focus style everywhere, for keyboard users. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Respect a reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

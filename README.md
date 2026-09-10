@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aura Fitness Management
 
-## Getting Started
+A gym management system for tracking members and their memberships.
 
-First, run the development server:
+This is version 1 — a deliberately small MVP covering the Dashboard and the
+Members module, built so that Attendance, Payments, Trainers, Expenses and
+Reports can be added later without rework.
+
+## Technology
+
+- **Next.js 16** (App Router, Server Components, Server Actions)
+- **JavaScript** — no TypeScript
+- **PostgreSQL** on **Neon**, via `@neondatabase/serverless`
+- **CSS Modules** with design tokens — no UI framework
+
+## Getting started
 
 ```bash
+npm install
+
+# .env must contain your Neon connection string:
+#   DATABASE_URL=postgresql://...
+
+npm run db:setup    # create tables, indexes and the member_overview view
+npm run db:seed     # add 4 plans and 15 demo members
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application opens on <http://localhost:3000> and redirects to the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Database scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | What it does |
+| --- | --- |
+| `npm run db:setup` | Applies `database/schema.sql`. Safe to re-run. |
+| `npm run db:seed` | Applies `database/seed.sql`. Replaces existing demo data rather than duplicating it. |
+| `npm run db:seed:clear` | Deletes every demo member and their memberships. Plans are kept. |
+| `npm run db:reset` | Drops everything, then sets up and seeds from scratch. |
 
-## Learn More
+Demo members are flagged with `members.is_demo`, so removing them is a single
+`DELETE`. Once you no longer need seed data you can drop that column.
 
-To learn more about Next.js, take a look at the following resources:
+## How it is put together
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+app/            routes — every page is a Server Component
+  dashboard/    summary cards and the two activity lists
+  members/      list, add, view, edit, and the Server Actions for writes
+components/     UI, layout, dashboard and member components
+  ui/           the shared building blocks: Button, Card, Input, Badge, Modal…
+lib/
+  config.js     business settings — accent colour aside, this is the tuning knob
+  db/           every SQL query in the application
+  utils/        dates and membership status
+  validations/  form validation
+database/       schema.sql and seed.sql
+scripts/db.mjs  the database CLI behind the npm scripts
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### The rule that shapes the code
 
-## Deploy on Vercel
+```text
+UI  →  Server Action  →  Database layer  →  PostgreSQL
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Components never contain SQL, and `lib/db` never contains JSX. `lib/db` is
+marked `server-only`, so importing it into a Client Component fails the build
+rather than leaking `DATABASE_URL` towards the browser.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Members and memberships are separate
+
+A member is a person; a membership is one term they bought. A member
+accumulates terms over time:
+
+```text
+Rahul ─┬─ Monthly    Jan – Feb
+       ├─ Monthly    Feb – Mar
+       └─ Quarterly  Apr – Jun
+```
+
+The `member_overview` view pairs each member with their current term — the
+non-cancelled one running latest — so the list and dashboard show what is
+current while the detail page shows the whole history.
+
+### Status is calculated, never stored
+
+`Active`, `Expiring Soon` and `Expired` are derived from the membership end
+date every time they are needed, by `lib/utils/membershipStatus.js`. Nothing is
+stored, so nothing can go stale overnight.
+
+`memberships.status` is a different thing: it records whether a term was
+cancelled, which no date can tell you.
+
+### Dates avoid timezones entirely
+
+Membership dates are calendar dates, handled as `YYYY-MM-DD` strings from
+PostgreSQL all the way to the screen — never JavaScript `Date` objects, which
+would shift by a day when formatted in the wrong timezone.
+
+Queries never use `current_date`. Neon's clock is UTC and the gym is not, so
+the application works out today's date in `GYM_TIMEZONE` and passes it in.
+
+## Configuration
+
+Set in `.env`, with sensible defaults in `lib/config.js`:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | — | Neon connection string. Required. |
+| `GYM_TIMEZONE` | `Asia/Kolkata` | The gym's local timezone. |
+| `EXPIRING_SOON_DAYS` | `7` | How early a membership counts as expiring. |
+
+## Changing the accent colour
+
+Every colour in the application is a variable in `app/globals.css`. Changing
+one line re-themes it:
+
+```css
+--color-primary: #f5c400;   /* yellow */
+```
+
+If you pick a dark accent, also flip `--color-on-primary` to white so text on
+accent-coloured buttons stays readable.
+
+## Adding a module later
+
+1. Add the table to `database/schema.sql`.
+2. Add its queries to `lib/db/<module>.js`.
+3. Add the route under `app/<module>/`.
+4. Add one entry to `NAV_SECTIONS` in `components/layout/navigation.js` — the
+   sidebar needs no other change. The intended modules are already listed
+   there, commented out.
+
+## Not in this version
+
+Attendance, payments, trainers, expenses, reports, notifications and
+authentication are all deliberately absent. The foundation is built for them;
+none of them are implemented.

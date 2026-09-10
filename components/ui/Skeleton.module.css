@@ -1,0 +1,65 @@
+/* Placeholder blocks shown while a page's data loads. */
+
+.skeleton {
+  background-color: var(--color-surface-secondary);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.text {
+  height: 12px;
+}
+
+.row {
+  height: 44px;
+  margin-bottom: var(--space-2);
+}
+
+.card {
+  height: 92px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.list {
+  padding: var(--space-5);
+}
+
+@media (max-width: 1000px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Shared by the loading.js files. */
+.loadingText {
+  margin-bottom: var(--space-5);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-5);
+}

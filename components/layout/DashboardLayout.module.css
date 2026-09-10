@@ -1,0 +1,31 @@
+.shell {
+  min-height: 100dvh;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  /* Leaves room for the fixed sidebar. */
+  margin-left: var(--sidebar-width);
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 1280px;
+  padding: var(--space-6);
+}
+
+@media (max-width: 900px) {
+  .main {
+    /* The sidebar becomes an overlay, so the content reclaims the full width. */
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .content {
+    padding: var(--space-4);
+  }
+}
