@@ -1,6 +1,11 @@
 import { ok, fail, readJson, withAdmin } from "@/lib/api";
-import { createPayment, createPaymentWithMembership } from "@/lib/db/payments";
+import {
+  createPayment,
+  createPaymentWithMembership,
+  getPaymentById,
+} from "@/lib/db/payments";
 import { validatePayment } from "@/lib/validations/payment";
+import { getMembershipPlanById } from "@/lib/db/plans";
 
 /**
  * POST /api/payments   the Record Payment form's fields
@@ -22,11 +27,27 @@ export const POST = withAdmin(async (request, _context, admin) => {
     return fail({ message: "Please correct the highlighted fields.", errors });
   }
 
+  // A new term is charged at its plan's current price, taken from the
+  // database rather than the request, so it cannot be altered in the browser.
+  if (data.isNewTerm) {
+    const plan = await getMembershipPlanById(data.membershipPlanId);
+    if (!plan || !plan.is_active) {
+      return fail({
+        message: "Please correct the highlighted fields.",
+        errors: { membershipPlanId: "That plan is no longer on sale. Choose another." },
+      });
+    }
+    data.termPrice = plan.price;
+  }
+
   try {
     const result = data.isNewTerm
       ? await createPaymentWithMembership(data, admin)
       : { paymentId: await createPayment(data, admin) };
-    return ok({ id: result.paymentId, memberId: data.memberId }, 201);
+
+    // What was saved, read back from the database, for the success popup.
+    const receipt = await getPaymentById(result.paymentId);
+    return ok({ id: result.paymentId, memberId: data.memberId, receipt }, 201);
   } catch (error) {
     return fail(
       { message: error?.message ?? "Could not record the payment. Please try again in a moment." },

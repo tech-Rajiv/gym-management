@@ -1,0 +1,90 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text);
+}
+
+/* The green tick, in a soft ring that pops in once. */
+.tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: var(--space-4);
+  background-color: var(--color-success);
+  border-radius: var(--radius-full);
+  color: var(--color-on-brand);
+  box-shadow: 0 0 0 8px var(--color-success-soft);
+  animation: pop 320ms ease-out;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* What was saved, as a receipt: label on the left, value on the right. */
+.details {
+  width: 100%;
+  margin: var(--space-5) 0;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  font-size: 0.875rem;
+}
+
+.detail + .detail {
+  border-top: 1px dashed var(--color-border);
+}
+
+.detail dt {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.detail dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}

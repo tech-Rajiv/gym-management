@@ -12,15 +12,19 @@ const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
  * desk: from which date are they covered, until which date, how much of it is
  * left, and have they paid for it.
  *
+ * Used on the member's profile and in the Record Payment form.
+ *
  * Dates are inclusive at both ends - a 30-day term starting Sep 01 covers
  * Sep 01 to Sep 30 - so the day counts below add one.
  */
-export default function CurrentCoverage({ member }) {
+export default function CurrentCoverage({ member, referenceDate: givenDate }) {
   if (!member.membership_id) {
     return <p className={styles.empty}>No membership on record yet.</p>;
   }
 
-  const referenceDate = today();
+  // The payment form passes the server's date in, so the browser never has to
+  // work out the gym's "today" itself.
+  const referenceDate = givenDate ?? today();
   const start = member.membership_start_date;
   const end = member.membership_end_date;
   const status = describeMembership(end, referenceDate);

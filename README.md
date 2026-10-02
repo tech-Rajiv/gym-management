@@ -85,12 +85,15 @@ There are no Server Actions. Every change is a plain HTTP call to a route in
 | --- | --- | --- |
 | POST | `/api/auth/login` | Signs in, sets the session cookie |
 | POST | `/api/auth/logout` | Ends the session, clears the cookie |
-| POST | `/api/members` | Adds a member and their first term |
+| POST | `/api/members` | Adds a member, their first term and their joining payment |
 | PATCH | `/api/members/:id` | Edits a member and their current term |
 | DELETE | `/api/members/:id` | Marks the member as **left** - deletes nothing |
 | POST | `/api/members/:id/restore` | Brings a left member back |
 | POST | `/api/payments` | Records a payment, optionally with a new term |
 | DELETE | `/api/payments/:id` | Removes a payment record (a copy stays in the log) |
+| POST | `/api/plans` | Adds a membership plan |
+| PATCH | `/api/plans/:id` | Edits a plan's name, length or price |
+| DELETE | `/api/plans/:id` | Takes a plan off sale - members on it keep it |
 
 Every route answers `{ ok: true, ... }` or `{ ok: false, message, errors }`.
 
@@ -115,6 +118,29 @@ The delete button on a member marks them **left** (`members.status`). They
 disappear from the everyday lists and the dashboard, appear under the **Left**
 filter as faded rows, and keep their record, terms and payments. **Restore**
 brings them back - which matters because the phone number stays taken.
+
+### Saving shows a receipt
+
+Adding a member and recording a payment no longer jump to another page. A
+success popup shows what was saved - member, plan, dates covered, amount,
+method - with buttons to view the member, open Payment History, or go home.
+
+A member joins by paying, so the Add Member form includes the joining payment
+(amount, cash or UPI, date). The member, their first term, the payment and
+both log entries are written by one SQL statement: all of it is saved, or
+none of it.
+
+### Plans
+
+The **Plans** page lists the plans on sale. Editing a price changes it from
+the next payment on - every term keeps the price it was sold at. Deleting a
+plan only takes it off sale (`membership_plans.is_active`), since members'
+terms still point at it.
+
+The payment form never asks for a price: a new term costs its plan's price,
+which the API looks up in the database rather than trusting the browser.
+Nor does it ask what the payment is for - if the member owes money on their
+current term it settles that, otherwise it starts their next term.
 
 ### History Logs
 

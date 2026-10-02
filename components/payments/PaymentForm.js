@@ -6,8 +6,10 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
-import Badge from "@/components/ui/Badge";
-import { PAYMENT_METHODS, describePayment } from "@/lib/utils/paymentStatus";
+import CurrentCoverage from "@/components/members/CurrentCoverage";
+import SuccessDialog from "@/components/ui/SuccessDialog";
+import { DashboardIcon, CardIcon, MembersIcon } from "@/components/ui/icons";
+import { PAYMENT_METHODS, describePayment, getMethodLabel } from "@/lib/utils/paymentStatus";
 import {
   describeMembership,
   getNextTermStartDate,
@@ -24,19 +26,17 @@ const CURRENT_TERM = "current";
 /**
  * The Record Payment form.
  *
- * Everything it fills in automatically is a starting point, never a rule. The
- * owner knows things the database does not - that a member trained for three
- * days before paying, or that they were given a discount - so every calculated
- * field stays editable:
+ * The owner is never asked what the payment is for - the form works it out:
  *
- *   * the payment date defaults to today, because most payments are entered
- *     the day they happen, but cash taken yesterday is often recorded this
- *     morning;
- *   * a new term starts the day after the last one ended, not today, so a
- *     member who renews three days late is covered for those three days
- *     rather than losing them;
- *   * the amount comes from the plan's price, which is what is usually
- *     charged, not what must be.
+ *   * money still owing on the member's current term  -> the payment settles
+ *     that balance, and nothing about their dates changes;
+ *   * otherwise                                       -> the payment buys the
+ *     next term, which starts the day after the current one ends, so a
+ *     member who renews three days late is covered for those three days.
+ *
+ * The price of a new term is the plan's price - shown, never typed - and is
+ * looked up again on the server, so it cannot be changed from the browser.
+ * The amount received stays editable, which is how part payments work.
  *
  * @param {object[]} members with their current term, from member_overview
  * @param {object[]} plans   the membership plans on sale
@@ -52,6 +52,8 @@ export default function PaymentForm({
   const router = useRouter();
   const [state, setState] = useState(null);
   const [isPending, setIsPending] = useState(false);
+  // The saved payment, once recorded - shown in the success popup.
+  const [saved, setSaved] = useState(null);
 
   const errorFor = (field) => state?.errors?.[field];
 
@@ -62,47 +64,40 @@ export default function PaymentForm({
   const [memberId, setMemberId] = useState(String(preselectedMemberId ?? ""));
   const member = findMember(memberId);
 
-  /** Defaults for a member: what to pay for, and what that would cost. */
+  /** Defaults for a member: what the payment is for, and what it would cost. */
   const defaultsFor = (nextMember) => {
     if (!nextMember) {
-      return { target: NEW_TERM, planId: "", start: today, end: "", price: "", amount: "" };
+      return { target: NEW_TERM, planId: "", start: today, end: "", amount: "" };
     }
 
-    const hasTerm = Boolean(nextMember.membership_id);
     const due = describePayment(
       nextMember.membership_price,
       nextMember.membership_amount_paid
     ).amountDue;
 
-    // Which term this payment is most likely for:
-    //
-    //   * money owing on a term that is still running  -> that term
-    //   * money owing on an expired term, part paid    -> that term, since a
-    //     running balance is being settled
-    //   * an expired term nobody ever paid for         -> a renewal, which is
-    //     the usual reason someone turns up at the desk
-    //   * a settled term                               -> a renewal
-    //
-    // A guess either way is one dropdown change to correct, and the panel
-    // above shows the cover and the dues so the owner can see which it is.
+    // A balance is being settled when something is owed on the current term
+    // and it is either still running or was part paid. An expired term nobody
+    // ever paid for is treated as a renewal instead - that is the usual reason
+    // such a member turns up at the desk.
     const expired = nextMember.membership_end_date
-      ? describeMembership(nextMember.membership_end_date).status === "expired"
+      ? describeMembership(nextMember.membership_end_date, today).status === "expired"
       : false;
-    const settlingABalance = due > 0 && (!expired || nextMember.membership_amount_paid > 0);
+    const settlingABalance =
+      Boolean(nextMember.membership_id) &&
+      due > 0 &&
+      (!expired || nextMember.membership_amount_paid > 0);
 
-    if (hasTerm && settlingABalance) {
+    if (settlingABalance) {
       return {
         target: CURRENT_TERM,
         planId: String(nextMember.membership_plan_id ?? ""),
         start: nextMember.membership_start_date ?? today,
         end: nextMember.membership_end_date ?? "",
-        price: String(nextMember.membership_price ?? ""),
         amount: String(due),
       };
     }
 
-    const plan =
-      findPlan(nextMember.membership_plan_id) ?? plans[0] ?? null;
+    const plan = findPlan(nextMember.membership_plan_id) ?? plans[0] ?? null;
     const start = getNextTermStartDate(nextMember.membership_end_date, today);
 
     return {
@@ -110,7 +105,6 @@ export default function PaymentForm({
       planId: String(plan?.id ?? ""),
       start,
       end: plan ? getTermEndDate(start, plan.duration_days) : "",
-      price: String(plan?.price ?? ""),
       amount: String(plan?.price ?? ""),
     };
   };
@@ -121,14 +115,13 @@ export default function PaymentForm({
   const [planId, setPlanId] = useState(seed.planId);
   const [startDate, setStartDate] = useState(seed.start);
   const [endDate, setEndDate] = useState(seed.end);
-  const [termPrice, setTermPrice] = useState(seed.price);
   const [amount, setAmount] = useState(seed.amount);
   const [method, setMethod] = useState("cash");
   const [paidOn, setPaidOn] = useState(today);
 
   /**
-   * Sends the form to POST /api/payments. On success the member's own page
-   * opens, where the new payment shows against the term it paid for.
+   * Sends the form to POST /api/payments. On success a popup confirms what
+   * was recorded and lets the admin choose where to go next.
    */
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -140,9 +133,9 @@ export default function PaymentForm({
     });
 
     if (result.ok) {
-      router.push(`/members/${result.memberId}`);
-      router.refresh();
-      return; // Stay "recording" while the member's page loads.
+      setSaved(result);
+      router.refresh(); // so every page reached from the popup is up to date
+      return; // Stay "recording" behind the popup.
     }
 
     setState(result);
@@ -160,35 +153,7 @@ export default function PaymentForm({
     setPlanId(next.planId);
     setStartDate(next.start);
     setEndDate(next.end);
-    setTermPrice(next.price);
     setAmount(next.amount);
-  };
-
-  /** Switching between "the current term" and "a new term" re-seeds the dates. */
-  const handleTargetChange = (event) => {
-    const value = event.target.value;
-    setTarget(value);
-    if (!member) return;
-
-    if (value === CURRENT_TERM) {
-      const due = describePayment(
-        member.membership_price,
-        member.membership_amount_paid
-      ).amountDue;
-      setStartDate(member.membership_start_date ?? today);
-      setEndDate(member.membership_end_date ?? "");
-      setTermPrice(String(member.membership_price ?? ""));
-      setAmount(String(due > 0 ? due : member.membership_price ?? ""));
-      return;
-    }
-
-    const plan = findPlan(planId) ?? findPlan(member.membership_plan_id) ?? plans[0];
-    const start = getNextTermStartDate(member.membership_end_date, today);
-    setPlanId(String(plan?.id ?? ""));
-    setStartDate(start);
-    setEndDate(plan ? getTermEndDate(start, plan.duration_days) : "");
-    setTermPrice(String(plan?.price ?? ""));
-    setAmount(String(plan?.price ?? ""));
   };
 
   const handlePlanChange = (event) => {
@@ -197,7 +162,6 @@ export default function PaymentForm({
     setPlanId(value);
     if (!plan) return;
     setEndDate(getTermEndDate(startDate, plan.duration_days));
-    setTermPrice(String(plan.price));
     setAmount(String(plan.price));
   };
 
@@ -211,12 +175,7 @@ export default function PaymentForm({
   const isNewTerm = target === NEW_TERM;
   const isUpi = method === "upi";
 
-  // --- What the chosen member's cover looks like right now -------------------
-  // The owner needs this before deciding: "expired three days ago" is what
-  // tells them the new term should start three days ago.
-  const cover = member?.membership_end_date
-    ? describeMembership(member.membership_end_date)
-    : null;
+  const selectedPlan = findPlan(planId);
   const dues = member
     ? describePayment(member.membership_price, member.membership_amount_paid)
     : null;
@@ -226,20 +185,6 @@ export default function PaymentForm({
     label: `${m.full_name} — ${m.phone}`,
   }));
 
-  const targetOptions = [
-    ...(member?.membership_id
-      ? [
-          {
-            value: CURRENT_TERM,
-            label: `Current term — ${member.plan_name} (${formatDate(
-              member.membership_start_date
-            )} to ${formatDate(member.membership_end_date)})`,
-          },
-        ]
-      : []),
-    { value: NEW_TERM, label: "New membership term (renewal)" },
-  ];
-
   const planOptions = plans.map((plan) => ({
     value: plan.id,
     label: `${plan.name} — ${plan.duration_days} days, ${formatCurrency(plan.price)}`,
@@ -247,6 +192,8 @@ export default function PaymentForm({
 
   return (
     <form onSubmit={handleSubmit} className={styles.form} noValidate>
+      {saved && <PaymentSuccess result={saved} />}
+
       {state?.message && <Alert variant="danger">{state.message}</Alert>}
 
       {/* --- Who paid ------------------------------------------------------ */}
@@ -264,45 +211,11 @@ export default function PaymentForm({
           error={errorFor("memberId")}
         />
 
-        {/* The cover panel. This is the context the owner asked for: how long
-            this member is covered, and whether they still owe anything. */}
+        {/* Where the member stands right now - the same panel as on their
+            profile: covered from, covered till, days left, and dues. */}
         {member && (
           <div className={styles.cover}>
-            <div className={styles.coverRow}>
-              <span className={styles.coverLabel}>Membership</span>
-              {cover ? (
-                <span className={styles.coverValue}>
-                  <Badge variant={cover.variant}>{cover.label}</Badge>
-                  <span className={styles.coverDetail}>
-                    {cover.daysRemaining < 0
-                      ? `Expired on ${formatDate(member.membership_end_date)} — ${Math.abs(
-                          cover.daysRemaining
-                        )} ${Math.abs(cover.daysRemaining) === 1 ? "day" : "days"} ago`
-                      : `Active till ${formatDate(member.membership_end_date)} — ${
-                          cover.daysRemaining
-                        } ${cover.daysRemaining === 1 ? "day" : "days"} left`}
-                  </span>
-                </span>
-              ) : (
-                <span className={styles.coverDetail}>No membership on record</span>
-              )}
-            </div>
-
-            {dues?.price !== null && (
-              <div className={styles.coverRow}>
-                <span className={styles.coverLabel}>Dues</span>
-                <span className={styles.coverValue}>
-                  <Badge variant={dues.variant}>{dues.label}</Badge>
-                  <span className={styles.coverDetail}>
-                    {formatCurrency(dues.amountPaid)} paid of{" "}
-                    {formatCurrency(dues.price)}
-                    {dues.amountDue > 0
-                      ? ` — ${formatCurrency(dues.amountDue)} still due`
-                      : ""}
-                  </span>
-                </span>
-              </div>
-            )}
+            <CurrentCoverage member={member} referenceDate={today} />
           </div>
         )}
       </section>
@@ -311,30 +224,21 @@ export default function PaymentForm({
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Paying for</h2>
 
-        <Select
-          id="membershipTarget"
-          label="This payment is for"
-          required
-          options={targetOptions}
-          value={target}
-          onChange={handleTargetChange}
-          error={errorFor("membershipTarget")}
-          disabled={!member}
-        />
-
-        {/* Sent so the action knows which term to attach the payment to. */}
+        {/* Worked out from the member, not asked - see the note at the top. */}
+        <input type="hidden" name="membershipTarget" value={target} />
         <input
           type="hidden"
           name="membershipId"
           value={isNewTerm ? "" : member?.membership_id ?? ""}
         />
 
-        {isNewTerm ? (
+        {!member ? (
+          <p className={styles.note}>Choose a member first.</p>
+        ) : isNewTerm ? (
           <>
             <p className={styles.note}>
-              A new term starts the day after the last one ended, so no days are
-              lost when a member renews late. Change any of these if the member
-              actually started on a different day.
+              This payment starts their next membership term, from the day after
+              the current one ends - so no days are lost when someone renews late.
             </p>
 
             <div className={styles.grid}>
@@ -348,18 +252,17 @@ export default function PaymentForm({
                 onChange={handlePlanChange}
                 error={errorFor("membershipPlanId")}
               />
-              <Input
-                id="termPrice"
-                label="Term price"
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                value={termPrice}
-                onChange={(e) => setTermPrice(e.target.value)}
-                hint="From the plan. Change it for a discount."
-                error={errorFor("termPrice")}
-              />
+              <div className={styles.planPrice}>
+                <span className={styles.planPriceLabel}>Plan price</span>
+                <span className={styles.planPriceValue}>
+                  {selectedPlan ? formatCurrency(selectedPlan.price) : "—"}
+                </span>
+                {selectedPlan && (
+                  <span className={styles.planPriceHint}>
+                    {selectedPlan.duration_days} days · set on the Plans page
+                  </span>
+                )}
+              </div>
               <Input
                 id="membershipStartDate"
                 label="Membership starts"
@@ -383,8 +286,10 @@ export default function PaymentForm({
           </>
         ) : (
           <p className={styles.note}>
-            This payment goes against the member&apos;s existing term. Nothing
-            about their membership dates changes.
+            <strong>{formatCurrency(dues.amountDue)}</strong> is still due on the
+            current {member.plan_name} term ({formatDate(member.membership_start_date)} –{" "}
+            {formatDate(member.membership_end_date)}). This payment settles that
+            balance; their membership dates stay the same.
           </p>
         )}
       </section>
@@ -462,5 +367,44 @@ export default function PaymentForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/** The popup shown once a payment is recorded. */
+function PaymentSuccess({ result }) {
+  const r = result.receipt ?? {};
+  const name = r.member_name ?? "the member";
+
+  return (
+    <SuccessDialog
+      title="Payment successful"
+      subtitle={`${formatCurrency(r.amount)} received from ${name}`}
+      details={[
+        { label: "Member", value: r.member_name },
+        { label: "Amount", value: formatCurrency(r.amount) },
+        { label: "Method", value: r.method ? getMethodLabel(r.method) : null },
+        { label: "UTR", value: r.reference },
+        { label: "Paid on", value: r.paid_on ? formatDate(r.paid_on) : null },
+        { label: "Plan", value: r.plan_name },
+        {
+          label: "Covers",
+          value:
+            r.membership_start_date && r.membership_end_date
+              ? `${formatDate(r.membership_start_date)} → ${formatDate(r.membership_end_date)}`
+              : null,
+        },
+        { label: "Remark", value: r.remark },
+      ]}
+      actions={[
+        {
+          href: `/members/${result.memberId}`,
+          label: `View ${name}`,
+          variant: "primary",
+          icon: MembersIcon,
+        },
+        { href: "/payments", label: "Payment History", icon: CardIcon },
+        { href: "/dashboard", label: "Back to Home", icon: DashboardIcon },
+      ]}
+    />
   );
 }

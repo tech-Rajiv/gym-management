@@ -3,6 +3,7 @@ import {
   MembersIcon,
   CardIcon,
   HistoryIcon,
+  TagIcon,
 } from "@/components/ui/icons";
 
 /**
@@ -24,11 +25,11 @@ export const NAV_SECTIONS = [
       { href: "/dashboard", label: "Dashboard", short: "Home", icon: DashboardIcon },
       { href: "/members", label: "Members", short: "Members", icon: MembersIcon },
       { href: "/payments", label: "Payments", short: "Payments", icon: CardIcon },
+      { href: "/plans", label: "Plans", short: "Plans", icon: TagIcon },
       { href: "/history", label: "History Logs", short: "History", icon: HistoryIcon },
 
       // Coming later:
       // { href: "/attendance", label: "Attendance", icon: CalendarIcon },
-      // { href: "/plans", label: "Membership Plans", icon: TagIcon },
       // { href: "/trainers", label: "Trainers", icon: WhistleIcon },
       // { href: "/expenses", label: "Expenses", icon: WalletIcon },
       // { href: "/reports", label: "Reports", icon: ChartIcon },

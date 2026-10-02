@@ -63,7 +63,7 @@ export default function HistoryList({ logs }) {
                       <Badge variant={entry.badge.variant}>{entry.badge.label}</Badge>
                       {entry.href && (
                         <Link href={entry.href} className={styles.link}>
-                          View member
+                          {log.entity_type === "plan" ? "View plans" : "View member"}
                         </Link>
                       )}
                     </div>
@@ -82,9 +82,9 @@ export default function HistoryList({ logs }) {
                           <div key={change.field} className={styles.change}>
                             <dt>{change.label}</dt>
                             <dd>
-                              <span className={styles.from}>{formatLogValue(change.from)}</span>
+                              <span className={styles.from}>{formatLogValue(change.from, change.field)}</span>
                               <span className={styles.changeArrow} aria-label="changed to">→</span>
-                              <span className={styles.to}>{formatLogValue(change.to)}</span>
+                              <span className={styles.to}>{formatLogValue(change.to, change.field)}</span>
                             </dd>
                           </div>
                         ))}

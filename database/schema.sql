@@ -23,7 +23,7 @@
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS membership_plans (
   id            integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  name          text NOT NULL UNIQUE,
+  name          text NOT NULL,
   description   text,
   duration_days integer NOT NULL CHECK (duration_days > 0),
   price         numeric(10, 2) NOT NULL CHECK (price >= 0),
@@ -33,6 +33,13 @@ CREATE TABLE IF NOT EXISTS membership_plans (
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
+
+-- A name only has to be unique among the plans on sale, so a deleted
+-- (deactivated) "Monthly" does not stop a new "Monthly" being created. Older
+-- databases had a plain UNIQUE on name; it is dropped here.
+ALTER TABLE membership_plans DROP CONSTRAINT IF EXISTS membership_plans_name_key;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_membership_plans_active_name
+  ON membership_plans (lower(name)) WHERE is_active;
 
 -- ---------------------------------------------------------------------------
 -- members
@@ -222,7 +229,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   admin_name    text NOT NULL,
   -- create | update | left | restore | delete
   action        text NOT NULL,
-  -- member | payment   (logins are not logged)
+  -- member | payment | plan   (logins are not logged)
   entity_type   text NOT NULL,
   entity_id     integer,
   entity_label  text,

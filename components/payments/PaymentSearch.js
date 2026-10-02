@@ -14,9 +14,8 @@ const METHOD_FILTERS = [
 /**
  * Search and method filter for the payment history.
  *
- * Both write to the URL and let the server re-query, so filtering by cash and
- * reading the totals above answers "how much cash have I taken?" without a
- * separate report.
+ * Both write to the URL and let the server re-query, so a filtered view can
+ * be bookmarked or shared.
  */
 export default function PaymentSearch({ method = "all" }) {
   return (

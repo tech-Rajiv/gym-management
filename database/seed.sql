@@ -20,12 +20,21 @@ DELETE FROM members WHERE is_demo = true;
 -- Membership plans
 -- Kept when demo members are cleared, since these are real plans the gym sells.
 -- ---------------------------------------------------------------------------
-INSERT INTO membership_plans (name, description, duration_days, price) VALUES
-  ('Monthly',     'One month of full gym access',              30,  1500.00),
-  ('Quarterly',   'Three months, billed once',                 90,  4000.00),
-  ('Half Yearly', 'Six months, includes one fitness review',  180,  7000.00),
-  ('Yearly',      'Twelve months, best value',                365, 12000.00)
-ON CONFLICT (name) DO NOTHING;
+-- Only plans not already on sale are added, so re-running the seed neither
+-- duplicates them nor resets a price the owner has since changed.
+INSERT INTO membership_plans (name, description, duration_days, price)
+SELECT v.name, v.description, v.duration_days, v.price
+FROM (
+  VALUES
+    ('Monthly',     'One month of full gym access',              30,  1500.00),
+    ('Quarterly',   'Three months, billed once',                 90,  4000.00),
+    ('Half Yearly', 'Six months, includes one fitness review',  180,  7000.00),
+    ('Yearly',      'Twelve months, best value',                365, 12000.00)
+) AS v (name, description, duration_days, price)
+WHERE NOT EXISTS (
+  SELECT 1 FROM membership_plans p
+  WHERE lower(p.name) = lower(v.name) AND p.is_active
+);
 
 -- ---------------------------------------------------------------------------
 -- Demo members, each with a current membership.
@@ -81,7 +90,7 @@ SELECT
   p.price
 FROM demo d
 JOIN new_members nm ON nm.phone = d.phone
-JOIN membership_plans p ON p.name = d.plan_name;
+JOIN membership_plans p ON p.name = d.plan_name AND p.is_active;
 
 -- ---------------------------------------------------------------------------
 -- Past memberships for three long-standing members.
@@ -106,7 +115,7 @@ SELECT
   p.price
 FROM history h
 JOIN members m ON m.phone = h.phone
-JOIN membership_plans p ON p.name = h.plan_name;
+JOIN membership_plans p ON p.name = h.plan_name AND p.is_active;
 
 -- ---------------------------------------------------------------------------
 -- Demo payments.
