@@ -24,8 +24,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * The dashboard: a greeting, how many members there are, and the two lists
- * worth phoning today - memberships about to run out, and ones that already
- * have.
+ * worth phoning today - memberships that have already run out (first, as the
+ * most urgent), then ones about to.
  *
  * The queries run on the server, together, so the page waits for the slowest
  * one rather than each in turn. Members who have left are not counted.
@@ -89,15 +89,6 @@ export default async function DashboardPage() {
 
       <div className={styles.lists}>
         <RenewalList
-          title="Expiring Soon"
-          description={`Ending within the next ${EXPIRING_SOON_DAYS} days`}
-          emptyTitle="No memberships are expiring soon."
-          members={expiringMembers}
-          viewAllHref="/members?status=expiring"
-          tone="warning"
-          icon={ClockIcon}
-        />
-        <RenewalList
           title="Expired"
           description="Most recently expired first"
           emptyTitle="No expired memberships."
@@ -105,6 +96,15 @@ export default async function DashboardPage() {
           viewAllHref="/members?status=expired"
           tone="danger"
           icon={InboxIcon}
+        />
+        <RenewalList
+          title="Expiring Soon"
+          description={`Ending within the next ${EXPIRING_SOON_DAYS} days`}
+          emptyTitle="No memberships are expiring soon."
+          members={expiringMembers}
+          viewAllHref="/members?status=expiring"
+          tone="warning"
+          icon={ClockIcon}
         />
       </div>
 

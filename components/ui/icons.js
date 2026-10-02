@@ -196,3 +196,18 @@ export const TagIcon = (props) => (
     <circle cx="7.5" cy="7.5" r="1.5" />
   </Icon>
 );
+
+export const WhatsAppIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 21l1.65-3.8A9 9 0 1 1 7.8 20.3L3 21Z" />
+    <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Zm0 0a5 5 0 0 0 5 5m0 0h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1Z" />
+  </Icon>
+);
+
+export const RefreshIcon = (props) => (
+  <Icon {...props}>
+    <path d="M21 12a9 9 0 0 1-15.5 6.2L3 16" />
+    <path d="M3 12a9 9 0 0 1 15.5-6.2L21 8" />
+    <path d="M21 3v5h-5M3 21v-5h5" />
+  </Icon>
+);
