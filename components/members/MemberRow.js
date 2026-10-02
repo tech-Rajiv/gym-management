@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
+import MemberCard from "./MemberCard";
 import {
   EyeIcon,
   EditIcon,
@@ -150,5 +151,79 @@ export default function MemberRow({ member, onChangeStatus }) {
         </span>
       </td>
     </tr>
+  );
+}
+
+/**
+ * The same member as a phone card (see MemberCard): status pill on the right,
+ * Call / WhatsApp / Renew underneath, and Edit and Mark-as-left (or Restore)
+ * as icon buttons. Renew shows when the membership has expired, is expiring
+ * soon, or there is none.
+ */
+export function MemberRowCard({ member, onChangeStatus }) {
+  const isLeft = member.member_status === "left";
+  const membership = describeMembership(member.membership_end_date);
+  const payment = describePayment(member.membership_price, member.membership_amount_paid);
+  const needsRenewal =
+    !isLeft &&
+    (membership.status === MEMBERSHIP_STATUS.EXPIRED ||
+      membership.status === MEMBERSHIP_STATUS.EXPIRING_SOON ||
+      membership.status === MEMBERSHIP_STATUS.NONE);
+
+  return (
+    <MemberCard
+      member={member}
+      faded={isLeft}
+      lines={[
+        [member.plan_name, member.membership_end_date && `Expires ${formatDate(member.membership_end_date)}`]
+          .filter(Boolean)
+          .join(" · "),
+        `${member.phone} · Joined ${formatDate(member.join_date)}`,
+        member.last_payment_on
+          ? `Last paid ${formatCurrency(member.last_payment_amount)} on ${formatDate(member.last_payment_on)}${
+              payment.amountDue > 0 ? ` · ${formatCurrency(payment.amountDue)} due` : ""
+            }`
+          : "No payment yet",
+      ]}
+      status={
+        isLeft ? (
+          <Badge variant="neutral">Left</Badge>
+        ) : (
+          <Badge variant={membership.variant}>{membership.label}</Badge>
+        )
+      }
+      statusDetail={isLeft && member.left_on ? `on ${formatDate(member.left_on)}` : null}
+      renew={needsRenewal}
+      extra={
+        <>
+          <Link
+            href={`/members/${member.id}/edit`}
+            className={tableStyles.actionButton}
+            aria-label={`Edit ${member.full_name}`}
+          >
+            <EditIcon size={15} />
+          </Link>
+          {isLeft ? (
+            <button
+              type="button"
+              onClick={() => onChangeStatus(member, "restore")}
+              className={tableStyles.actionButton}
+              aria-label={`Restore ${member.full_name}`}
+            >
+              <RestoreIcon size={15} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onChangeStatus(member, "left")}
+              className={`${tableStyles.actionButton} ${tableStyles.deleteButton}`}
+              aria-label={`Mark ${member.full_name} as left`}
+            >
+              <UserMinusIcon size={15} />
+            </button>
+          )}
+        </>
+      }
+    />
   );
 }

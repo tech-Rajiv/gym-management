@@ -1,4 +1,5 @@
-/* --- Welcome banner ------------------------------------------------------ */
+/* --- Welcome banner ------------------------------------------------------
+   A dark card with a warm amber glow in its corner. */
 
 .welcome {
   position: relative;
@@ -9,46 +10,18 @@
   margin-bottom: var(--space-5);
   padding: var(--space-6);
   overflow: hidden;
-  background: var(--gradient-brand);
+  background: var(--glow-amber), var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  color: var(--color-on-brand);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Two soft circles for depth - decoration only. */
-.welcome::before,
-.welcome::after {
-  content: "";
-  position: absolute;
-  border-radius: var(--radius-full);
-  background-color: var(--color-on-brand-surface);
-  pointer-events: none;
-}
-
-.welcome::before {
-  width: 220px;
-  height: 220px;
-  top: -90px;
-  right: -40px;
-}
-
-.welcome::after {
-  width: 140px;
-  height: 140px;
-  bottom: -70px;
-  right: 180px;
-}
-
-.welcome > * {
-  position: relative;
+  box-shadow: var(--shadow-md);
 }
 
 .welcomeDate {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-on-brand-muted);
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
 }
 
 .welcomeTitle {
@@ -56,12 +29,21 @@
   font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* The name in gold. */
+.welcomeName {
+  background: var(--gradient-gold-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .welcomeText {
   margin-top: var(--space-1);
   font-size: 0.9375rem;
-  color: var(--color-on-brand-muted);
+  color: var(--color-text-secondary);
 }
 
 .welcomeAction {
@@ -69,18 +51,19 @@
   align-items: center;
   gap: var(--space-2);
   height: 42px;
-  padding: 0 var(--space-4);
-  background-color: var(--color-surface);
-  border-radius: var(--radius-sm);
-  color: var(--color-primary);
+  padding: 0 var(--space-5);
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
+  color: var(--color-on-primary);
   font-size: 0.875rem;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-amber);
   transition: transform var(--transition);
 }
 
 .welcomeAction:hover {
+  background: var(--gradient-primary-hover);
   transform: translateY(-1px);
 }
 

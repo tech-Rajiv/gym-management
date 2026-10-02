@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { APP_NAME } from "@/lib/config";
 import { NAV_SECTIONS, isNavActive } from "./navigation";
-import { DumbbellIcon } from "@/components/ui/icons";
+import Brand from "@/components/ui/Brand";
 import styles from "./Sidebar.module.css";
 
 /**
@@ -20,13 +19,7 @@ export default function Sidebar() {
   return (
     <aside className={styles.sidebar} aria-label="Main navigation">
       <div className={styles.brand}>
-        <span className={styles.logo}>
-          <DumbbellIcon size={18} />
-        </span>
-        <span className={styles.brandText}>
-          <span className={styles.brandName}>{APP_NAME}</span>
-          <span className={styles.brandTag}>Management</span>
-        </span>
+        <Brand tagline="Management" />
       </div>
 
       <nav className={styles.nav}>

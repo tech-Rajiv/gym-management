@@ -12,9 +12,8 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  // Matches the start of --gradient-brand, so the phone's browser bar blends
-  // with the coloured header.
-  themeColor: "#4f46e5",
+  // Matches --bg-main, so the phone's browser bar blends with the header.
+  themeColor: "#09090b",
 };
 
 /**

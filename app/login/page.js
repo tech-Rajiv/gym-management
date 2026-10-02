@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import LoginForm from "@/components/auth/LoginForm";
 import { getCurrentAdmin } from "@/lib/auth";
-import { APP_NAME } from "@/lib/config";
-import { DumbbellIcon } from "@/components/ui/icons";
+import Brand from "@/components/ui/Brand";
 import styles from "./login.module.css";
 
 export const metadata = { title: "Log in" };
@@ -23,10 +22,9 @@ export default async function LoginPage() {
     <main className={styles.page}>
       <div className={styles.panel}>
         <div className={styles.brand}>
-          <span className={styles.logo}>
-            <DumbbellIcon size={22} />
-          </span>
-          <h1 className={styles.title}>{APP_NAME}</h1>
+          <h1 className={styles.title}>
+            <Brand size="lg" tagline="Management" />
+          </h1>
           <p className={styles.subtitle}>Sign in to manage your gym</p>
         </div>
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
+import MemberCard, { MemberCardList } from "@/components/members/MemberCard";
 import { InboxIcon, CardIcon, EyeIcon } from "@/components/ui/icons";
 import { formatDate } from "@/lib/utils/dates";
 import { describeMembership } from "@/lib/utils/membershipStatus";
@@ -56,7 +57,9 @@ export default function RenewalList({
       {members.length === 0 ? (
         <EmptyState icon={<InboxIcon size={20} />} title={emptyTitle} />
       ) : (
-        <div className={tableStyles.wrapper}>
+        <>
+        {/* The table on tablets and desktops; cards on phones. */}
+        <div className={`${tableStyles.wrapper} ${tableStyles.tableOnly}`}>
           <table className={`${tableStyles.table} ${tableStyles.compact}`}>
             <thead>
               <tr>
@@ -114,6 +117,26 @@ export default function RenewalList({
             </tbody>
           </table>
         </div>
+
+        <MemberCardList>
+          {members.map((member) => {
+            const membership = describeMembership(member.membership_end_date);
+            return (
+              <MemberCard
+                key={member.id}
+                member={member}
+                lines={[
+                  `${member.plan_name} · ${formatDate(member.membership_end_date)}`,
+                  member.phone,
+                ]}
+                status={<Badge variant={membership.variant}>{membership.label}</Badge>}
+                statusDetail={whenText(membership.daysRemaining)}
+                renew
+              />
+            );
+          })}
+        </MemberCardList>
+        </>
       )}
     </Card>
   );

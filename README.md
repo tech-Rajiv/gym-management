@@ -279,20 +279,25 @@ Set in `.env`, with sensible defaults in `lib/config.js`:
 
 ## Changing the colours
 
-Every colour in the application is a variable at the top of
-`app/globals.css`; no component hardcodes one. The main ones:
+The app uses a luxury dark theme - zinc surfaces with amber / gold accents.
+Every colour is a variable at the top of `app/globals.css`; no component
+hardcodes one. The design specification's names come first and everything
+else is mapped onto them:
 
 ```css
---color-primary: #4f46e5;      /* brand: buttons, active tabs, links */
---color-accent: #f97316;       /* warm highlight: "needs action" card */
---color-background: #eef1fa;   /* the page behind the cards */
---gradient-brand: linear-gradient(...);  /* banner, phone header, login */
---color-sidebar-bg: linear-gradient(...); /* the desktop sidebar */
---color-surface: #ffffff;      /* cards, sidebar, header */
+--bg-main: #09090b;          /* page background (zinc-950) */
+--bg-card: #18181b;          /* cards, tables (zinc-900) */
+--accent-amber: #f59e0b;     /* buttons, active tabs, highlights */
+--accent-amber-dark: #d97706;/* gradients, hover */
+--text-primary: #f4f4f5;     /* headings */
+--status-active-text: #34d399;   /* Active / Paid */
+--status-warning-text: #fbbf24;  /* Expiring Soon */
+--status-expired-text: #f87171;  /* Expired */
 ```
 
-If you pick a light primary (yellow, lime), also flip `--color-on-primary` to a
-dark value so text on primary buttons stays readable.
+On phones, member lists become cards with Call, WhatsApp and Renew quick
+actions (`components/members/MemberCard.js`); tablets and desktops keep the
+table.
 
 ## Adding a module later
 

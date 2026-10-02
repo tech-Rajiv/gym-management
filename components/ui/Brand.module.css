@@ -1,0 +1,89 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* The amber glowing container around the logo. */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-md);
+  color: var(--accent-amber-light);
+  box-shadow: 0 0 18px var(--accent-amber-glow);
+  flex-shrink: 0;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wordmark {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.aura {
+  color: var(--text-primary);
+}
+
+/* Gold gradient text. */
+.fitness {
+  background: var(--gradient-gold-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tagline {
+  margin-top: 2px;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+/* --- Sizes ------------------------------------------------------------- */
+
+.sm .logo {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+}
+
+.sm .wordmark {
+  font-size: 0.875rem;
+}
+
+.lg {
+  flex-direction: column;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.lg .logo {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 32px var(--accent-amber-glow);
+}
+
+.lg .text {
+  align-items: center;
+}
+
+.lg .wordmark {
+  font-size: 1.5rem;
+}

@@ -4,20 +4,20 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border: 1px solid;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-size: 0.8125rem;
   line-height: 1.5;
 }
 
 .danger {
   background-color: var(--color-danger-soft);
-  border-color: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
   color: var(--color-danger);
 }
 
 .success {
   background-color: var(--color-success-soft);
-  border-color: var(--color-success-soft);
+  border-color: var(--color-success-border);
   color: var(--color-success);
 }
 

@@ -6,7 +6,7 @@
   padding: 0 var(--space-4);
   height: 40px;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
@@ -20,27 +20,27 @@
   cursor: not-allowed;
 }
 
-/* The accent lives here - this is most of the 10% in the colour split. */
+/* Gold: the amber gradient with near-black bold text and a warm glow. */
 .primary {
-  background-color: var(--color-primary);
+  background: var(--gradient-primary);
   color: var(--color-on-primary);
-  box-shadow: var(--shadow-sm), var(--highlight-top);
+  font-weight: 700;
+  box-shadow: var(--shadow-amber);
 }
 
 .primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
+  background: var(--gradient-primary-hover);
 }
 
+/* A zinc surface button (zinc-800, hover zinc-700). */
 .secondary {
-  background-color: var(--color-surface-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text);
-  box-shadow: var(--shadow-sm), var(--highlight-top);
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+  color: var(--text-primary);
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: var(--color-surface-hover);
-  border-color: var(--color-border-strong);
+  background-color: var(--color-border-strong);
 }
 
 .ghost {

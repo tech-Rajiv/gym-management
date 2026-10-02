@@ -1,0 +1,146 @@
+/* Phones only. From 769px up the table does this job. */
+.list {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-3);
+    list-style: none;
+  }
+}
+
+.card {
+  padding: var(--space-4);
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* A member who has left: faded, so they read as no longer current. */
+.faded {
+  opacity: var(--opacity-inactive);
+}
+
+/*   [avatar]  [name ............] [status]
+     [avatar]  [lines, full width ........]                               */
+.top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "avatar name  status"
+    "avatar info  info";
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  align-items: start;
+}
+
+/* Initials in an amber-tinted circle. */
+.avatar {
+  grid-area: avatar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-full);
+  color: var(--accent-amber-light);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.info {
+  grid-area: info;
+  min-width: 0;
+}
+
+.name {
+  grid-area: name;
+  align-self: center;
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line + .line {
+  color: var(--color-text-muted);
+}
+
+/* Status pill, right-aligned. */
+.status {
+  grid-area: status;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.statusDetail {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* --- Quick actions ------------------------------------------------------ */
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.quick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 var(--space-3);
+  background-color: var(--color-surface-hover);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.whatsapp svg {
+  color: var(--color-whatsapp);
+}
+
+/* Renew is the one that earns money, so it wears the gold. */
+.renew {
+  background: var(--gradient-primary);
+  border-color: transparent;
+  color: var(--color-on-primary);
+  box-shadow: 0 4px 14px var(--accent-amber-glow);
+}
+
+.extra {
+  display: inline-flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}

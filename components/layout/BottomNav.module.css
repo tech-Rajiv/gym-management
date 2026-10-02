@@ -3,61 +3,55 @@
   display: none;
 }
 
+/* A floating pill container just above the bottom edge (and the iPhone home
+   indicator). The active tab fills with the amber gradient. */
 @media (max-width: 1024px) {
   .bar {
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
     z-index: 40;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
-    /* Clears the iPhone home indicator. */
-    padding-bottom: env(safe-area-inset-bottom);
-    background-color: var(--color-surface);
-    border-top: 1px solid var(--color-border);
+    gap: var(--space-1);
+    height: calc(var(--bottom-nav-height) - var(--space-3));
+    padding: 6px;
+    background-color: var(--color-nav-pill);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-sidebar-border);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-up);
   }
 }
 
 .item {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
-  color: var(--color-text-muted);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
   font-size: 0.6875rem;
   font-weight: 500;
-  transition: color var(--transition);
+  transition: background-color var(--transition), color var(--transition);
 }
 
-.itemActive {
-  color: var(--color-primary);
-  font-weight: 600;
+.item:hover {
+  background-color: var(--color-sidebar-hover);
+  color: var(--color-text);
 }
 
-/* A soft pill behind the active tab's icon. */
-.itemActive svg {
-  padding: 3px 14px;
-  box-sizing: content-box;
-  background-color: var(--color-primary-soft);
-  border-radius: var(--radius-full);
-}
-
-/* A short bar above the active tab, so the current page reads at a glance. */
-.itemActive::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 28px;
-  height: 3px;
-  background-color: var(--color-primary);
-  border-radius: 0 0 var(--radius-full) var(--radius-full);
+.itemActive,
+.itemActive:hover {
+  background: var(--gradient-primary);
+  color: var(--color-on-primary);
+  font-weight: 700;
+  box-shadow: 0 4px 14px var(--accent-amber-glow);
 }
 
 .label {

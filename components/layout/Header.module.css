@@ -1,3 +1,4 @@
+/* Sticky, with the page blurring behind it as it scrolls. */
 .header {
   position: sticky;
   top: 0;
@@ -7,34 +8,16 @@
   gap: var(--space-4);
   height: var(--header-height);
   padding: 0 var(--space-6);
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-header-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-sidebar-border);
 }
 
 /* The brand shows here only on narrow screens, where the sidebar is hidden. */
 .brand {
   display: none;
-  align-items: center;
-  gap: var(--space-2);
   min-width: 0;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background: var(--color-on-brand-surface);
-  color: var(--color-on-brand);
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
-}
-
-.brandName {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  white-space: nowrap;
 }
 
 .spacer {
@@ -61,12 +44,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   background-color: var(--color-primary-soft);
   border: 1px solid var(--color-primary-border);
   border-radius: var(--radius-full);
-  color: var(--color-primary);
+  color: var(--accent-amber-light);
   font-size: 0.75rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -86,9 +69,9 @@
   gap: var(--space-2);
   height: 36px;
   padding: 0 var(--space-3);
-  background-color: transparent;
+  background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--color-text-secondary);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -99,7 +82,7 @@
 
 .logout:hover:not(:disabled) {
   background-color: var(--color-danger-soft);
-  border-color: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
   color: var(--color-danger);
 }
 
@@ -108,40 +91,13 @@
   cursor: wait;
 }
 
-/* On phones and tablets the header carries the brand gradient, since there
-   is no sidebar to give the app its colour. */
 @media (max-width: 1024px) {
   .header {
     padding: 0 var(--space-4);
-    background: var(--gradient-brand);
-    border-bottom: none;
-    color: var(--color-on-brand);
   }
 
   .brand {
     display: flex;
-  }
-
-  .date {
-    color: var(--color-on-brand-muted);
-  }
-
-  .avatar {
-    background-color: var(--color-on-brand-surface);
-    border-color: transparent;
-    color: var(--color-on-brand);
-  }
-
-  .logout {
-    background-color: var(--color-on-brand-surface);
-    border-color: transparent;
-    color: var(--color-on-brand);
-  }
-
-  .logout:hover:not(:disabled) {
-    background-color: var(--color-on-brand-surface-hover);
-    border-color: transparent;
-    color: var(--color-on-brand);
   }
 }
 

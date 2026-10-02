@@ -30,9 +30,9 @@
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-align: left;
   white-space: nowrap;
 }
@@ -51,13 +51,9 @@
   transition: background-color var(--transition);
 }
 
-/* Every other row is faintly shaded, so the eye can follow a row across. */
-.table tbody tr:nth-child(even) {
-  background-color: var(--color-surface-secondary);
-}
-
+/* Subtle dividers between rows, and a dark hover to follow one across. */
 .table tbody tr:hover {
-  background-color: var(--color-surface-hover);
+  background-color: var(--color-row-hover);
 }
 
 /* Right-aligned final column for row actions. The heading needs the extra
@@ -151,6 +147,14 @@
   background-color: var(--color-danger-soft);
   border-color: var(--color-danger-soft);
   color: var(--color-danger);
+}
+
+/* A table that phones replace with a card list (MemberCard) instead of the
+   stacked-cell layout below. */
+@media (max-width: 768px) {
+  .tableOnly {
+    display: none;
+  }
 }
 
 /* --- Mobile ----------------------------------------------------------------

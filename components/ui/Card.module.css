@@ -42,9 +42,9 @@
   justify-content: center;
   width: 38px;
   height: 38px;
-  background-color: var(--color-primary-soft);
+  background-color: var(--color-surface-hover);
   border-radius: var(--radius-md);
-  color: var(--color-primary);
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
@@ -58,33 +58,36 @@
 }
 
 /* --- Toned cards -----------------------------------------------------------
-   Each tone sets --tone and --tone-soft; everything below reads them. The
-   table headings inside follow too, because Table.module.css reads
-   --color-table-head and this redefines it for the card's contents. */
+   Each tone sets --tone, --tone-soft and --tone-border; everything below
+   reads them: a thin coloured line along the top, a header washed with the
+   tone, and the icon in a glowing tinted tile. */
 
 .primary {
   --tone: var(--tone-primary);
   --tone-soft: var(--tone-primary-soft);
+  --tone-border: var(--tone-primary-border);
 }
 
 .warning {
   --tone: var(--tone-warning);
   --tone-soft: var(--tone-warning-soft);
+  --tone-border: var(--tone-warning-border);
 }
 
 .danger {
   --tone: var(--tone-danger);
   --tone-soft: var(--tone-danger-soft);
+  --tone-border: var(--tone-danger-border);
 }
 
 .success {
-  --tone: var(--color-success);
-  --tone-soft: var(--color-success-soft);
+  --tone: var(--tone-success);
+  --tone-soft: var(--tone-success-soft);
+  --tone-border: var(--tone-success-border);
 }
 
 .toned {
-  --color-table-head: var(--tone-soft);
-  border-top: 4px solid var(--tone);
+  border-top: 2px solid var(--tone);
 }
 
 .toned .header {
@@ -96,10 +99,12 @@
   font-weight: 700;
 }
 
+/* A glowing tint: soft fill, tone border, tone icon. */
 .toned .icon {
-  background-color: var(--tone);
-  color: var(--color-on-brand);
-  box-shadow: var(--shadow-sm);
+  background-color: var(--tone-soft);
+  border: 1px solid var(--tone-border);
+  color: var(--tone);
+  box-shadow: 0 0 16px var(--tone-soft);
 }
 
 @media (max-width: 640px) {

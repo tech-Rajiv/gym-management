@@ -44,7 +44,9 @@ export default async function DashboardPage() {
       <section className={styles.welcome}>
         <div>
           <p className={styles.welcomeDate}>{formatDate(today())}</p>
-          <h1 className={styles.welcomeTitle}>Hi {admin.name} 👋</h1>
+          <h1 className={styles.welcomeTitle}>
+            Hi <span className={styles.welcomeName}>{admin.name}</span> 👋
+          </h1>
           <p className={styles.welcomeText}>
             {stats.expiring_soon + stats.expired > 0
               ? `${stats.expiring_soon} expiring soon and ${stats.expired} expired - a good day for renewal calls.`
@@ -66,7 +68,7 @@ export default async function DashboardPage() {
           value={stats.total_members}
           hint="Everyone still training here"
           icon={MembersIcon}
-          tone="primary"
+          tone="success"
           href="/members"
         />
         <StatCard

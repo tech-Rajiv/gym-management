@@ -1,5 +1,5 @@
-import { APP_NAME } from "@/lib/config";
-import { CalendarIcon, DumbbellIcon } from "@/components/ui/icons";
+import Brand from "@/components/ui/Brand";
+import { CalendarIcon } from "@/components/ui/icons";
 import { getInitials } from "@/lib/utils/format";
 import LogoutButton from "./LogoutButton";
 import styles from "./Header.module.css";
@@ -21,10 +21,7 @@ export default function Header({ todayLabel, admin }) {
   return (
     <header className={styles.header}>
       <span className={styles.brand}>
-        <span className={styles.logo}>
-          <DumbbellIcon size={16} />
-        </span>
-        <span className={styles.brandName}>{APP_NAME}</span>
+        <Brand size="sm" />
       </span>
 
       <span className={styles.date}>

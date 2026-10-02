@@ -1,38 +1,34 @@
-/* --- Desktop and tablet: a solid tile -------------------------------------
-   Laid out on a small grid:
+/* --- Desktop and tablet ----------------------------------------------------
+   A dark card (zinc-900, thin border, rounded-2xl):
 
-     [label / hint]   [icon]
-     [  big number        ]
-     [  View list →       ]                                                 */
+     [glowing icon]  [label / hint]
+     [ big number                 ]
+     [ View list →                ]                                         */
 
 .card {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr;
   grid-template-areas:
-    "text  icon"
+    "icon  text"
     "value value"
     "more  more";
-  align-items: start;
-  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-5);
   overflow: hidden;
-  background: var(--tone-fill);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  color: var(--color-on-brand);
   box-shadow: var(--shadow-md);
 }
 
-/* A large soft circle in the corner - decoration only. */
+/* A faint glow of the card's tone in the top corner - decoration only. */
 .card::after {
   content: "";
   position: absolute;
-  width: 160px;
-  height: 160px;
-  right: -50px;
-  bottom: -70px;
-  background-color: var(--color-on-brand-surface);
-  border-radius: var(--radius-full);
+  inset: 0;
+  background: radial-gradient(circle at 100% 0%, var(--tone-soft) 0%, transparent 60%);
   pointer-events: none;
 }
 
@@ -42,27 +38,40 @@
 }
 
 .primary {
-  --tone-fill: var(--tone-primary-fill);
+  --tone: var(--tone-primary);
+  --tone-soft: var(--tone-primary-soft);
+  --tone-border: var(--tone-primary-border);
 }
 
 .warning {
-  --tone-fill: var(--tone-warning-fill);
+  --tone: var(--tone-warning);
+  --tone-soft: var(--tone-warning-soft);
+  --tone-border: var(--tone-warning-border);
 }
 
 .danger {
-  --tone-fill: var(--tone-danger-fill);
+  --tone: var(--tone-danger);
+  --tone-soft: var(--tone-danger-soft);
+  --tone-border: var(--tone-danger-border);
 }
 
-/* Cards that lead somewhere lift on hover, so it is obvious they open. */
+.success {
+  --tone: var(--tone-success);
+  --tone-soft: var(--tone-success-soft);
+  --tone-border: var(--tone-success-border);
+}
+
+/* Cards that lead somewhere lift and pick up their tone on hover. */
 .cardLink {
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition: transform var(--transition), border-color var(--transition);
 }
 
 .cardLink:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  border-color: var(--tone-border);
 }
 
+/* The glowing icon background. */
 .icon {
   grid-area: icon;
   display: flex;
@@ -70,8 +79,11 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  background-color: var(--color-on-brand-surface);
+  background-color: var(--tone-soft);
+  border: 1px solid var(--tone-border);
   border-radius: var(--radius-md);
+  color: var(--tone);
+  box-shadow: 0 0 20px var(--tone-soft);
 }
 
 .text {
@@ -80,22 +92,25 @@
 }
 
 .label {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 .hint {
   margin-top: 2px;
-  font-size: 0.8125rem;
-  color: var(--color-on-brand-muted);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .value {
   grid-area: value;
-  font-size: 2.5rem;
+  margin-top: var(--space-1);
+  font-size: 2.25rem;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -104,14 +119,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  margin-top: var(--space-2);
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--color-on-brand-muted);
-}
-
-.cardLink:hover .more {
-  color: var(--color-on-brand);
+  color: var(--tone);
 }
 
 /* --- Phones: a full-width row --------------------------------------------
@@ -122,16 +132,8 @@
   .card {
     grid-template-columns: auto 1fr auto;
     grid-template-areas: "icon text value";
-    align-items: center;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-  }
-
-  .card::after {
-    width: 110px;
-    height: 110px;
-    right: -30px;
-    bottom: -60px;
+    padding: var(--space-4);
   }
 
   .icon {
@@ -140,7 +142,8 @@
   }
 
   .value {
-    font-size: 1.75rem;
+    margin-top: 0;
+    font-size: 1.5rem;
   }
 
   .more {

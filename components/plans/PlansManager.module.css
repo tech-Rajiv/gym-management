@@ -19,7 +19,7 @@
   padding: var(--space-5);
   background: linear-gradient(170deg, var(--tone-soft) 0%, var(--color-surface) 55%);
   border: 1px solid var(--color-border);
-  border-top: 4px solid var(--tone);
+  border-top: 2px solid var(--tone);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
 }
@@ -27,21 +27,25 @@
 .primary {
   --tone: var(--tone-primary);
   --tone-soft: var(--tone-primary-soft);
+  --tone-border: var(--tone-primary-border);
 }
 
 .success {
-  --tone: var(--color-success);
-  --tone-soft: var(--color-success-soft);
+  --tone: var(--tone-success);
+  --tone-soft: var(--tone-success-soft);
+  --tone-border: var(--tone-success-border);
 }
 
 .warning {
   --tone: var(--tone-warning);
   --tone-soft: var(--tone-warning-soft);
+  --tone-border: var(--tone-warning-border);
 }
 
 .danger {
   --tone: var(--tone-danger);
   --tone-soft: var(--tone-danger-soft);
+  --tone-border: var(--tone-danger-border);
 }
 
 .planTop {
@@ -58,9 +62,10 @@
 
 .duration {
   padding: 2px var(--space-3);
-  background-color: var(--tone);
+  background-color: var(--tone-soft);
+  border: 1px solid var(--tone-border);
   border-radius: var(--radius-full);
-  color: var(--color-on-brand);
+  color: var(--tone);
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;

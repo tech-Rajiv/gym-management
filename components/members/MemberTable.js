@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import MemberRow from "./MemberRow";
+import MemberRow, { MemberRowCard } from "./MemberRow";
+import { MemberCardList } from "./MemberCard";
 import MemberStatusDialog from "./MemberStatusDialog";
 import EmptyState from "@/components/ui/EmptyState";
 import Button from "@/components/ui/Button";
@@ -70,7 +71,8 @@ export default function MemberTable({
 
   return (
     <>
-      <div className={tableStyles.wrapper}>
+      {/* The table on tablets and desktops; cards on phones. */}
+      <div className={`${tableStyles.wrapper} ${tableStyles.tableOnly}`}>
         <table className={`${tableStyles.table} ${styles.wide}`}>
           <thead>
             <tr>
@@ -93,6 +95,16 @@ export default function MemberTable({
           </tbody>
         </table>
       </div>
+
+      <MemberCardList>
+        {members.map((member) => (
+          <MemberRowCard
+            key={member.id}
+            member={member}
+            onChangeStatus={(target, mode) => setStatusChange({ member: target, mode })}
+          />
+        ))}
+      </MemberCardList>
 
       {/* Rendered only while a member is selected, so the dialog always opens
           with fresh state and the right name. */}

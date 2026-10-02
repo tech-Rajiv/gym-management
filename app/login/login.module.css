@@ -4,7 +4,11 @@
   justify-content: center;
   min-height: 100dvh;
   padding: var(--space-5) var(--space-4);
-  background: var(--gradient-brand);
+  /* Two warm amber glows on the dark page. */
+  background:
+    radial-gradient(circle at 20% 15%, var(--accent-amber-glow) 0%, transparent 45%),
+    radial-gradient(circle at 80% 85%, var(--color-primary-soft) 0%, transparent 45%),
+    var(--color-background);
 }
 
 .panel {
@@ -13,6 +17,7 @@
   padding: var(--space-6);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
@@ -21,26 +26,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-bottom: var(--space-6);
   text-align: center;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: var(--space-2);
-  background: var(--gradient-brand);
-  color: var(--color-on-brand);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-}
-
 .title {
-  font-size: 1.375rem;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 .subtitle {
