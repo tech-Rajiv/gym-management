@@ -22,9 +22,15 @@ export const PATCH = withAdmin(async (request, { params }, admin) => {
   if (!valid) return fail({ errors });
 
   // The plan's name is what the change log shows, rather than its id.
-  const plan = await getMembershipPlanById(values.membershipPlanId);
-  if (!plan) {
-    return fail({ errors: { membershipPlanId: "The selected membership plan no longer exists." } });
+  // A deleted plan may be kept by a member already on it, but nobody can be
+  // moved onto one.
+  const [plan, current] = await Promise.all([
+    getMembershipPlanById(values.membershipPlanId),
+    getMemberById(memberId),
+  ]);
+  if (!current) return notFound("This member no longer exists.");
+  if (!plan || (!plan.is_active && plan.id !== current.membership_plan_id)) {
+    return fail({ errors: { membershipPlanId: "That plan is no longer on sale. Choose another." } });
   }
 
   try {

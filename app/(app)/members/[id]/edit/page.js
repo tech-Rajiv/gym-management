@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
 import MemberForm from "@/components/members/MemberForm";
 import { getMemberById } from "@/lib/db/members";
-import { getMembershipPlans } from "@/lib/db/plans";
+import { getMembershipPlans, getMembershipPlanById } from "@/lib/db/plans";
 import { today } from "@/lib/utils/dates";
 import { requireAdmin } from "@/lib/auth";
 
@@ -30,6 +30,17 @@ export default async function EditMemberPage({ params }) {
 
   if (!member) notFound();
 
+  // A member whose plan has since been deleted (taken off sale) must still see
+  // it selected - otherwise the form could not be saved without changing it.
+  const currentPlanOnSale = plans.some((plan) => plan.id === member.membership_plan_id);
+  const retiredPlan =
+    member.membership_plan_id && !currentPlanOnSale
+      ? await getMembershipPlanById(member.membership_plan_id)
+      : null;
+  const planOptions = retiredPlan
+    ? [...plans, { ...retiredPlan, name: `${retiredPlan.name} (no longer sold)` }]
+    : plans;
+
   return (
     <div>
       <PageHeader
@@ -41,7 +52,7 @@ export default async function EditMemberPage({ params }) {
 
       <MemberForm
         member={member}
-        plans={plans}
+        plans={planOptions}
         today={today()}
         submitLabel="Save Changes"
       />
