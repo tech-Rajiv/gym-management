@@ -204,10 +204,30 @@ export const WhatsAppIcon = (props) => (
   </Icon>
 );
 
-export const RefreshIcon = (props) => (
+/** A rupee note - for taking a payment. */
+export const RupeeIcon = (props) => (
   <Icon {...props}>
-    <path d="M21 12a9 9 0 0 1-15.5 6.2L3 16" />
-    <path d="M3 12a9 9 0 0 1 15.5-6.2L21 8" />
-    <path d="M21 3v5h-5M3 21v-5h5" />
+    <path d="M6 4h12M6 9h12M14.5 4a4.5 4.5 0 0 1 0 9H6l9 7" />
+  </Icon>
+);
+
+export const ChevronDownIcon = (props) => (
+  <Icon {...props}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+);
+
+export const CheckIcon = (props) => (
+  <Icon {...props}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </Icon>
+);
+
+/** A calendar crossed out - a membership whose end date has passed. */
+export const CalendarXIcon = (props) => (
+  <Icon {...props}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M16 3v4M8 3v4M3 11h18" />
+    <path d="m9.5 14 5 5M14.5 14l-5 5" />
   </Icon>
 );

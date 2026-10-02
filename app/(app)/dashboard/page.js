@@ -6,10 +6,17 @@ import {
   getDashboardStats,
   getExpiringMembers,
   getExpiredMembers,
+  getNewMembersThisMonth,
 } from "@/lib/db/dashboard";
 import { requireAdmin } from "@/lib/auth";
 import { today, formatDate } from "@/lib/utils/dates";
-import { MembersIcon, ClockIcon, PlusIcon, InboxIcon } from "@/components/ui/icons";
+import {
+  MembersIcon,
+  ClockIcon,
+  PlusIcon,
+  CalendarXIcon,
+  UserPlusIcon,
+} from "@/components/ui/icons";
 import { EXPIRING_SOON_DAYS } from "@/lib/config";
 import styles from "./dashboard.module.css";
 
@@ -33,10 +40,13 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const admin = await requireAdmin();
 
-  const [stats, expiringMembers, expiredMembers] = await Promise.all([
+  // Each list fetches only its first few members; the stat counts say how
+  // many there are in all, for the "See N more" buttons.
+  const [stats, expiringMembers, expiredMembers, newMembers] = await Promise.all([
     getDashboardStats(),
     getExpiringMembers(),
     getExpiredMembers(),
+    getNewMembersThisMonth(),
   ]);
 
   return (
@@ -64,7 +74,7 @@ export default async function DashboardPage() {
         <StatCard
           label="Total Members"
           value={stats.total_members}
-          hint="Everyone still training here"
+          hint="Still training here"
           icon={MembersIcon}
           tone="primary"
           href="/members"
@@ -81,9 +91,17 @@ export default async function DashboardPage() {
           label="Expired"
           value={stats.expired}
           hint="Membership has run out"
-          icon={InboxIcon}
+          icon={CalendarXIcon}
           tone="danger"
           href="/members?status=expired"
+        />
+        <StatCard
+          label="New This Month"
+          value={stats.new_this_month}
+          hint="Joined this month"
+          icon={UserPlusIcon}
+          tone="success"
+          href="/members?status=new"
         />
       </div>
 
@@ -93,18 +111,31 @@ export default async function DashboardPage() {
           description="Most recently expired first"
           emptyTitle="No expired memberships."
           members={expiredMembers}
-          viewAllHref="/members?status=expired"
+          total={stats.expired}
+          moreHref="/members?status=expired"
           tone="danger"
-          icon={InboxIcon}
+          icon={CalendarXIcon}
         />
         <RenewalList
           title="Expiring Soon"
           description={`Ending within the next ${EXPIRING_SOON_DAYS} days`}
           emptyTitle="No memberships are expiring soon."
           members={expiringMembers}
-          viewAllHref="/members?status=expiring"
+          total={stats.expiring_soon}
+          moreHref="/members?status=expiring"
           tone="warning"
           icon={ClockIcon}
+        />
+        <RenewalList
+          title="New This Month"
+          description="Joined this calendar month, newest first"
+          emptyTitle="Nobody has joined yet this month."
+          members={newMembers}
+          total={stats.new_this_month}
+          moreHref="/members?status=new"
+          showJoined
+          tone="success"
+          icon={UserPlusIcon}
         />
       </div>
 

@@ -1,0 +1,232 @@
+/* The closed field matches the app's other inputs (Field.module.css). */
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-inset);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+/* A selected option with a second line needs a little more height. */
+.tall {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+
+.triggerOpen,
+.trigger:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.invalid {
+  border-color: var(--color-danger);
+}
+
+.fieldIcon {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.value {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.valueLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* With a second line, the first reads as the name. */
+.tall .valueLabel {
+  font-weight: 600;
+}
+
+.valueDetail {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  flex: 1;
+  color: var(--color-text-muted);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  transition: transform var(--transition);
+}
+
+.triggerOpen .chevron {
+  transform: rotate(180deg);
+}
+
+/* --- The open panel ------------------------------------------------------
+   Placed by SearchSelect.js against the window (top or bottom, left, width,
+   max-height), so no card can clip it. */
+
+.panel {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.search {
+  flex: 1;
+  height: 38px;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}
+
+.search:focus {
+  outline: none;
+}
+
+.list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: var(--space-1);
+  overflow-y: auto;
+  list-style: none;
+  overscroll-behavior: contain;
+}
+
+.list:focus {
+  outline: none;
+}
+
+.group {
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.highlighted {
+  background-color: var(--color-primary-soft);
+}
+
+/* The "none" row of an optional field. */
+.clear .optionLabel {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.optionLabel {
+  font-weight: 500;
+}
+
+/* Options with a second line: the first reads as the name. */
+.optionText:has(.optionDetail) .optionLabel {
+  font-weight: 600;
+}
+
+.optionDetail {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.check {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.empty {
+  padding: var(--space-5) var(--space-4);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.count {
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* Phones: taller targets, and 16px text so iOS does not zoom in. */
+@media (max-width: 640px) {
+  .trigger {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  .search {
+    height: 42px;
+    font-size: 1rem;
+  }
+
+  .option {
+    padding: var(--space-3);
+    font-size: 1rem;
+  }
+}

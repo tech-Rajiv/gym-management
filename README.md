@@ -119,6 +119,30 @@ disappear from the everyday lists and the dashboard, appear under the **Left**
 filter as faded rows, and keep their record, terms and payments. **Restore**
 brings them back - which matters because the phone number stays taken.
 
+### Payment history filters
+
+Payments can be filtered by Cash / UPI, by search, and by date: **All time**,
+any of the last twelve months, or a **custom range**. The period lives in the
+URL (`?month=2026-09` or `?from=2026-09-01&to=2026-09-10`) and is checked in
+`lib/utils/paymentPeriod.js`, so a malformed link simply shows all payments.
+
+### Dashboard
+
+Four figures - Total Members, Expiring Soon, Expired and New This Month - each
+opening the members list filtered to the same people. Below them, three short
+lists (Expired first, then Expiring Soon, then New This Month) show the first
+three members each; "See N more" opens the full filtered list.
+
+### Member lists
+
+The Members page and the dashboard's Expired / Expiring Soon lists share one
+row design (`components/members/MemberListItem.js`): name and status, the
+plan's start and end dates and days left, with three roomy buttons - Renew,
+Call, WhatsApp. Less frequent actions (View, Edit, Mark as left / Restore) are
+in each row's "⋯" menu. WhatsApp opens with a payment reminder already written. The phone number is
+never shown - Call and WhatsApp use it. The members filters are All, New This
+Month, Expiring Soon, Expired and Left.
+
 ### Saving shows a receipt
 
 Adding a member and recording a payment no longer jump to another page. A
@@ -174,8 +198,9 @@ server and PostgreSQL does the filtering, so:
 - a filtered view can be bookmarked, shared or refreshed;
 - the browser never holds the full member list;
 - the dashboard's stat cards can link straight to a filtered list —
-  **Total Members** opens `/members`, and **Expiring Soon** opens
-  `/members?status=expiring`, each showing exactly the number on the card.
+  **Total Members** opens `/members`, **Expiring Soon** opens
+  `/members?status=expiring` and **Expired** opens `/members?status=expired`,
+  each showing exactly the number on the card.
 
 The filter's SQL uses the same date comparisons and the same window as the
 badges do in JavaScript, so a filtered list always agrees with the statuses

@@ -53,6 +53,10 @@
   --tone-fill: var(--tone-danger-fill);
 }
 
+.success {
+  --tone-fill: var(--tone-success-fill);
+}
+
 /* Cards that lead somewhere lift on hover, so it is obvious they open. */
 .cardLink {
   transition: transform var(--transition), box-shadow var(--transition);

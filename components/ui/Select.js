@@ -1,73 +1,49 @@
-import styles from "./Field.module.css";
+"use client";
+
+import SearchSelect from "./SearchSelect";
 
 /**
- * A labelled dropdown.
+ * A labelled dropdown - the app's custom one (SearchSelect), without a search
+ * box. It keeps the interface of a native <select> so forms read the same:
+ *
+ *   * `onChange` receives an event-like `{ target: { value } }`;
+ *   * `value` makes it controlled, `defaultValue` uncontrolled;
+ *   * the value is submitted with the form under `name` (default: `id`).
+ *
+ * An optional field (no `required`) with a placeholder lets the admin pick
+ * the placeholder again to clear it.
  *
  * @param {{value: string|number, label: string}[]} options
- * @param {string} placeholder shown as a disabled first option when there is
- *                             no value yet, so "nothing chosen" is explicit
  */
 export default function Select({
   id,
+  name,
   label,
   options = [],
   placeholder,
   error,
   required = false,
+  disabled = false,
+  value,
+  defaultValue,
+  onChange,
   className = "",
-  ...props
 }) {
-  const errorId = error ? `${id}-error` : undefined;
-
   return (
-    <div className={`${styles.field} ${className}`}>
-      {label && (
-        <label className={styles.label} htmlFor={id}>
-          {label}
-          {required && <span className={styles.required}>*</span>}
-        </label>
-      )}
-      <div className={styles.selectWrapper}>
-        <select
-          id={id}
-          name={props.name ?? id}
-          required={required}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={errorId}
-          className={[styles.control, styles.select, error ? styles.invalid : ""]
-            .filter(Boolean)
-            .join(" ")}
-          {...props}
-        >
-          {placeholder && <option value="">{placeholder}</option>}
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <svg
-          className={styles.chevron}
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M3 4.5L6 7.5L9 4.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      {error && (
-        <span id={errorId} className={styles.error}>
-          {error}
-        </span>
-      )}
-    </div>
+    <SearchSelect
+      id={id}
+      name={name ?? id}
+      label={label}
+      options={options}
+      placeholder={placeholder ?? "Select…"}
+      clearable={Boolean(placeholder) && !required}
+      required={required}
+      disabled={disabled}
+      value={value === undefined ? undefined : String(value ?? "")}
+      defaultValue={defaultValue === undefined ? undefined : String(defaultValue ?? "")}
+      onChange={(next) => onChange?.({ target: { value: next } })}
+      error={error}
+      className={className}
+    />
   );
 }

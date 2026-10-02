@@ -52,27 +52,6 @@
   line-height: 1.5;
 }
 
-.select {
-  appearance: none;
-  /* Room for the chevron drawn by the wrapper. */
-  padding-right: var(--space-6);
-  cursor: pointer;
-}
-
-.selectWrapper {
-  position: relative;
-  display: flex;
-}
-
-.chevron {
-  position: absolute;
-  right: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: var(--color-text-secondary);
-}
-
 .control[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }

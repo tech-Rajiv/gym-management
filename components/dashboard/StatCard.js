@@ -13,7 +13,7 @@ import styles from "./StatCard.module.css";
  * On desktop the tiles sit side by side with the number large; on phones each
  * becomes a full-width row - icon, label, number - so none is squeezed.
  *
- * @param {'primary'|'warning'|'danger'} tone the card's colour
+ * @param {'primary'|'warning'|'danger'|'success'} tone the card's colour
  */
 export default function StatCard({
   label,

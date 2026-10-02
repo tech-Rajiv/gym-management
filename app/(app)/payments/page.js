@@ -8,6 +8,8 @@ import { getPayments } from "@/lib/db/payments";
 import { PlusIcon } from "@/components/ui/icons";
 import Fab from "@/components/ui/Fab";
 import { requireAdmin } from "@/lib/auth";
+import { resolvePaymentPeriod, recentMonths } from "@/lib/utils/paymentPeriod";
+import { today } from "@/lib/utils/dates";
 import styles from "./payments.module.css";
 
 export const metadata = { title: "Payment History" };
@@ -18,15 +20,18 @@ export const dynamic = "force-dynamic";
 /**
  * Payment History.
  *
- * Every payment, newest first, with search and a cash/UPI filter. Like the
- * members list, both live in the URL, so PostgreSQL does the filtering and a
- * filtered view can be bookmarked.
+ * Every payment, newest first, with search, a Cash / UPI filter and a date
+ * filter (one month, or a custom range). Like the members list, all of them
+ * live in the URL, so PostgreSQL does the filtering and a filtered view can be
+ * bookmarked.
  */
 export default async function PaymentsPage({ searchParams }) {
   await requireAdmin();
-  const { q: search = "", method } = await searchParams;
+  const { q: search = "", method, month, from, to } = await searchParams;
+  const period = resolvePaymentPeriod({ month, from, to });
 
-  const payments = await getPayments({ search, method });
+  const payments = await getPayments({ search, method, from: period.from, to: period.to });
+  const isFiltered = Boolean(search) || period.mode !== "all" || (method && method !== "all");
 
   return (
     <div>
@@ -45,11 +50,20 @@ export default async function PaymentsPage({ searchParams }) {
         {/* useSearchParams needs a Suspense boundary around it. */}
         <Suspense fallback={null}>
           <div className={styles.toolbar}>
-            <PaymentSearch method={method ?? "all"} />
+            <PaymentSearch
+              method={method ?? "all"}
+              period={period}
+              months={recentMonths(today())}
+            />
           </div>
         </Suspense>
 
-        <PaymentTable payments={payments} isSearching={Boolean(search)} />
+        <p className={styles.summary}>
+          {payments.length} {payments.length === 1 ? "payment" : "payments"}
+          <span className={styles.summaryPeriod}>{period.label}</span>
+        </p>
+
+        <PaymentTable payments={payments} isSearching={isFiltered} />
       </Card>
 
       {/* On phones "Record Payment" floats in the corner instead. */}

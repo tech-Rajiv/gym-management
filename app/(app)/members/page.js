@@ -11,12 +11,28 @@ import {
   MEMBER_FILTERS,
   DEFAULT_MEMBER_FILTER,
 } from "@/lib/utils/membershipStatus";
-import { PlusIcon } from "@/components/ui/icons";
+import {
+  PlusIcon,
+  MembersIcon,
+  UserPlusIcon,
+  ClockIcon,
+  CalendarXIcon,
+  UserMinusIcon,
+} from "@/components/ui/icons";
 import Fab from "@/components/ui/Fab";
 import { requireAdmin } from "@/lib/auth";
 import styles from "./members.module.css";
 
 export const metadata = { title: "Members" };
+
+/** An icon per filter tab, the same ones the dashboard uses for each group. */
+const FILTER_ICONS = {
+  all: <MembersIcon size={15} />,
+  new: <UserPlusIcon size={15} />,
+  expiring: <ClockIcon size={15} />,
+  expired: <CalendarXIcon size={15} />,
+  left: <UserMinusIcon size={15} />,
+};
 
 /** Member data changes as soon as the owner edits it, so never serve a cached copy. */
 export const dynamic = "force-dynamic";
@@ -78,6 +94,7 @@ export default async function MembersPage({ searchParams }) {
               label="Filter members by membership status"
               options={MEMBER_FILTERS.map((option) => ({
                 ...option,
+                icon: FILTER_ICONS[option.value],
                 count: counts[option.value] ?? 0,
               }))}
             />

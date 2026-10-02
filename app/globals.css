@@ -69,6 +69,7 @@
   --tone-primary-fill: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   --tone-warning-fill: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   --tone-danger-fill: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%);
+  --tone-success-fill: linear-gradient(135deg, #059669 0%, #10b981 100%);
 
   /* Table column headings sit on a faint brand tint. */
   --color-table-head: #f5f6ff;
