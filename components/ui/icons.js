@@ -152,3 +152,47 @@ export const ArrowRightIcon = (props) => (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </Icon>
 );
+
+export const CardIcon = (props) => (
+  <Icon {...props}>
+    <rect x="2" y="5" width="20" height="14" rx="2" />
+    <path d="M2 10h20" />
+  </Icon>
+);
+
+export const HistoryIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M12 7v5l3 2" />
+  </Icon>
+);
+
+export const LogOutIcon = (props) => (
+  <Icon {...props}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <path d="m16 17 5-5-5-5M21 12H9" />
+  </Icon>
+);
+
+export const UserMinusIcon = (props) => (
+  <Icon {...props}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 11h-6" />
+  </Icon>
+);
+
+export const RestoreIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+  </Icon>
+);
+
+export const TagIcon = (props) => (
+  <Icon {...props}>
+    <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+    <circle cx="7.5" cy="7.5" r="1.5" />
+  </Icon>
+);

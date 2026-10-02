@@ -1,0 +1,131 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.emptyCard {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* --- A plan card --------------------------------------------------------- */
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  background: linear-gradient(170deg, var(--tone-soft) 0%, var(--color-surface) 55%);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--tone);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.primary {
+  --tone: var(--tone-primary);
+  --tone-soft: var(--tone-primary-soft);
+}
+
+.success {
+  --tone: var(--color-success);
+  --tone-soft: var(--color-success-soft);
+}
+
+.warning {
+  --tone: var(--tone-warning);
+  --tone-soft: var(--tone-warning-soft);
+}
+
+.danger {
+  --tone: var(--tone-danger);
+  --tone-soft: var(--tone-danger-soft);
+}
+
+.planTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.planName {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.duration {
+  padding: 2px var(--space-3);
+  background-color: var(--tone);
+  border-radius: var(--radius-full);
+  color: var(--color-on-brand);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--tone);
+  font-variant-numeric: tabular-nums;
+}
+
+.description {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.usage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.planActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.planActions .deleteButton:hover:not(:disabled) {
+  background-color: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+/* --- Dialog form ----------------------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  color: var(--color-text);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.formNote {
+  margin-top: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}

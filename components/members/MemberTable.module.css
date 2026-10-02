@@ -13,43 +13,81 @@
   color: var(--color-text-muted);
 }
 
-.actions {
+/* A member who has left the gym: faded, so they read as no longer current.
+   Hovering or focusing brings the row back to full strength for reading. */
+.leftRow {
+  opacity: var(--opacity-inactive);
+  background-color: var(--color-surface-secondary);
+  transition: opacity var(--transition);
+}
+
+.leftRow:hover,
+.leftRow:focus-within {
+  opacity: 1;
+}
+
+/* A badge with a line of detail under it. */
+.statusStack {
   display: inline-flex;
-  gap: var(--space-1);
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 
-.actionButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background-color: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background-color var(--transition), color var(--transition),
-    border-color var(--transition);
+/* "Paid ₹4,000 on Sep 22, 2026" */
+.lastPayment {
+  font-size: 0.875rem;
 }
 
-.actionButton:hover {
-  background-color: var(--color-surface-hover);
-  border-color: var(--color-border);
-  color: var(--color-text);
+.lastPayment strong {
+  color: var(--color-success);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.deleteButton:hover {
-  background-color: var(--color-danger-soft);
-  border-color: var(--color-danger-soft);
+.due {
   color: var(--color-danger);
+  font-weight: 600;
+}
+
+.noPayment {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-style: italic;
 }
 
 /* The members table carries more columns than the dashboard lists, so it needs
    more room before it starts scrolling sideways. */
 .wide {
-  min-width: 900px;
+  min-width: 960px;
+}
+
+/* Dates, badges and buttons never wrap mid-value. Cards on phones are
+   narrow enough that wrapping is left to the browser there. */
+@media (min-width: 769px) {
+  .wide td {
+    white-space: nowrap;
+  }
+
+  /* Seven columns plus the action buttons: slightly tighter cells keep the
+     whole row, buttons included, visible on a laptop screen. */
+  .wide th,
+  .wide td {
+    padding-inline: var(--space-4);
+  }
+
+  .wide th:first-child,
+  .wide td:first-child {
+    padding-left: var(--space-5);
+  }
+}
+
+/* On laptop screens the join date gives way so the row's buttons stay in
+   view. It is still on wide screens, on phone cards and on the member page. */
+@media (min-width: 769px) and (max-width: 1439px) {
+  .joinColumn {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -59,14 +97,9 @@
     min-width: 0;
   }
 
-  /* Comfortable tap targets - 30px is fine for a mouse, not for a thumb. */
-  .actionButton {
-    width: 40px;
-    height: 40px;
-    border-color: var(--color-border);
-  }
-
-  .actions {
-    gap: var(--space-2);
+  /* On a card the payment badge and its amount sit on one line, right-aligned
+     like every other value. */
+  .statusStack {
+    align-items: flex-end;
   }
 }

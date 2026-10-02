@@ -1,4 +1,7 @@
 .card {
+  /* clip, not hidden: hidden would turn the card into a scroll container and
+     stop sticky headings inside it (History Logs) from sticking. */
+  overflow: clip;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -15,6 +18,13 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
 .title {
   font-size: 0.9375rem;
   font-weight: 600;
@@ -26,6 +36,18 @@
   color: var(--color-text-secondary);
 }
 
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background-color: var(--color-primary-soft);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
 .body {
   padding: var(--space-5);
 }
@@ -33,4 +55,55 @@
 /* Tables sit flush against the card edges, so they opt out of the padding. */
 .bodyFlush {
   padding: 0;
+}
+
+/* --- Toned cards -----------------------------------------------------------
+   Each tone sets --tone and --tone-soft; everything below reads them. The
+   table headings inside follow too, because Table.module.css reads
+   --color-table-head and this redefines it for the card's contents. */
+
+.primary {
+  --tone: var(--tone-primary);
+  --tone-soft: var(--tone-primary-soft);
+}
+
+.warning {
+  --tone: var(--tone-warning);
+  --tone-soft: var(--tone-warning-soft);
+}
+
+.danger {
+  --tone: var(--tone-danger);
+  --tone-soft: var(--tone-danger-soft);
+}
+
+.success {
+  --tone: var(--color-success);
+  --tone-soft: var(--color-success-soft);
+}
+
+.toned {
+  --color-table-head: var(--tone-soft);
+  border-top: 4px solid var(--tone);
+}
+
+.toned .header {
+  background: linear-gradient(90deg, var(--tone-soft) 0%, var(--color-surface) 85%);
+}
+
+.toned .title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.toned .icon {
+  background-color: var(--tone);
+  color: var(--color-on-brand);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: var(--space-4);
+  }
 }

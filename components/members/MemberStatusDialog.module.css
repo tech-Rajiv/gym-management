@@ -1,0 +1,7 @@
+.name {
+  color: var(--color-text);
+}
+
+.error {
+  margin-top: var(--space-4);
+}

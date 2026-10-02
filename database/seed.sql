@@ -20,12 +20,21 @@ DELETE FROM members WHERE is_demo = true;
 -- Membership plans
 -- Kept when demo members are cleared, since these are real plans the gym sells.
 -- ---------------------------------------------------------------------------
-INSERT INTO membership_plans (name, description, duration_days, price) VALUES
-  ('Monthly',     'One month of full gym access',              30,  1500.00),
-  ('Quarterly',   'Three months, billed once',                 90,  4000.00),
-  ('Half Yearly', 'Six months, includes one fitness review',  180,  7000.00),
-  ('Yearly',      'Twelve months, best value',                365, 12000.00)
-ON CONFLICT (name) DO NOTHING;
+-- Only plans not already on sale are added, so re-running the seed neither
+-- duplicates them nor resets a price the owner has since changed.
+INSERT INTO membership_plans (name, description, duration_days, price)
+SELECT v.name, v.description, v.duration_days, v.price
+FROM (
+  VALUES
+    ('Monthly',     'One month of full gym access',              30,  1500.00),
+    ('Quarterly',   'Three months, billed once',                 90,  4000.00),
+    ('Half Yearly', 'Six months, includes one fitness review',  180,  7000.00),
+    ('Yearly',      'Twelve months, best value',                365, 12000.00)
+) AS v (name, description, duration_days, price)
+WHERE NOT EXISTS (
+  SELECT 1 FROM membership_plans p
+  WHERE lower(p.name) = lower(v.name) AND p.is_active
+);
 
 -- ---------------------------------------------------------------------------
 -- Demo members, each with a current membership.
@@ -81,7 +90,7 @@ SELECT
   p.price
 FROM demo d
 JOIN new_members nm ON nm.phone = d.phone
-JOIN membership_plans p ON p.name = d.plan_name;
+JOIN membership_plans p ON p.name = d.plan_name AND p.is_active;
 
 -- ---------------------------------------------------------------------------
 -- Past memberships for three long-standing members.
@@ -106,4 +115,59 @@ SELECT
   p.price
 FROM history h
 JOIN members m ON m.phone = h.phone
-JOIN membership_plans p ON p.name = h.plan_name;
+JOIN membership_plans p ON p.name = h.plan_name AND p.is_active;
+
+-- ---------------------------------------------------------------------------
+-- Demo payments.
+--
+-- Deliberately uneven, so the payment states are all visible:
+--   * most terms fully paid, by UPI and by cash
+--   * two terms part paid, which show as "Partial" with an amount still due
+--   * two terms with nothing against them, which show as "Unpaid"
+--
+-- `paid_on` is often a day or two after the term started, which is the real
+-- pattern: the member trains first and the owner records the money later.
+--
+-- These rows carry is_demo so `npm run db:seed:clear` removes them, though
+-- they would go anyway when their member does, through ON DELETE CASCADE.
+-- ---------------------------------------------------------------------------
+WITH demo_payments (phone, term_end_offset, amount, method, paid_offset, reference, remark) AS (
+  VALUES
+    -- Fully paid, UPI
+    ('+91 90000 00001'::text,   2::int, 1500.00::numeric,  'upi'::text,  -27::int, '452901873364'::text, NULL::text),
+    ('+91 90000 00002',         3,      4000.00,           'upi',        -86,      '452887201553',       'Renewed for three months.'),
+    ('+91 90000 00004',        82,      4000.00,           'upi',         -8,      '453001927744',       NULL),
+    ('+91 90000 00005',       120,     12000.00,           'upi',       -244,      '449120038871',       'Annual renewal.'),
+    ('+91 90000 00010',       200,     12000.00,           'upi',       -164,      '450778102993',       NULL),
+    ('+91 90000 00012',       130,      7000.00,           'upi',        -49,      '452110447726',       NULL),
+    -- Fully paid, cash
+    ('+91 90000 00003',        25,      1500.00,           'cash',        -5,      NULL,                 'Paid at the desk.'),
+    ('+91 90000 00008',        28,      1500.00,           'cash',        -1,      NULL,                 NULL),
+    ('+91 90000 00014',        89,      4000.00,           'cash',        -1,      NULL,                 'Cash, receipt book no. 214.'),
+    ('+91 90000 00015',        10,      1500.00,           'cash',       -19,      NULL,                 NULL),
+    -- Part paid: 2,000 of a 4,000 quarterly term
+    ('+91 90000 00009',         5,      2000.00,           'cash',       -84,      NULL,                 'Half now, half at month end.'),
+    -- Part paid: 4,000 of a 7,000 half-yearly term
+    ('+91 90000 00006',       -12,      4000.00,           'upi',       -190,      '448003392015',       'Balance pending.'),
+    -- Past terms, so a member's history has more than one row
+    ('+91 90000 00001',       -29,      1500.00,           'cash',       -57,      NULL,                 NULL),
+    ('+91 90000 00001',       -59,      1500.00,           'upi',        -87,      '447221900184',       NULL),
+    ('+91 90000 00005',      -246,     12000.00,           'cash',      -608,      NULL,                 'Previous year.')
+    -- Nothing recorded for Vikram Rana or Devan Parmar, so their terms show
+    -- as Unpaid.
+)
+INSERT INTO payments (member_id, membership_id, amount, method, paid_on, reference, remark, is_demo)
+SELECT
+  m.id,
+  ms.id,
+  d.amount,
+  d.method,
+  current_date + d.paid_offset,
+  d.reference,
+  d.remark,
+  true
+FROM demo_payments d
+JOIN members m ON m.phone = d.phone
+JOIN memberships ms
+  ON ms.member_id = m.id
+ AND ms.end_date = current_date + d.term_end_offset;

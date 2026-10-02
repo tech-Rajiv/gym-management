@@ -1,51 +1,93 @@
 /* ==========================================================================
    Aura Fitness Management - design tokens and base styles
 
-   The colour scheme follows a 60 / 30 / 10 split:
-     60%  near-black page background
-     30%  dark grey surfaces - cards, sidebar, table headers
-     10%  the accent, used only where attention should go
+   EVERY colour in the application is a variable in this block. Components
+   never hardcode one, so re-theming means editing values here only:
 
-   Every component reads these variables. Changing --color-primary below
-   re-themes the whole application, so no component hardcodes a colour.
+     --color-primary      the brand colour - buttons, active tabs, links
+     --color-background   the page behind the cards
+     --color-surface      cards, sidebar, header
+
+   If you pick a light primary colour (yellow, lime), flip --color-on-primary
+   to a dark value so text on primary buttons stays readable.
    ========================================================================== */
 
 :root {
-  /* --- 60%: background ---------------------------------------------------- */
-  --color-background: #000000;
-
-  /* --- 30%: surfaces, raised in steps to give depth without gradients ----- */
-  --color-surface: #131313;
-  --color-surface-secondary: #1c1c1c;
-  --color-surface-hover: #242424;
-  --color-border: #2e2e2e;
-  --color-border-strong: #3d3d3d;
+  /* --- Page and surfaces -------------------------------------------------- */
+  --color-background: #eef1fa;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f6f8fc;
+  --color-surface-hover: #eef1f8;
+  --color-border: #e3e8f1;
+  --color-border-strong: #cdd5e3;
 
   /* --- Text --------------------------------------------------------------- */
-  --color-text: #f5f5f5;
-  --color-text-secondary: #9a9a9a;
-  --color-text-muted: #6b6b6b;
+  --color-text: #101828;
+  --color-text-secondary: #475467;
+  --color-text-muted: #667085;
 
-  /* --- 10%: the accent ---------------------------------------------------- */
-  --color-primary: #f5c400;
-  --color-primary-hover: #ffd426;
-  --color-primary-soft: rgba(245, 196, 0, 0.12);
-  --color-primary-border: rgba(245, 196, 0, 0.35);
-  /* Text placed on top of the accent. Yellow needs dark text to stay legible;
-     this is defined as a token so a darker accent can flip it to white. */
-  --color-on-primary: #14130c;
+  /* --- Brand -------------------------------------------------------------- */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-soft: rgba(79, 70, 229, 0.09);
+  --color-primary-border: rgba(79, 70, 229, 0.28);
+  /* Text placed on top of the primary colour. */
+  --color-on-primary: #ffffff;
 
-  /* --- Status colours ----------------------------------------------------- */
-  --color-success: #4ade80;
-  --color-success-soft: rgba(74, 222, 128, 0.12);
-  --color-warning: #fbbf24;
-  --color-warning-soft: rgba(251, 191, 36, 0.12);
-  --color-danger: #f87171;
-  --color-danger-soft: rgba(248, 113, 113, 0.12);
-  --color-danger-strong: #dc2626;
-  --color-danger-strong-hover: #b91c1c;
+  /* A second, warmer brand colour for highlights such as the "needs action"
+     stat card and the login page backdrop. */
+  --color-accent: #f97316;
+  --color-accent-soft: rgba(249, 115, 22, 0.1);
+
+  /* The brand gradient: dashboard welcome banner, phone header, login page,
+     logo marks and the floating "add" button. */
+  --gradient-brand: linear-gradient(135deg, #4f46e5 0%, #7c3aed 60%, #a855f7 100%);
+  /* Text and icons placed on the gradient. */
+  --color-on-brand: #ffffff;
+  --color-on-brand-muted: rgba(255, 255, 255, 0.78);
+  /* Translucent white controls sitting on the gradient. */
+  --color-on-brand-surface: rgba(255, 255, 255, 0.16);
+  --color-on-brand-surface-hover: rgba(255, 255, 255, 0.26);
+
+  /* --- Sidebar (desktop) - a deep indigo panel ---------------------------- */
+  --color-sidebar-bg: linear-gradient(180deg, #1e1b4b 0%, #2e1065 100%);
+  --color-sidebar-text: rgba(255, 255, 255, 0.7);
+  --color-sidebar-text-strong: #ffffff;
+  --color-sidebar-muted: rgba(255, 255, 255, 0.45);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --color-sidebar-active: rgba(255, 255, 255, 0.14);
+  --color-sidebar-border: rgba(255, 255, 255, 0.08);
+
+  /* --- Stat card tones ---------------------------------------------------- */
+  --tone-primary: #4f46e5;
+  --tone-primary-soft: #eef0ff;
+  --tone-warning: #f59e0b;
+  --tone-warning-soft: #fff6e5;
+  --tone-danger: #e11d48;
+  --tone-danger-soft: #ffedf1;
+  /* Solid fills for the dashboard figures, one per tone. */
+  --tone-primary-fill: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --tone-warning-fill: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  --tone-danger-fill: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%);
+
+  /* Table column headings sit on a faint brand tint. */
+  --color-table-head: #f5f6ff;
+
+  /* --- Status colours -----------------------------------------------------
+     The text shades are dark enough to read on their own soft backgrounds. */
+  --color-success: #067647;
+  --color-success-soft: #e7f8ef;
+  --color-warning: #b54708;
+  --color-warning-soft: #fef4e6;
+  --color-danger: #c01048;
+  --color-danger-soft: #fdecf1;
+  --color-danger-strong: #e11d48;
+  --color-danger-strong-hover: #be123c;
   /* Text on top of the solid danger colour. */
   --color-on-danger: #ffffff;
+
+  /* Rows for members who have left the gym are faded by this much. */
+  --opacity-inactive: 0.55;
 
   /* --- Spacing scale ------------------------------------------------------ */
   --space-1: 0.25rem;
@@ -57,26 +99,28 @@
   --space-7: 3rem;
 
   /* --- Radii -------------------------------------------------------------- */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --radius-full: 999px;
 
-  /* --- Elevation ---------------------------------------------------------
-     Depth comes from a light top edge plus a shadow below, which reads as a
-     surface catching light from above. No gradients, no glass.              */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
-  --highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* --- Elevation ---------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 1px 3px rgba(16, 24, 40, 0.06), 0 4px 12px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 20px 48px rgba(16, 24, 40, 0.16);
+  /* Cast upwards, by the bottom tab bar. */
+  --shadow-up: 0 -4px 16px rgba(16, 24, 40, 0.05);
+  --highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.5);
   /* Inputs are recessed rather than raised - the opposite of a card. */
-  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.35);
-  /* Dims the page behind a dialog or the mobile sidebar. */
-  --color-backdrop: rgba(0, 0, 0, 0.7);
+  --shadow-inset: inset 0 1px 2px rgba(16, 24, 40, 0.04);
+  /* Dims the page behind a dialog. */
+  --color-backdrop: rgba(16, 24, 40, 0.45);
 
   /* --- Layout ------------------------------------------------------------- */
   --sidebar-width: 248px;
   --header-height: 64px;
+  /* The phone tab bar, plus the iPhone home-indicator area beneath it. */
+  --bottom-nav-height: 64px;
 
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
@@ -91,11 +135,11 @@
 
        640px   phones - one column, stacked buttons, full-width controls
        768px   large phones and small tablets - tables become stacked cards
-       1024px  tablets - the sidebar turns into a drawer
-       1280px  wide desktop - the dashboard lists sit side by side
+       1024px  tablets - the sidebar is replaced by the bottom tab bar
+       1280px  wide desktop
      --------------------------------------------------------------------- */
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* --- Reset ---------------------------------------------------------------- */
@@ -124,6 +168,8 @@ body {
 
 body {
   background-color: var(--color-background);
+  /* Stops iOS enlarging text when the phone is turned sideways. */
+  -webkit-text-size-adjust: 100%;
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: 0.9375rem;
@@ -153,10 +199,24 @@ textarea {
   color: inherit;
 }
 
+/* Removes the grey flash iOS draws over anything tapped. */
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* A single visible focus style everywhere, for keyboard users. */
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Utility: hidden on phones and tablets, where a floating button or the tab
+   bar does the same job. */
+@media (max-width: 1024px) {
+  .desktop-only {
+    display: none !important;
+  }
 }
 
 /* Respect a reduced-motion preference. */

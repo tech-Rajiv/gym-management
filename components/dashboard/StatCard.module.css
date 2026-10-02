@@ -1,88 +1,149 @@
+/* --- Desktop and tablet: a solid tile -------------------------------------
+   Laid out on a small grid:
+
+     [label / hint]   [icon]
+     [  big number        ]
+     [  View list →       ]                                                 */
+
 .card {
   position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "text  icon"
+    "value value"
+    "more  more";
+  align-items: start;
+  gap: var(--space-2) var(--space-3);
   padding: var(--space-5);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  overflow: hidden;
+  background: var(--tone-fill);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md), var(--highlight-top);
+  color: var(--color-on-brand);
+  box-shadow: var(--shadow-md);
 }
 
-/* Cards that lead somewhere lift slightly on hover, so it is obvious which
-   figures can be opened and which are read-only. */
+/* A large soft circle in the corner - decoration only. */
+.card::after {
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  right: -50px;
+  bottom: -70px;
+  background-color: var(--color-on-brand-surface);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.primary {
+  --tone-fill: var(--tone-primary-fill);
+}
+
+.warning {
+  --tone-fill: var(--tone-warning-fill);
+}
+
+.danger {
+  --tone-fill: var(--tone-danger-fill);
+}
+
+/* Cards that lead somewhere lift on hover, so it is obvious they open. */
 .cardLink {
-  transition: background-color var(--transition), border-color var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition);
 }
 
 .cardLink:hover {
-  background-color: var(--color-surface-secondary);
-  border-color: var(--color-border-strong);
-}
-
-.arrow {
-  position: absolute;
-  top: var(--space-5);
-  right: var(--space-5);
-  color: var(--color-text-muted);
-  opacity: 0;
-  transition: opacity var(--transition), color var(--transition);
-}
-
-.cardLink:hover .arrow,
-.cardLink:focus-visible .arrow {
-  opacity: 1;
-  color: var(--color-primary);
-}
-
-/* Touch devices have no hover, so the arrow is always visible there. */
-@media (hover: none) {
-  .arrow {
-    opacity: 1;
-  }
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .icon {
+  grid-area: icon;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background-color: var(--color-surface-secondary);
-  border: 1px solid var(--color-border);
+  width: 44px;
+  height: 44px;
+  background-color: var(--color-on-brand-surface);
   border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  flex-shrink: 0;
 }
 
-/* Only the card that needs attention wears the accent, which keeps the
-   accent at roughly 10% of the interface rather than on everything. */
-.iconAccent {
-  background-color: var(--color-primary-soft);
-  border-color: var(--color-primary-border);
-  color: var(--color-primary);
-}
-
-.body {
+.text {
+  grid-area: text;
   min-width: 0;
 }
 
 .label {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
-}
-
-.value {
-  margin-top: var(--space-1);
-  font-size: 1.75rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
 }
 
 .hint {
-  margin-top: var(--space-1);
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  color: var(--color-on-brand-muted);
+}
+
+.value {
+  grid-area: value;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.more {
+  grid-area: more;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-on-brand-muted);
+}
+
+.cardLink:hover .more {
+  color: var(--color-on-brand);
+}
+
+/* --- Phones: a full-width row --------------------------------------------
+
+     [icon]  [label / hint]  [number]                                       */
+
+@media (max-width: 640px) {
+  .card {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "icon text value";
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .card::after {
+    width: 110px;
+    height: 110px;
+    right: -30px;
+    bottom: -60px;
+  }
+
+  .icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .value {
+    font-size: 1.75rem;
+  }
+
+  .more {
+    display: none;
+  }
 }

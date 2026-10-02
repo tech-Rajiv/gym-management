@@ -18,7 +18,7 @@
 .control {
   width: 100%;
   padding: 0 var(--space-3);
-  height: 38px;
+  height: 40px;
   background-color: var(--color-surface-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -40,7 +40,8 @@
 .control:focus {
   outline: none;
   border-color: var(--color-primary);
-  background-color: var(--color-surface-hover);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
 .textarea {
@@ -72,9 +73,7 @@
   color: var(--color-text-secondary);
 }
 
-/* Native date inputs render a light calendar icon; invert it for dark UI. */
 .control[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
   cursor: pointer;
 }
 
@@ -94,4 +93,12 @@
 .hint {
   font-size: 0.75rem;
   color: var(--color-text-muted);
+}
+
+/* iOS zooms the whole page into any field whose text is under 16px. */
+@media (max-width: 640px) {
+  .control {
+    height: 44px;
+    font-size: 1rem;
+  }
 }

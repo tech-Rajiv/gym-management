@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import MemberRow from "./MemberRow";
-import DeleteMemberDialog from "./DeleteMemberDialog";
+import MemberStatusDialog from "./MemberStatusDialog";
 import EmptyState from "@/components/ui/EmptyState";
 import Button from "@/components/ui/Button";
 import { MembersIcon, SearchIcon, InboxIcon } from "@/components/ui/icons";
@@ -13,8 +13,8 @@ import styles from "./MemberTable.module.css";
 /**
  * The members list.
  *
- * A Client Component for one reason: it remembers which member the delete
- * dialog is asking about. The rows themselves are plain presentational
+ * A Client Component for one reason: it remembers which member the "mark as
+ * left" or "restore" dialog is asking about. The rows themselves are plain presentational
  * components, and the data was fetched on the server by the page above.
  *
  * An empty list has three different meanings, and each needs its own advice:
@@ -29,7 +29,8 @@ export default function MemberTable({
   isSearching = false,
   filter = DEFAULT_MEMBER_FILTER,
 }) {
-  const [memberToDelete, setMemberToDelete] = useState(null);
+  // { member, mode: 'left' | 'restore' } while a dialog is open.
+  const [statusChange, setStatusChange] = useState(null);
 
   if (members.length === 0) {
     if (isSearching) {
@@ -74,18 +75,20 @@ export default function MemberTable({
           <thead>
             <tr>
               <th>Member</th>
-              <th>Phone</th>
-              <th>Gender</th>
-              <th>Plan</th>
-              <th>Join Date</th>
-              <th>Expiry Date</th>
+              <th className={styles.joinColumn}>Join Date</th>
+              <th>Expiry / Plan</th>
               <th>Status</th>
+              <th>Last Payment</th>
               <th className={tableStyles.actionsHeader}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {members.map((member) => (
-              <MemberRow key={member.id} member={member} onDelete={setMemberToDelete} />
+              <MemberRow
+                key={member.id}
+                member={member}
+                onChangeStatus={(target, mode) => setStatusChange({ member: target, mode })}
+              />
             ))}
           </tbody>
         </table>
@@ -93,11 +96,12 @@ export default function MemberTable({
 
       {/* Rendered only while a member is selected, so the dialog always opens
           with fresh state and the right name. */}
-      {memberToDelete && (
-        <DeleteMemberDialog
-          member={memberToDelete}
-          open={Boolean(memberToDelete)}
-          onClose={() => setMemberToDelete(null)}
+      {statusChange && (
+        <MemberStatusDialog
+          member={statusChange.member}
+          mode={statusChange.mode}
+          open
+          onClose={() => setStatusChange(null)}
         />
       )}
     </>

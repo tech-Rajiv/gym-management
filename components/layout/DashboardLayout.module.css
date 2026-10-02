@@ -19,13 +19,19 @@
 
 @media (max-width: 1024px) {
   .main {
-    /* The sidebar becomes an overlay, so the content reclaims the full width. */
+    /* The sidebar is gone at this width, so the content takes the full width. */
     margin-left: 0;
+  }
+
+  .content {
+    /* Keeps the last row of content clear of the fixed bottom tab bar. */
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 88px);
   }
 }
 
 @media (max-width: 640px) {
   .content {
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-4)
+      calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 88px);
   }
 }

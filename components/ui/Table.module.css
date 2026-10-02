@@ -26,7 +26,7 @@
 
 .table thead th {
   padding: var(--space-3) var(--space-5);
-  background-color: var(--color-surface-secondary);
+  background-color: var(--color-table-head);
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-size: 0.75rem;
@@ -51,13 +51,20 @@
   transition: background-color var(--transition);
 }
 
-.table tbody tr:hover {
+/* Every other row is faintly shaded, so the eye can follow a row across. */
+.table tbody tr:nth-child(even) {
   background-color: var(--color-surface-secondary);
 }
 
-/* Right-aligned final column for row actions. */
+.table tbody tr:hover {
+  background-color: var(--color-surface-hover);
+}
+
+/* Right-aligned final column for row actions. The heading needs the extra
+   `.table thead` to beat the left alignment every heading gets above. */
 .actionsHeader,
-.actionsCell {
+.actionsCell,
+.table thead th.actionsHeader {
   text-align: right;
   white-space: nowrap;
 }
@@ -68,6 +75,82 @@
 
 .numeric {
   font-variant-numeric: tabular-nums;
+}
+
+/* Visible to screen readers only. Used for a column header that would be
+   clutter on screen but is needed to announce the column. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Row actions -----------------------------------------------------------
+   Shared by every table that has per-row buttons, so the members list and the
+   payment history cannot drift apart on size, colour or hover behaviour.    */
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+/* Every row action is the same 34px-tall bordered button, so a row of them
+   reads as one set: icon-only squares, and the one labelled action. */
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition),
+    border-color var(--transition);
+}
+
+.actionButton:hover {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+/* The renewal shortcut: same height, radius and border as its neighbours,
+   tinted with the brand colour and carrying a word so it leads the set. */
+.payAction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 34px;
+  padding: 0 var(--space-3);
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color var(--transition), color var(--transition);
+}
+
+.payAction:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.deleteButton:hover {
+  background-color: var(--color-danger-soft);
+  border-color: var(--color-danger-soft);
+  color: var(--color-danger);
 }
 
 /* --- Mobile ----------------------------------------------------------------
@@ -159,5 +242,27 @@
 
   .table tbody td.actionsCell::before {
     content: none;
+  }
+
+  /* Comfortable tap targets - 34px is fine for a mouse, not for a thumb. */
+  .actionButton {
+    width: 40px;
+    height: 40px;
+  }
+
+  .payAction {
+    height: 40px;
+    margin-right: auto;
+    padding: 0 var(--space-4);
+  }
+
+  .actions {
+    gap: var(--space-2);
+  }
+
+  /* The action row spans the card, so a labelled button can sit on the left
+     with the icon buttons on the right. */
+  .actionsCell .actions {
+    width: 100%;
   }
 }

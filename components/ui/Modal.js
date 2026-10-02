@@ -70,14 +70,18 @@ export default function Modal({
       ref={dialogRef}
       className={styles.dialog}
       onClick={handleBackdropClick}
-      aria-labelledby="modal-title"
+      aria-labelledby={title ? "modal-title" : undefined}
     >
-      <div className={styles.header}>
-        <h2 id="modal-title" className={styles.title}>
-          {title}
-        </h2>
-      </div>
-      <div className={styles.body}>{children}</div>
+      {/* A dialog with no title (such as SuccessDialog, which has its own
+          heading inside) skips the header bar. */}
+      {title && (
+        <div className={styles.header}>
+          <h2 id="modal-title" className={styles.title}>
+            {title}
+          </h2>
+        </div>
+      )}
+      <div className={`${styles.body} ${title ? "" : styles.bodyOnly}`}>{children}</div>
       {footer && <div className={styles.footer}>{footer}</div>}
     </dialog>
   );

@@ -30,6 +30,11 @@
   line-height: 1.6;
 }
 
+/* With no header above it, the body needs its own top padding. */
+.bodyOnly {
+  padding-top: var(--space-6);
+}
+
 .footer {
   display: flex;
   justify-content: flex-end;

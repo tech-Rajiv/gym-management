@@ -1,9 +1,16 @@
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
-import { EyeIcon, EditIcon, TrashIcon } from "@/components/ui/icons";
+import {
+  EyeIcon,
+  EditIcon,
+  UserMinusIcon,
+  RestoreIcon,
+  CardIcon,
+} from "@/components/ui/icons";
 import { formatDate } from "@/lib/utils/dates";
-import { describeMembership } from "@/lib/utils/membershipStatus";
-import { orDash, titleCase } from "@/lib/utils/format";
+import { describeMembership, MEMBERSHIP_STATUS } from "@/lib/utils/membershipStatus";
+import { describePayment, getMethodLabel } from "@/lib/utils/paymentStatus";
+import { formatCurrency } from "@/lib/utils/format";
 import tableStyles from "@/components/ui/Table.module.css";
 import styles from "./MemberTable.module.css";
 
@@ -13,35 +20,99 @@ import styles from "./MemberTable.module.css";
  * The status shown here is worked out from the membership end date every time
  * the row renders, so it is correct the moment the page loads and needs no
  * stored value to be kept up to date.
+ *
+ * A member who has left the gym is faded and shows "Left" instead of their
+ * membership status, so they cannot be mistaken for a current member.
+ *
+ * @param {(member, mode: 'left'|'restore') => void} onChangeStatus
  */
-export default function MemberRow({ member, onDelete }) {
+export default function MemberRow({ member, onChangeStatus }) {
+  const isLeft = member.member_status === "left";
   const membership = describeMembership(member.membership_end_date);
+  // What the member still owes on that term. Derived, never stored - see
+  // lib/utils/paymentStatus.js.
+  const payment = describePayment(
+    member.membership_price,
+    member.membership_amount_paid
+  );
+
+  // An expired, expiring or missing membership is the moment to take a
+  // renewal, so the row offers the payment form with this member selected.
+  const needsRenewal =
+    !isLeft &&
+    (membership.status === MEMBERSHIP_STATUS.EXPIRED ||
+      membership.status === MEMBERSHIP_STATUS.EXPIRING_SOON ||
+      membership.status === MEMBERSHIP_STATUS.NONE);
 
   return (
-    <tr>
+    <tr className={isLeft ? styles.leftRow : undefined}>
       <td>
         <Link href={`/members/${member.id}`} className={styles.name}>
           {member.full_name}
         </Link>
-        <p className={styles.subtext}>{orDash(member.email)}</p>
+        <p className={styles.subtext}>{member.phone}</p>
       </td>
-      <td data-label="Phone" className={tableStyles.muted}>{member.phone}</td>
-      <td data-label="Gender" className={tableStyles.muted}>{titleCase(member.gender)}</td>
-      <td data-label="Plan">{orDash(member.plan_name)}</td>
-      <td data-label="Joined" className={`${tableStyles.muted} ${tableStyles.numeric}`}>
+      <td
+        data-label="Joined"
+        className={`${tableStyles.muted} ${tableStyles.numeric} ${styles.joinColumn}`}
+      >
         {formatDate(member.join_date)}
       </td>
       <td data-label="Expires" className={tableStyles.numeric}>
-        {member.membership_end_date ? formatDate(member.membership_end_date) : "—"}
+        <span className={styles.statusStack}>
+          <span>{member.membership_end_date ? formatDate(member.membership_end_date) : "—"}</span>
+          {member.plan_name && (
+            <span className={styles.subtext}>{member.plan_name} plan</span>
+          )}
+        </span>
       </td>
       <td data-label="Status">
-        <Badge variant={membership.variant}>{membership.label}</Badge>
+        {isLeft ? (
+          <span className={styles.statusStack}>
+            <Badge variant="neutral">Left</Badge>
+            {member.left_on && (
+              <span className={styles.subtext}>on {formatDate(member.left_on)}</span>
+            )}
+          </span>
+        ) : (
+          <Badge variant={membership.variant}>{membership.label}</Badge>
+        )}
+      </td>
+
+      {/* The last money received, e.g. "Paid ₹4,000 on Sep 22, 2026", with
+          anything still owed on the current term underneath. */}
+      <td data-label="Last payment">
+        {member.last_payment_on ? (
+          <span className={styles.statusStack}>
+            <span className={styles.lastPayment}>
+              Paid <strong>{formatCurrency(member.last_payment_amount)}</strong>
+              {payment.amountDue > 0 && (
+                <span className={styles.due}> · {formatCurrency(payment.amountDue)} due</span>
+              )}
+            </span>
+            <span className={styles.subtext}>
+              on {formatDate(member.last_payment_on)} · {getMethodLabel(member.last_payment_method)}
+            </span>
+          </span>
+        ) : (
+          <span className={styles.noPayment}>No payment yet</span>
+        )}
       </td>
       <td className={tableStyles.actionsCell}>
-        <span className={styles.actions}>
+        <span className={tableStyles.actions}>
+          {needsRenewal && (
+            <Link
+              href={`/payments/new?member=${member.id}`}
+              className={tableStyles.payAction}
+              aria-label={`Add payment for ${member.full_name}`}
+            >
+              <CardIcon size={15} />
+              Add payment
+            </Link>
+          )}
           <Link
             href={`/members/${member.id}`}
-            className={styles.actionButton}
+            className={tableStyles.actionButton}
             title="View member"
             aria-label={`View ${member.full_name}`}
           >
@@ -49,21 +120,33 @@ export default function MemberRow({ member, onDelete }) {
           </Link>
           <Link
             href={`/members/${member.id}/edit`}
-            className={styles.actionButton}
+            className={tableStyles.actionButton}
             title="Edit member"
             aria-label={`Edit ${member.full_name}`}
           >
             <EditIcon size={15} />
           </Link>
-          <button
-            type="button"
-            onClick={() => onDelete(member)}
-            className={`${styles.actionButton} ${styles.deleteButton}`}
-            title="Delete member"
-            aria-label={`Delete ${member.full_name}`}
-          >
-            <TrashIcon size={15} />
-          </button>
+          {isLeft ? (
+            <button
+              type="button"
+              onClick={() => onChangeStatus(member, "restore")}
+              className={tableStyles.actionButton}
+              title="Restore member"
+              aria-label={`Restore ${member.full_name}`}
+            >
+              <RestoreIcon size={15} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onChangeStatus(member, "left")}
+              className={`${tableStyles.actionButton} ${tableStyles.deleteButton}`}
+              title="Mark as left"
+              aria-label={`Mark ${member.full_name} as left`}
+            >
+              <UserMinusIcon size={15} />
+            </button>
+          )}
         </span>
       </td>
     </tr>

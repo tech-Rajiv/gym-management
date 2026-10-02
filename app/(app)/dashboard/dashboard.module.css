@@ -1,0 +1,127 @@
+/* --- Welcome banner ------------------------------------------------------ */
+
+.welcome {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding: var(--space-6);
+  overflow: hidden;
+  background: var(--gradient-brand);
+  border-radius: var(--radius-lg);
+  color: var(--color-on-brand);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Two soft circles for depth - decoration only. */
+.welcome::before,
+.welcome::after {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-full);
+  background-color: var(--color-on-brand-surface);
+  pointer-events: none;
+}
+
+.welcome::before {
+  width: 220px;
+  height: 220px;
+  top: -90px;
+  right: -40px;
+}
+
+.welcome::after {
+  width: 140px;
+  height: 140px;
+  bottom: -70px;
+  right: 180px;
+}
+
+.welcome > * {
+  position: relative;
+}
+
+.welcomeDate {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-on-brand-muted);
+}
+
+.welcomeTitle {
+  margin-top: var(--space-1);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.welcomeText {
+  margin-top: var(--space-1);
+  font-size: 0.9375rem;
+  color: var(--color-on-brand-muted);
+}
+
+.welcomeAction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 42px;
+  padding: 0 var(--space-4);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition);
+}
+
+.welcomeAction:hover {
+  transform: translateY(-1px);
+}
+
+/* --- Figures and lists ---------------------------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.lists {
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* Two lists side by side once there is room for their action buttons. */
+@media (min-width: 1440px) {
+  .lists {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .welcome {
+    padding: var(--space-5);
+  }
+
+  .welcomeTitle {
+    font-size: 1.5rem;
+  }
+
+  .welcomeText {
+    font-size: 0.875rem;
+  }
+
+  /* One card per row on a phone - see StatCard.module.css. */
+  .stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}
