@@ -71,6 +71,30 @@
   cursor: not-allowed;
 }
 
+/* Apply and, once a range is applied, Clear - side by side. */
+.rangeActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.clear {
+  height: 38px;
+  padding: 0 var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clear:hover {
+  background-color: var(--color-danger-soft);
+  border-color: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
 /* Phones: everything full width, 16px text so iOS does not zoom in. */
 @media (max-width: 640px) {
   .filter,
@@ -84,8 +108,13 @@
     width: 100%;
   }
 
-  .apply {
+  .rangeActions {
     grid-column: 1 / -1;
+  }
+
+  .apply,
+  .clear {
+    flex: 1;
     height: 44px;
   }
 

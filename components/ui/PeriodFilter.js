@@ -2,25 +2,30 @@
 
 import { useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import SearchSelect from "@/components/ui/SearchSelect";
-import { CalendarIcon } from "@/components/ui/icons";
-import styles from "./PaymentPeriodFilter.module.css";
+import SearchSelect from "./SearchSelect";
+import { CalendarIcon } from "./icons";
+import styles from "./PeriodFilter.module.css";
 
 const ALL = "all";
 const CUSTOM = "custom";
 
 /**
- * Filters the payment history by date: All time, one month, or a custom range.
+ * Filters a list by date: All time, This month, Last month, or a custom range.
+ * Used by Payment History and History Logs.
  *
- * Like the search box and the Cash / UPI tabs, it filters nothing itself. It
- * writes the period into the URL (`?month=` or `?from=&to=`) and the page
- * re-runs on the server, so a filtered view can be bookmarked. Other query
- * parameters - the search, the method - are kept.
+ * It filters nothing itself. It writes the period into the URL (`?month=` or
+ * `?from=&to=`) and the page re-runs on the server, so a filtered view can be
+ * bookmarked. Other query parameters, such as a search, are kept - except
+ * `?page=`, since a different period starts again from its first page.
  *
- * @param {{value: string, label: string}[]} months the months to offer
- * @param {object} period the period currently applied, from resolvePaymentPeriod
+ * A custom range waits for its dates and Apply; once one is applied, Clear
+ * goes back to All time.
+ *
+ * @param {{value: string, label: string}[]} options the months to offer -
+ *        This month and Last month, from periodOptions()
+ * @param {object} period the period currently applied, from resolvePeriod()
  */
-export default function PaymentPeriodFilter({ months, period }) {
+export default function PeriodFilter({ id = "period", options, period }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -35,7 +40,7 @@ export default function PaymentPeriodFilter({ months, period }) {
   /** Rewrites the period in the URL, leaving every other parameter alone. */
   const apply = (next) => {
     const params = new URLSearchParams(searchParams);
-    for (const key of ["month", "from", "to"]) params.delete(key);
+    for (const key of ["month", "from", "to", "page"]) params.delete(key);
     for (const [key, value] of Object.entries(next)) if (value) params.set(key, value);
     const query = params.toString();
     startTransition(() => {
@@ -55,17 +60,32 @@ export default function PaymentPeriodFilter({ months, period }) {
     apply({ from, to });
   };
 
+  /** Drops the custom range and goes back to All time. */
+  const handleClear = () => {
+    setChoice(ALL);
+    setFrom("");
+    setTo("");
+    apply({});
+  };
+
+  // A month that is no longer offered (an old bookmark) still shows its name.
+  const extraMonth =
+    period.mode === "month" && !options.some((option) => option.value === period.month)
+      ? [{ value: period.month, label: period.label }]
+      : [];
+
   return (
     <div className={`${styles.filter} ${isPending ? styles.pending : ""}`}>
       <SearchSelect
-        id="payment-period"
+        id={id}
         className={styles.picker}
         icon={CalendarIcon}
-        placeholder="Payment period"
+        placeholder="Period"
         options={[
           { value: ALL, label: "All time" },
-          ...months.map((month) => ({ ...month, group: "Month" })),
-          { value: CUSTOM, label: "Custom range…", group: "Other" },
+          ...options,
+          ...extraMonth,
+          { value: CUSTOM, label: "Custom range…" },
         ]}
         value={choice}
         onChange={handleChoice}
@@ -93,9 +113,16 @@ export default function PaymentPeriodFilter({ months, period }) {
               className={styles.date}
             />
           </label>
-          <button type="submit" className={styles.apply} disabled={!from && !to}>
-            Apply
-          </button>
+          <div className={styles.rangeActions}>
+            <button type="submit" className={styles.apply} disabled={!from && !to}>
+              Apply
+            </button>
+            {period.mode === "custom" && (
+              <button type="button" className={styles.clear} onClick={handleClear}>
+                Clear
+              </button>
+            )}
+          </div>
         </form>
       )}
     </div>

@@ -1,6 +1,26 @@
 .filterBar {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* "12 entries · This month (October 2026)" - what the list below shows. */
+.summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--color-border);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.summaryPeriod {
+  padding: 1px var(--space-2);
+  background-color: var(--color-primary-soft);
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  font-size: 0.75rem;
 }
 
 .pager {
@@ -29,6 +49,7 @@
 
 @media (max-width: 640px) {
   .filterBar,
+  .summary,
   .pager {
     padding-inline: var(--space-4);
   }

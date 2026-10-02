@@ -8,7 +8,7 @@ import { getPayments } from "@/lib/db/payments";
 import { PlusIcon } from "@/components/ui/icons";
 import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import { requireAdmin } from "@/lib/auth";
-import { resolvePaymentPeriod, recentMonths } from "@/lib/utils/paymentPeriod";
+import { resolvePeriod, periodOptions } from "@/lib/utils/period";
 import { today } from "@/lib/utils/dates";
 import styles from "./payments.module.css";
 
@@ -20,18 +20,18 @@ export const dynamic = "force-dynamic";
 /**
  * Payment History.
  *
- * Every payment, newest first, with search, a Cash / UPI filter and a date
- * filter (one month, or a custom range). Like the members list, all of them
+ * Every payment, newest first, with a search and a date filter (All time,
+ * This month, Last month, or a custom range). Like the members list, all of them
  * live in the URL, so PostgreSQL does the filtering and a filtered view can be
  * bookmarked.
  */
 export default async function PaymentsPage({ searchParams }) {
   await requireAdmin();
-  const { q: search = "", method, month, from, to } = await searchParams;
-  const period = resolvePaymentPeriod({ month, from, to });
+  const { q: search = "", month, from, to } = await searchParams;
+  const period = resolvePeriod({ month, from, to });
 
-  const payments = await getPayments({ search, method, from: period.from, to: period.to });
-  const isFiltered = Boolean(search) || period.mode !== "all" || (method && method !== "all");
+  const payments = await getPayments({ search, from: period.from, to: period.to });
+  const isFiltered = Boolean(search) || period.mode !== "all";
 
   return (
     <div>
@@ -46,15 +46,11 @@ export default async function PaymentsPage({ searchParams }) {
         }
       />
 
-      {/* --- Filters: period, search and method, in their own card -------- */}
+      {/* --- Filters: period and search, in their own card ----------------- */}
       <section className={styles.filters} aria-label="Filter payments">
         {/* useSearchParams needs a Suspense boundary around it. */}
         <Suspense fallback={null}>
-          <PaymentSearch
-            method={method ?? "all"}
-            period={period}
-            months={recentMonths(today())}
-          />
+          <PaymentSearch period={period} periodOptions={periodOptions(today())} />
         </Suspense>
       </section>
 
@@ -68,7 +64,7 @@ export default async function PaymentsPage({ searchParams }) {
           {/* The payments as shown - period, method and search - as a PDF. */}
           <DownloadPdfButton
             list="payments"
-            params={{ q: search, method, month, from, to }}
+            params={{ q: search, month, from, to }}
             title={`Payment History - ${period.label}`}
           />
         </div>

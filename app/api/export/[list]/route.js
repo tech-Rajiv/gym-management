@@ -6,7 +6,7 @@ import { pdfResponse } from "@/lib/pdf/tablePdf";
  * GET /api/export/:list?<the page's filters>
  *
  *   members   ?status=&q=
- *   payments  ?q=&method=&month= or ?from=&to=
+ *   payments  ?q=&month= or ?from=&to=
  *
  * Downloads the list as a PDF, with the same filters as the page it came
  * from. Signed-in admins only. See lib/pdf/exports.js.

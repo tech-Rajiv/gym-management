@@ -119,12 +119,15 @@ disappear from the everyday lists and the dashboard, appear under the **Left**
 filter as faded rows, and keep their record, terms and payments. **Restore**
 brings them back - which matters because the phone number stays taken.
 
-### Payment history filters
+### Date filters
 
-Payments can be filtered by Cash / UPI, by search, and by date: **All time**,
-any of the last twelve months, or a **custom range**. The period lives in the
-URL (`?month=2026-09` or `?from=2026-09-01&to=2026-09-10`) and is checked in
-`lib/utils/paymentPeriod.js`, so a malformed link simply shows all payments.
+Payment History and History Logs share one date filter
+(`components/ui/PeriodFilter.js`): **All time**, **This month**, **Last
+month**, or a **custom range** (with Clear once applied). Payments also have a
+search. The period lives in the URL (`?month=2026-09` or
+`?from=2026-09-01&to=2026-09-10`) and is checked in `lib/utils/period.js`, so
+a malformed link simply shows everything. History Logs compares each entry's
+date in the gym's own timezone.
 
 ### Dashboard
 
@@ -305,7 +308,7 @@ PDFs are built on the server from the database with jsPDF + jspdf-autotable
 | List | URL | Filters |
 | --- | --- | --- |
 | members | `/api/export/members` | `status`, `q` |
-| payments | `/api/export/payments` | `q`, `method`, `month` or `from` / `to` |
+| payments | `/api/export/payments` | `q`, `month` or `from` / `to` |
 
 The PDF fonts have no rupee sign, so amounts are written "Rs. 1,500".
 
