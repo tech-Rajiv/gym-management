@@ -1,0 +1,37 @@
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Marking someone as left is the one action that takes them off the lists,
+   so its hover warns in the danger colour. */
+.actions .leave:hover:not(:disabled) {
+  background-color: var(--color-danger-soft);
+  border-color: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  /* The confirmation <dialog> also lives in here; it keeps its own size. */
+  .actions > :not(dialog) {
+    width: 100%;
+  }
+
+  /* The main action spans the full row; the other two share the next one. */
+  .actions > :first-child:not(:only-child) {
+    grid-column: 1 / -1;
+  }
+
+  /* A left member has only Edit and Restore - one row, side by side. */
+  .twoUp > :first-child {
+    grid-column: auto;
+  }
+}

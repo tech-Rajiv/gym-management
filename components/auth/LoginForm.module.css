@@ -1,0 +1,11 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* A taller button on the one form everyone uses, easy to hit on a phone. */
+.form button[type="submit"] {
+  height: 44px;
+  margin-top: var(--space-2);
+}

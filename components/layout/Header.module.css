@@ -11,30 +11,29 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.menuButton {
+/* The brand shows here only on narrow screens, where the sidebar is hidden. */
+.brand {
   display: none;
   align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  background-color: transparent;
-  border: 1px solid var(--color-border);
+  width: 30px;
+  height: 30px;
+  background: var(--color-on-brand-surface);
+  color: var(--color-on-brand);
   border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  cursor: pointer;
   flex-shrink: 0;
 }
 
-.menuButton:hover {
-  background-color: var(--color-surface-hover);
-  color: var(--color-text);
-}
-
-.title {
+.brandName {
   font-size: 0.9375rem;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -51,18 +50,125 @@
   white-space: nowrap;
 }
 
-@media (max-width: 1024px) {
-  .menuButton {
-    display: inline-flex;
-  }
+.admin {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
 
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.adminName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition),
+    border-color var(--transition);
+}
+
+.logout:hover:not(:disabled) {
+  background-color: var(--color-danger-soft);
+  border-color: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.logout:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* On phones and tablets the header carries the brand gradient, since there
+   is no sidebar to give the app its colour. */
+@media (max-width: 1024px) {
   .header {
     padding: 0 var(--space-4);
+    background: var(--gradient-brand);
+    border-bottom: none;
+    color: var(--color-on-brand);
+  }
+
+  .brand {
+    display: flex;
+  }
+
+  .date {
+    color: var(--color-on-brand-muted);
+  }
+
+  .avatar {
+    background-color: var(--color-on-brand-surface);
+    border-color: transparent;
+    color: var(--color-on-brand);
+  }
+
+  .logout {
+    background-color: var(--color-on-brand-surface);
+    border-color: transparent;
+    color: var(--color-on-brand);
+  }
+
+  .logout:hover:not(:disabled) {
+    background-color: var(--color-on-brand-surface-hover);
+    border-color: transparent;
+    color: var(--color-on-brand);
   }
 }
 
 @media (max-width: 640px) {
-  .date {
+  .header {
+    gap: var(--space-3);
+  }
+
+  .date,
+  .adminName {
     display: none;
+  }
+
+  /* An icon-only button, still a comfortable 40px tap target. */
+  .logout {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .logoutText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }

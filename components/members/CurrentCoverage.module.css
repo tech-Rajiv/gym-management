@@ -1,0 +1,168 @@
+.empty {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.coverage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.plan {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+/* --- The two dates, side by side --------------------------------------- */
+
+.range {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dateBox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* The end date carries the status colour - it is the date that matters. */
+.end_success {
+  background-color: var(--color-success-soft);
+  border-color: var(--color-success-soft);
+}
+
+.end_warning {
+  background-color: var(--color-warning-soft);
+  border-color: var(--color-warning-soft);
+}
+
+.end_danger {
+  background-color: var(--color-danger-soft);
+  border-color: var(--color-danger-soft);
+}
+
+.dateLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dateValue {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.arrow {
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+}
+
+/* --- How far through the term ------------------------------------------ */
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.progressMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.text_success {
+  color: var(--color-success);
+}
+
+.text_warning {
+  color: var(--color-warning);
+}
+
+.text_danger {
+  color: var(--color-danger);
+}
+
+.track {
+  height: 8px;
+  overflow: hidden;
+  background-color: var(--color-surface-hover);
+  border-radius: var(--radius-full);
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.fill_success {
+  background-color: var(--color-success);
+}
+
+.fill_warning {
+  background-color: var(--color-warning);
+}
+
+.fill_danger {
+  background-color: var(--color-danger);
+}
+
+/* --- Money ------------------------------------------------------------- */
+
+.payment {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.paymentValue {
+  margin-top: 2px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.paymentHint {
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  /* The two dates stack, with the arrow turned to point down. */
+  .range {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .arrow {
+    justify-self: center;
+    transform: rotate(90deg);
+    line-height: 1;
+  }
+}

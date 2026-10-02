@@ -67,6 +67,15 @@ CREATE TABLE IF NOT EXISTS members (
 CREATE INDEX IF NOT EXISTS idx_members_join_date ON members (join_date DESC);
 CREATE INDEX IF NOT EXISTS idx_members_is_demo ON members (is_demo) WHERE is_demo;
 
+-- Whether the person still trains here. Members are never deleted: someone who
+-- leaves is marked 'left' so their record and payment history stay on file.
+-- Added with ALTER so an existing database picks it up on `npm run db:setup`.
+ALTER TABLE members ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active'
+  CHECK (status IN ('active', 'left'));
+ALTER TABLE members ADD COLUMN IF NOT EXISTS left_at timestamptz;
+
+CREATE INDEX IF NOT EXISTS idx_members_status ON members (status);
+
 -- ---------------------------------------------------------------------------
 -- memberships
 -- One row per membership term. A member accumulates rows here over time:
@@ -162,6 +171,70 @@ CREATE INDEX IF NOT EXISTS idx_payments_membership_id ON payments (membership_id
 CREATE INDEX IF NOT EXISTS idx_payments_paid_on ON payments (paid_on DESC);
 
 -- ---------------------------------------------------------------------------
+-- admins
+-- The people allowed to sign in. Only someone with a row here can log in.
+--
+-- The password is stored as plain text for now. Hash it (and compare with the
+-- hash) before this holds any password that matters.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS admins (
+  id          integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name        text NOT NULL CHECK (length(trim(name)) > 0),
+  email       text NOT NULL UNIQUE,
+  password    text NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  updated_at  timestamptz NOT NULL DEFAULT now()
+);
+
+-- The first admin. ON CONFLICT keeps a re-run from duplicating him or
+-- resetting a password that has since been changed.
+INSERT INTO admins (name, email, password)
+VALUES ('Hiren', 'hiren@gmail.com', 'hiren')
+ON CONFLICT (email) DO NOTHING;
+
+-- ---------------------------------------------------------------------------
+-- admin_sessions
+-- One row per signed-in browser. The cookie holds only the random token; who
+-- it belongs to is looked up here on every request, so a cookie cannot be
+-- edited into someone else's session, and logging out ends it for real.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS admin_sessions (
+  token       text PRIMARY KEY,
+  admin_id    integer NOT NULL REFERENCES admins (id) ON DELETE CASCADE,
+  expires_at  timestamptz NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_sessions_admin_id ON admin_sessions (admin_id);
+
+-- ---------------------------------------------------------------------------
+-- audit_logs
+-- Every change made through the application: who did it, what they did, and
+-- to which record. Rows are only ever inserted - nothing updates or deletes
+-- them - so the history stays trustworthy as more admins are added.
+--
+-- admin_name and entity_label are copies taken at the time, so a log still
+-- reads correctly after the admin or the member is renamed.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id            integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  admin_id      integer REFERENCES admins (id) ON DELETE SET NULL,
+  admin_name    text NOT NULL,
+  -- create | update | left | restore | delete
+  action        text NOT NULL,
+  -- member | payment   (logins are not logged)
+  entity_type   text NOT NULL,
+  entity_id     integer,
+  entity_label  text,
+  -- What changed, shaped per action - see lib/utils/auditLog.js.
+  details       jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs (entity_type, entity_id);
+
+-- ---------------------------------------------------------------------------
 -- updated_at maintenance
 -- One trigger function shared by every table, so no query has to remember to
 -- set updated_at by hand.
@@ -192,6 +265,11 @@ CREATE TRIGGER trg_memberships_updated_at
 DROP TRIGGER IF EXISTS trg_payments_updated_at ON payments;
 CREATE TRIGGER trg_payments_updated_at
   BEFORE UPDATE ON payments
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_admins_updated_at ON admins;
+CREATE TRIGGER trg_admins_updated_at
+  BEFORE UPDATE ON admins
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ---------------------------------------------------------------------------
@@ -231,7 +309,10 @@ SELECT
   -- payments yet" into 0 rather than NULL, so the members list can work out
   -- Paid / Partial / Unpaid without a second query per row.
   COALESCE(paid.amount_paid, 0) AS membership_amount_paid,
-  paid.last_paid_on
+  paid.last_paid_on,
+  -- Appended last: CREATE OR REPLACE VIEW can add columns only at the end.
+  m.status              AS member_status,
+  m.left_at
 FROM members m
 LEFT JOIN LATERAL (
   SELECT ms.*

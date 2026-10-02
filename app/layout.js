@@ -1,6 +1,4 @@
-import DashboardLayout from "@/components/layout/DashboardLayout";
 import { APP_FULL_NAME } from "@/lib/config";
-import { today, formatDate } from "@/lib/utils/dates";
 import "./globals.css";
 
 export const metadata = {
@@ -11,19 +9,25 @@ export const metadata = {
   description: "Member and membership management for Aura Fitness.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Matches the start of --gradient-brand, so the phone's browser bar blends
+  // with the coloured header.
+  themeColor: "#4f46e5",
+};
+
 /**
- * The root layout - a Server Component, like every page in this application.
+ * The root layout - just the document.
  *
- * The gym's current date is worked out here, on the server, and handed down as
- * a formatted string. Everything below this point that needs "today" for a
- * calculation gets it from the same source.
+ * The application shell (sidebar, header, bottom navigation) lives in
+ * app/(app)/layout.js, which only signed-in pages use. The login page sits
+ * outside that group, so it renders on its own without any navigation.
  */
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <DashboardLayout todayLabel={formatDate(today())}>{children}</DashboardLayout>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

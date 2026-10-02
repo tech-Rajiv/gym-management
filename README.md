@@ -8,7 +8,7 @@ Reports can be added later without rework.
 
 ## Technology
 
-- **Next.js 16** (App Router, Server Components, Server Actions)
+- **Next.js 16** (App Router, Server Components, API Route Handlers, Proxy)
 - **JavaScript** — no TypeScript
 - **PostgreSQL** on **Neon**, via `@neondatabase/serverless`
 - **CSS Modules** with design tokens — no UI framework
@@ -21,18 +21,26 @@ npm install
 # .env must contain your Neon connection string:
 #   DATABASE_URL=postgresql://...
 
-npm run db:setup    # create tables, indexes and the member_overview view
+npm run db:setup    # create tables, indexes, views and the first admin
 npm run db:seed     # add 4 plans and 15 demo members
 npm run dev
 ```
 
-The application opens on <http://localhost:3000> and redirects to the dashboard.
+The application opens on <http://localhost:3000>. Signed-out visitors land on
+the login page. The first admin is created by `db:setup`:
+
+| Name | Email | Password |
+| --- | --- | --- |
+| Hiren | hiren@gmail.com | hiren |
+
+Passwords are stored as plain text for now - hash them before this holds a
+password that matters.
 
 ### Database scripts
 
 | Command | What it does |
 | --- | --- |
-| `npm run db:setup` | Applies `database/schema.sql`. Safe to re-run. |
+| `npm run db:setup` | Applies `database/schema.sql`. Safe to re-run, and also upgrades an existing database. |
 | `npm run db:seed` | Applies `database/seed.sql`. Replaces existing demo data rather than duplicating it. |
 | `npm run db:seed:clear` | Deletes every demo member and their memberships. Plans are kept. |
 | `npm run db:reset` | Drops everything, then sets up and seeds from scratch. |
@@ -43,15 +51,21 @@ Demo members are flagged with `members.is_demo`, so removing them is a single
 ## How it is put together
 
 ```text
-app/            routes — every page is a Server Component
-  dashboard/    summary cards and the two activity lists
-  members/      list, add, view, edit, and the Server Actions for writes
-components/     UI, layout, dashboard and member components
+app/
+  login/        the only page a signed-out visitor can see
+  (app)/        every signed-in page, inside the shell (the group name is not
+                part of the URL): dashboard, members, payments, history
+  api/          the API routes - every write goes through one of these
+proxy.js        sends signed-out visitors to /login
+components/     UI, layout, dashboard, member, payment and history components
   ui/           the shared building blocks: Button, Card, Input, Badge, Modal…
 lib/
-  config.js     business settings — accent colour aside, this is the tuning knob
+  auth.js       who is signed in - checked by every page and API route
+  api.js        helpers shared by the API routes
+  client/api.js how the browser calls the API routes
+  config.js     business settings
   db/           every SQL query in the application
-  utils/        dates and membership status
+  utils/        dates, membership and payment status, audit log wording
   validations/  form validation
 database/       schema.sql and seed.sql
 scripts/db.mjs  the database CLI behind the npm scripts
@@ -60,12 +74,55 @@ scripts/db.mjs  the database CLI behind the npm scripts
 ### The rule that shapes the code
 
 ```text
-UI  →  Server Action  →  Database layer  →  PostgreSQL
+reads:   page (Server Component)  →  lib/db  →  PostgreSQL
+writes:  form  →  fetch /api/...  →  validation  →  lib/db  →  PostgreSQL
 ```
+
+There are no Server Actions. Every change is a plain HTTP call to a route in
+`app/api`, which makes them callable from anywhere - including a cron job.
+
+| Method | Route | Does |
+| --- | --- | --- |
+| POST | `/api/auth/login` | Signs in, sets the session cookie |
+| POST | `/api/auth/logout` | Ends the session, clears the cookie |
+| POST | `/api/members` | Adds a member and their first term |
+| PATCH | `/api/members/:id` | Edits a member and their current term |
+| DELETE | `/api/members/:id` | Marks the member as **left** - deletes nothing |
+| POST | `/api/members/:id/restore` | Brings a left member back |
+| POST | `/api/payments` | Records a payment, optionally with a new term |
+| DELETE | `/api/payments/:id` | Removes a payment record (a copy stays in the log) |
+
+Every route answers `{ ok: true, ... }` or `{ ok: false, message, errors }`.
 
 Components never contain SQL, and `lib/db` never contains JSX. `lib/db` is
 marked `server-only`, so importing it into a Client Component fails the build
 rather than leaking `DATABASE_URL` towards the browser.
+
+### Signing in
+
+Only people with a row in the `admins` table can sign in. A login creates a
+row in `admin_sessions` with a random token, and the browser keeps only that
+token in an httpOnly cookie for 30 days.
+
+`proxy.js` turns away any request without the cookie, but that is only an
+early exit - a cookie can be stale or made up. Every page (through
+`requireAdmin()`) and every API route (through `withAdmin()`) looks the token
+up in the database, and that is what actually protects the data.
+
+### Members are never deleted
+
+The delete button on a member marks them **left** (`members.status`). They
+disappear from the everyday lists and the dashboard, appear under the **Left**
+filter as faded rows, and keep their record, terms and payments. **Restore**
+brings them back - which matters because the phone number stays taken.
+
+### History Logs
+
+Every change is written to `audit_logs`: who made it, what they did, to which
+record, and what changed - an edit stores each field as `old → new`. The log
+entry is written in the same SQL statement or transaction as the change, so a
+change can never happen without its entry. Nothing updates or deletes log
+rows. The History Logs page shows them newest first, grouped by day.
 
 ### Members and memberships are separate
 
@@ -91,14 +148,19 @@ server and PostgreSQL does the filtering, so:
 - a filtered view can be bookmarked, shared or refreshed;
 - the browser never holds the full member list;
 - the dashboard's stat cards can link straight to a filtered list —
-  **Active Members** opens `/members?status=active`, and **Expiring This Week**
-  opens `/members?status=expiring`, each showing exactly the number on the card.
+  **Total Members** opens `/members`, and **Expiring Soon** opens
+  `/members?status=expiring`, each showing exactly the number on the card.
 
 The filter's SQL uses the same date comparisons and the same window as the
 badges do in JavaScript, so a filtered list always agrees with the statuses
 shown inside it. "Active" includes memberships expiring soon — someone whose
-term ends on Friday is still training this week — which is what makes the
-dashboard count and the filter match.
+term ends on Friday is still training this week. Every tab except **Left**
+leaves out members who have left.
+
+On an expired or expiring member's row the list shows an **Add payment**
+button, which opens the payment form with that member already selected. The
+**Last Payment** column shows the latest money received - "Paid ₹4,000 on
+Sep 22, 2026" - and anything still due on the current term.
 
 ### Payments record money, they do not move it
 
@@ -167,8 +229,8 @@ Four breakpoints are used throughout, listed in `app/globals.css`:
 | --- | --- |
 | 640px | One column, stacked full-width buttons |
 | 768px | Tables become stacked cards |
-| 1024px | The sidebar turns into a drawer |
-| 1280px | The dashboard lists sit side by side |
+| 1024px | The sidebar is replaced by a tab bar along the bottom, and "Add Member" becomes a floating button |
+| 1440px | The members table shows Join Date; the dashboard lists sit side by side |
 
 ### Dates avoid timezones entirely
 
@@ -189,17 +251,22 @@ Set in `.env`, with sensible defaults in `lib/config.js`:
 | `GYM_TIMEZONE` | `Asia/Kolkata` | The gym's local timezone. |
 | `EXPIRING_SOON_DAYS` | `7` | How early a membership counts as expiring. |
 
-## Changing the accent colour
+## Changing the colours
 
-Every colour in the application is a variable in `app/globals.css`. Changing
-one line re-themes it:
+Every colour in the application is a variable at the top of
+`app/globals.css`; no component hardcodes one. The main ones:
 
 ```css
---color-primary: #f5c400;   /* yellow */
+--color-primary: #4f46e5;      /* brand: buttons, active tabs, links */
+--color-accent: #f97316;       /* warm highlight: "needs action" card */
+--color-background: #eef1fa;   /* the page behind the cards */
+--gradient-brand: linear-gradient(...);  /* banner, phone header, login */
+--color-sidebar-bg: linear-gradient(...); /* the desktop sidebar */
+--color-surface: #ffffff;      /* cards, sidebar, header */
 ```
 
-If you pick a dark accent, also flip `--color-on-primary` to white so text on
-accent-coloured buttons stays readable.
+If you pick a light primary (yellow, lime), also flip `--color-on-primary` to a
+dark value so text on primary buttons stays readable.
 
 ## Adding a module later
 
@@ -207,7 +274,7 @@ accent-coloured buttons stays readable.
 2. Add its queries to `lib/db/<module>.js`.
 3. Add the route under `app/<module>/`.
 4. Add one entry to `NAV_SECTIONS` in `components/layout/navigation.js` — the
-   sidebar needs no other change. The intended modules are already listed
+   sidebar and the phone tab bar need no other change. The intended modules are already listed
    there, commented out.
 
 Payments were added exactly this way, and reused what was already there rather
@@ -218,8 +285,8 @@ apart.
 
 ## Not in this version
 
-Attendance, trainers, expenses, reports, notifications and authentication are
-all deliberately absent. The foundation is built for them; none of them are
+Attendance, trainers, expenses, reports and notifications are all
+deliberately absent. The foundation is built for them; none of them are
 implemented.
 
 Within Payments, two things are knowingly left out: a payment cannot be edited

@@ -1,7 +1,7 @@
 /**
  * Database management script.
  *
- *   npm run db:setup       create tables, indexes and the member_overview view
+ *   npm run db:setup       create tables, indexes, views and the first admin
  *   npm run db:seed        insert demo plans and members
  *   npm run db:seed:clear  remove only the demo members (plans are kept)
  *   npm run db:reset       drop everything, then set up and seed from scratch
@@ -106,6 +106,9 @@ const commands = {
   async reset() {
     await sql`DROP VIEW IF EXISTS payment_overview`;
     await sql`DROP VIEW IF EXISTS member_overview`;
+    await sql`DROP TABLE IF EXISTS audit_logs`;
+    await sql`DROP TABLE IF EXISTS admin_sessions`;
+    await sql`DROP TABLE IF EXISTS admins`;
     await sql`DROP TABLE IF EXISTS payments`;
     await sql`DROP TABLE IF EXISTS memberships`;
     await sql`DROP TABLE IF EXISTS members`;

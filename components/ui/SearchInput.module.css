@@ -31,6 +31,8 @@
 .input:focus {
   outline: none;
   border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
 .spinner {
@@ -53,5 +55,11 @@
 @media (max-width: 640px) {
   .wrapper {
     max-width: none;
+  }
+
+  /* 16px text stops iOS zooming in on focus. */
+  .input {
+    height: 44px;
+    font-size: 1rem;
   }
 }

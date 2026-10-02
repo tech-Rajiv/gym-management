@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -14,6 +15,7 @@ import {
 } from "@/lib/utils/membershipStatus";
 import { formatDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/format";
+import { apiRequest, formToObject } from "@/lib/client/api";
 import styles from "./PaymentForm.module.css";
 
 const NEW_TERM = "new";
@@ -42,24 +44,22 @@ const CURRENT_TERM = "current";
  * @param {number}   [preselectedMemberId] when arriving from a member's page
  */
 export default function PaymentForm({
-  action,
   members,
   plans,
   today,
   preselectedMemberId,
 }) {
-  const [state, formAction, isPending] = useActionState(action, null);
+  const router = useRouter();
+  const [state, setState] = useState(null);
+  const [isPending, setIsPending] = useState(false);
 
-  const initial = (field, fallback = "") => state?.values?.[field] ?? fallback;
   const errorFor = (field) => state?.errors?.[field];
 
   const findMember = (id) =>
     members.find((m) => String(m.id) === String(id)) ?? null;
   const findPlan = (id) => plans.find((p) => String(p.id) === String(id)) ?? null;
 
-  const [memberId, setMemberId] = useState(
-    String(initial("memberId", preselectedMemberId ?? ""))
-  );
+  const [memberId, setMemberId] = useState(String(preselectedMemberId ?? ""));
   const member = findMember(memberId);
 
   /** Defaults for a member: what to pay for, and what that would cost. */
@@ -117,14 +117,38 @@ export default function PaymentForm({
 
   const seed = defaultsFor(findMember(memberId));
 
-  const [target, setTarget] = useState(initial("membershipTarget", seed.target));
-  const [planId, setPlanId] = useState(String(initial("membershipPlanId", seed.planId)));
-  const [startDate, setStartDate] = useState(initial("membershipStartDate", seed.start));
-  const [endDate, setEndDate] = useState(initial("membershipEndDate", seed.end));
-  const [termPrice, setTermPrice] = useState(String(initial("termPrice", seed.price)));
-  const [amount, setAmount] = useState(String(initial("amount", seed.amount)));
-  const [method, setMethod] = useState(initial("method", "cash"));
-  const [paidOn, setPaidOn] = useState(initial("paidOn", today));
+  const [target, setTarget] = useState(seed.target);
+  const [planId, setPlanId] = useState(seed.planId);
+  const [startDate, setStartDate] = useState(seed.start);
+  const [endDate, setEndDate] = useState(seed.end);
+  const [termPrice, setTermPrice] = useState(seed.price);
+  const [amount, setAmount] = useState(seed.amount);
+  const [method, setMethod] = useState("cash");
+  const [paidOn, setPaidOn] = useState(today);
+
+  /**
+   * Sends the form to POST /api/payments. On success the member's own page
+   * opens, where the new payment shows against the term it paid for.
+   */
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsPending(true);
+
+    const result = await apiRequest("/api/payments", {
+      method: "POST",
+      body: formToObject(event.currentTarget),
+    });
+
+    if (result.ok) {
+      router.push(`/members/${result.memberId}`);
+      router.refresh();
+      return; // Stay "recording" while the member's page loads.
+    }
+
+    setState(result);
+    setIsPending(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   /** Choosing a member refills everything that depends on them. */
   const handleMemberChange = (event) => {
@@ -222,7 +246,7 @@ export default function PaymentForm({
   }));
 
   return (
-    <form action={formAction} className={styles.form} noValidate>
+    <form onSubmit={handleSubmit} className={styles.form} noValidate>
       {state?.message && <Alert variant="danger">{state.message}</Alert>}
 
       {/* --- Who paid ------------------------------------------------------ */}
@@ -405,7 +429,6 @@ export default function PaymentForm({
             <Input
               id="reference"
               label="Transaction / UTR"
-              defaultValue={initial("reference")}
               placeholder="e.g. 452901873364"
               hint="Optional."
               error={errorFor("reference")}
@@ -425,7 +448,6 @@ export default function PaymentForm({
           label="Remark"
           multiline
           rows={3}
-          defaultValue={initial("remark")}
           placeholder="Optional note about this payment"
           error={errorFor("remark")}
         />

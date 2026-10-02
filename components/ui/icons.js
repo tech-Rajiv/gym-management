@@ -159,3 +159,33 @@ export const CardIcon = (props) => (
     <path d="M2 10h20" />
   </Icon>
 );
+
+export const HistoryIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M12 7v5l3 2" />
+  </Icon>
+);
+
+export const LogOutIcon = (props) => (
+  <Icon {...props}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <path d="m16 17 5-5-5-5M21 12H9" />
+  </Icon>
+);
+
+export const UserMinusIcon = (props) => (
+  <Icon {...props}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 11h-6" />
+  </Icon>
+);
+
+export const RestoreIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+  </Icon>
+);

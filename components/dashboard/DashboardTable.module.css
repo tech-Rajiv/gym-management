@@ -14,3 +14,14 @@
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
+
+.viewAll {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.viewAll:hover {
+  text-decoration: underline;
+}

@@ -15,6 +15,15 @@
   display: none;
 }
 
+/* On a phone every tab stays in view, wrapping onto a second row, so none
+   (such as Left) hides off the edge of the screen. */
+@media (max-width: 640px) {
+  .filters {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
 .filter {
   display: inline-flex;
   align-items: center;

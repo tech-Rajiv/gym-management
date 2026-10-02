@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -8,34 +9,32 @@ import Alert from "@/components/ui/Alert";
 import { GENDER_OPTIONS } from "@/lib/config";
 import { addDays } from "@/lib/utils/dates";
 import { memberToFormValues } from "@/lib/validations/member";
+import { apiRequest, formToObject } from "@/lib/client/api";
 import styles from "./MemberForm.module.css";
 
 /**
  * The Add Member and Edit Member form.
  *
- * One component serves both. The page above decides which Server Action to
- * hand it - createMemberAction, or updateMemberAction already bound to a
- * member id - so the form itself does not know or care which it is doing.
+ * One component serves both. Given an existing `member` it sends
+ * PATCH /api/members/:id; without one it sends POST /api/members.
  *
- * `useActionState` calls the action and gives back whatever it returned. On a
- * successful save the action redirects and this component never sees a result;
- * on a failure it gets `{ errors, values }` and re-renders with the messages
- * in place and the typed values still there.
+ * On success it moves on to the member's page. On failure the API answers
+ * with `{ errors, message }` and the form shows each message against its
+ * field. Nothing typed is lost, because the inputs are never reset.
  *
  * @param {object}  [member] existing member, when editing
  * @param {object[]} plans   membership plans to choose from
  * @param {string}  today    the gym's current date, worked out on the server
  */
-export default function MemberForm({ action, member, plans, today, submitLabel = "Save Member" }) {
-  const [state, formAction, isPending] = useActionState(action, null);
+export default function MemberForm({ member, plans, today, submitLabel = "Save Member" }) {
+  const router = useRouter();
+  const [state, setState] = useState(null);
+  const [isPending, setIsPending] = useState(false);
 
   const saved = memberToFormValues(member);
 
-  /**
-   * What a field should show: the value from a rejected submission first, so
-   * nothing typed is lost, then the saved member, then empty.
-   */
-  const initial = (field) => state?.values?.[field] ?? saved[field] ?? "";
+  /** What a field starts with: the saved member when editing, else empty. */
+  const initial = (field) => saved[field] ?? "";
 
   const errorFor = (field) => state?.errors?.[field];
 
@@ -57,6 +56,27 @@ export default function MemberForm({ action, member, plans, today, submitLabel =
     return addDays(start, plan.duration_days - 1);
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsPending(true);
+
+    const result = await apiRequest(member ? `/api/members/${member.id}` : "/api/members", {
+      method: member ? "PATCH" : "POST",
+      body: formToObject(event.currentTarget),
+    });
+
+    if (result.ok) {
+      router.push(`/members/${result.id}`);
+      router.refresh();
+      return; // Stay "saving" while the member's page loads.
+    }
+
+    setState(result);
+    setIsPending(false);
+    // The first problem may be well above the button that was just pressed.
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handlePlanChange = (event) => {
     const value = event.target.value;
     setPlanId(value);
@@ -75,7 +95,7 @@ export default function MemberForm({ action, member, plans, today, submitLabel =
   }));
 
   return (
-    <form action={formAction} className={styles.form} noValidate>
+    <form onSubmit={handleSubmit} className={styles.form} noValidate>
       {/* A failure the form cannot pin on one field, such as the member having
           been deleted in another tab. */}
       {state?.message && <Alert>{state.message}</Alert>}

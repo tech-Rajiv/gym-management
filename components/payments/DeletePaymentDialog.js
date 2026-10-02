@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
-import { deletePaymentAction } from "@/app/payments/actions";
+import { apiRequest } from "@/lib/client/api";
 import { formatDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/format";
 import styles from "./DeletePaymentDialog.module.css";
@@ -19,22 +19,22 @@ import styles from "./DeletePaymentDialog.module.css";
  */
 export default function DeletePaymentDialog({ payment, open, onClose }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setError(null);
-    startTransition(async () => {
-      const result = await deletePaymentAction(payment.id);
+    setIsPending(true);
+    const result = await apiRequest(`/api/payments/${payment.id}`, { method: "DELETE" });
+    setIsPending(false);
 
-      if (!result.ok) {
-        setError(result.message);
-        return;
-      }
+    if (!result.ok) {
+      setError(result.message);
+      return;
+    }
 
-      onClose();
-      router.refresh();
-    });
+    onClose();
+    router.refresh();
   };
 
   const handleClose = () => {
@@ -69,7 +69,7 @@ export default function DeletePaymentDialog({ payment, open, onClose }) {
       </p>
       <p className={styles.hint}>
         Their membership dates are not affected — the term will simply show as
-        unpaid again. This action cannot be undone.
+        unpaid again. A copy of the payment is kept in History Logs.
       </p>
     </Modal>
   );
