@@ -212,14 +212,6 @@ button {
   outline-offset: 2px;
 }
 
-/* Utility: hidden on phones and tablets, where a floating button or the tab
-   bar does the same job. */
-@media (max-width: 1024px) {
-  .desktop-only {
-    display: none !important;
-  }
-}
-
 /* Respect a reduced-motion preference. */
 @media (prefers-reduced-motion: reduce) {
   *,

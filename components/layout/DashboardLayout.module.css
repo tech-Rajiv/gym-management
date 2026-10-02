@@ -25,13 +25,13 @@
 
   .content {
     /* Keeps the last row of content clear of the fixed bottom tab bar. */
-    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 88px);
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-6));
   }
 }
 
 @media (max-width: 640px) {
   .content {
     padding: var(--space-4) var(--space-4)
-      calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 88px);
+      calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-5));
   }
 }

@@ -19,7 +19,7 @@ import {
   CalendarXIcon,
   UserMinusIcon,
 } from "@/components/ui/icons";
-import Fab from "@/components/ui/Fab";
+import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import { requireAdmin } from "@/lib/auth";
 import styles from "./members.module.css";
 
@@ -58,48 +58,63 @@ export default async function MembersPage({ searchParams }) {
     getMemberStatusCounts({ search }),
   ]);
 
+  const filterLabel = MEMBER_FILTERS.find((option) => option.value === filter)?.label ?? "All";
+
   return (
     <div>
       <PageHeader
         title="Manage Members"
         description="View, add and update the people training at your gym."
         actions={
-          <Button href="/members/new" variant="primary" className="desktop-only">
+          <Button href="/members/new" variant="primary">
             <PlusIcon size={16} />
             Add Member
           </Button>
         }
       />
 
-      <Card flush tone="primary">
+      {/* --- Filters: search and status, in their own card ----------------- */}
+      <section className={styles.filters} aria-label="Filter members">
         {/* useSearchParams needs a Suspense boundary around it so the rest of
             the page can still be prerendered. */}
         <Suspense fallback={null}>
-          <div className={styles.toolbar}>
-            <SearchInput
-              placeholder="Search members..."
-              label="Search members by name, phone or email"
-            />
-            <span className={styles.count}>
-              {members.length} {members.length === 1 ? "member" : "members"}
-              {search ? ` matching "${search}"` : ""}
-            </span>
-          </div>
-
-          <div className={styles.filterBar}>
-            <FilterTabs
-              param="status"
-              active={filter}
-              defaultValue={DEFAULT_MEMBER_FILTER}
-              label="Filter members by membership status"
-              options={MEMBER_FILTERS.map((option) => ({
-                ...option,
-                icon: FILTER_ICONS[option.value],
-                count: counts[option.value] ?? 0,
-              }))}
-            />
-          </div>
+          <SearchInput
+            placeholder="Search members..."
+            label="Search members by name, phone or email"
+          />
+          <FilterTabs
+            param="status"
+            active={filter}
+            defaultValue={DEFAULT_MEMBER_FILTER}
+            label="Filter members by membership status"
+            options={MEMBER_FILTERS.map((option) => ({
+              ...option,
+              icon: FILTER_ICONS[option.value],
+              count: counts[option.value] ?? 0,
+            }))}
+          />
         </Suspense>
+      </section>
+
+      {/* --- The list: its count and PDF button, then the members ---------- */}
+      <Card flush tone="primary">
+        <div className={styles.listHeader}>
+          <p className={styles.count}>
+            <strong>
+              {members.length} {members.length === 1 ? "member" : "members"}
+            </strong>
+            <span className={styles.countDetail}>
+              {filterLabel}
+              {search ? ` · matching "${search}"` : ""}
+            </span>
+          </p>
+          {/* The list as shown - same filter and search - as a PDF. */}
+          <DownloadPdfButton
+            list="members"
+            params={{ status: filter, q: search }}
+            title={`Members - ${filterLabel}`}
+          />
+        </div>
 
         <MemberTable
           members={members}
@@ -107,9 +122,6 @@ export default async function MembersPage({ searchParams }) {
           filter={filter}
         />
       </Card>
-
-      {/* On phones "Add Member" floats in the corner instead of the header. */}
-      <Fab href="/members/new" label="Add Member" icon={PlusIcon} />
     </div>
   );
 }

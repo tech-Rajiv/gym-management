@@ -3,6 +3,7 @@ import Card from "@/components/ui/Card";
 import EmptyState from "@/components/ui/EmptyState";
 import MemberListItem, { MemberList } from "@/components/members/MemberListItem";
 import MemberRowMenu from "@/components/members/MemberRowMenu";
+import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import { InboxIcon, ArrowRightIcon } from "@/components/ui/icons";
 import { formatDate } from "@/lib/utils/dates";
 import styles from "./RenewalList.module.css";
@@ -21,6 +22,8 @@ import styles from "./RenewalList.module.css";
  * @param {object[]} members  the first few rows
  * @param {number}   total    how many there are in all, from the stat counts
  * @param {string}   moreHref the members list filtered to the same people
+ * @param {string}   [pdfStatus] the members filter for the header's PDF
+ *                   button, which downloads the whole list, not just the few
  * @param {boolean}  [showJoined] say when each member joined, instead of how
  *                   long their membership has left
  * @param {string}   [tone]   the card's colour, matching its stat card
@@ -33,13 +36,30 @@ export default function RenewalList({
   total,
   moreHref,
   showJoined = false,
+  pdfStatus,
   tone,
   icon,
 }) {
   const remaining = total - members.length;
 
   return (
-    <Card title={title} description={description} tone={tone} icon={icon} flush>
+    <Card
+      title={title}
+      description={description}
+      tone={tone}
+      icon={icon}
+      action={
+        pdfStatus && total > 0 ? (
+          <DownloadPdfButton
+            list="members"
+            params={{ status: pdfStatus }}
+            title={`Members - ${title} (all ${total})`}
+            iconOnly
+          />
+        ) : null
+      }
+      flush
+    >
       {members.length === 0 ? (
         <EmptyState icon={<InboxIcon size={20} />} title={emptyTitle} />
       ) : (

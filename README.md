@@ -292,6 +292,57 @@ would shift by a day when formatted in the wrong timezone.
 Queries never use `current_date`. Neon's clock is UTC and the gym is not, so
 the application works out today's date in `GYM_TIMEZONE` and passes it in.
 
+## PDF downloads
+
+The member and payment lists have a **PDF** button: the dashboard figures
+and lists, Members and Payments. The PDF is the list as filtered on screen -
+but all of it, not just what the page shows - with a branded header, the
+filters used, totals, and page numbers.
+
+PDFs are built on the server from the database with jsPDF + jspdf-autotable
+(`lib/pdf/`), served by `GET /api/export/:list` with the page's filters:
+
+| List | URL | Filters |
+| --- | --- | --- |
+| members | `/api/export/members` | `status`, `q` |
+| payments | `/api/export/payments` | `q`, `method`, `month` or `from` / `to` |
+
+The PDF fonts have no rupee sign, so amounts are written "Rs. 1,500".
+
+## Daily report email
+
+Every morning at 6:00 AM (India time) the app emails a report - Expired,
+Expiring Soon and New This Month - using **Upstash QStash** to trigger it and
+**Resend** to send it. The dashboard's **Email me the report** button sends the
+same email immediately, as a preview.
+
+```text
+QStash (6:00 AM IST)  ->  POST /api/cron/daily-report   (QStash signature checked)
+Dashboard button      ->  POST /api/reports/daily       (admin session checked)
+                      both -> lib/reports/dailyReport.js -> Resend
+```
+
+Set up once, after deploying:
+
+1. In `.env` (and in the hosting provider's environment variables):
+
+   | Variable | Purpose |
+   | --- | --- |
+   | `RESEND_API_KEY` | Resend API key |
+   | `QSTASH_URL`, `QSTASH_TOKEN` | QStash API, for creating the schedule |
+   | `QSTASH_CURRENT_SIGNING_KEY`, `QSTASH_NEXT_SIGNING_KEY` | Verify that 6 AM calls really come from QStash |
+   | `APP_URL` | The deployed site, e.g. `https://your-app.vercel.app` - QStash calls it, and the email links to it |
+   | `REPORT_EMAIL_TO` | Optional. Who gets the report (default `support.aurafitness@gmail.com`, the Resend account's own address) |
+   | `REPORT_EMAIL_FROM` | Optional. The sender (default `Aura Fitness <onboarding@resend.dev>`) |
+
+2. Run `npm run report:schedule` to create the schedule. Running it again
+   updates it; `npm run report:schedule -- status` shows it and
+   `npm run report:schedule -- delete` stops it.
+
+Resend's test sender (`onboarding@resend.dev`) only delivers to the address
+that owns the Resend account. To email anyone else, verify a domain at
+resend.com/domains and set `REPORT_EMAIL_FROM` to an address on it.
+
 ## Configuration
 
 Set in `.env`, with sensible defaults in `lib/config.js`:

@@ -231,3 +231,10 @@ export const CalendarXIcon = (props) => (
     <path d="m9.5 14 5 5M14.5 14l-5 5" />
   </Icon>
 );
+
+export const DownloadIcon = (props) => (
+  <Icon {...props}>
+    <path d="M12 3v12M7 10l5 5 5-5" />
+    <path d="M5 21h14" />
+  </Icon>
+);

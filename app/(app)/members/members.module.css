@@ -1,33 +1,47 @@
-.toolbar {
+/* The filters card: search on top, the status tabs beneath. */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* "14 members · Expired" on the left, the PDF button on the right. */
+.listHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border);
-  flex-wrap: wrap;
 }
 
 .count {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+  font-size: 0.9375rem;
 }
 
-.filterBar {
-  padding: var(--space-3) var(--space-5);
-  border-bottom: 1px solid var(--color-border);
+.countDetail {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
 }
 
 @media (max-width: 640px) {
-  .toolbar {
-    align-items: stretch;
-    flex-direction: column;
-    gap: var(--space-3);
+  .filters {
+    margin-bottom: var(--space-4);
+    padding: var(--space-4);
   }
 
-  .toolbar,
-  .filterBar {
-    padding-inline: var(--space-4);
+  .listHeader {
+    padding: var(--space-3) var(--space-4);
   }
 }

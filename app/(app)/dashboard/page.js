@@ -1,7 +1,8 @@
 import Link from "next/link";
 import StatCard from "@/components/dashboard/StatCard";
 import RenewalList from "@/components/dashboard/RenewalList";
-import Fab from "@/components/ui/Fab";
+import EmailReportButton from "@/components/dashboard/EmailReportButton";
+import { REPORT_EMAIL_TO } from "@/lib/email";
 import {
   getDashboardStats,
   getExpiringMembers,
@@ -61,11 +62,14 @@ export default async function DashboardPage() {
               : "Every membership is up to date. Nice work."}
           </p>
         </div>
-        {/* On phones the floating button below does this job instead. */}
-        <Link href="/members/new" className={`${styles.welcomeAction} desktop-only`}>
-          <PlusIcon size={16} />
-          Add Member
-        </Link>
+        <div className={styles.welcomeActions}>
+          {/* Sends the morning report now, to preview it. */}
+          <EmailReportButton to={REPORT_EMAIL_TO} />
+          <Link href="/members/new" className={styles.welcomeAction}>
+            <PlusIcon size={16} />
+            Add Member
+          </Link>
+        </div>
       </section>
 
       {/* Each card opens the members list already filtered to the same
@@ -78,6 +82,7 @@ export default async function DashboardPage() {
           icon={MembersIcon}
           tone="primary"
           href="/members"
+          pdf={{ list: "members", params: { status: "all" } }}
         />
         <StatCard
           label="Expiring Soon"
@@ -86,6 +91,7 @@ export default async function DashboardPage() {
           icon={ClockIcon}
           tone="warning"
           href="/members?status=expiring"
+          pdf={{ list: "members", params: { status: "expiring" } }}
         />
         <StatCard
           label="Expired"
@@ -94,6 +100,7 @@ export default async function DashboardPage() {
           icon={CalendarXIcon}
           tone="danger"
           href="/members?status=expired"
+          pdf={{ list: "members", params: { status: "expired" } }}
         />
         <StatCard
           label="New This Month"
@@ -102,12 +109,14 @@ export default async function DashboardPage() {
           icon={UserPlusIcon}
           tone="success"
           href="/members?status=new"
+          pdf={{ list: "members", params: { status: "new" } }}
         />
       </div>
 
       <div className={styles.lists}>
         <RenewalList
           title="Expired"
+          pdfStatus="expired"
           description="Most recently expired first"
           emptyTitle="No expired memberships."
           members={expiredMembers}
@@ -118,6 +127,7 @@ export default async function DashboardPage() {
         />
         <RenewalList
           title="Expiring Soon"
+          pdfStatus="expiring"
           description={`Ending within the next ${EXPIRING_SOON_DAYS} days`}
           emptyTitle="No memberships are expiring soon."
           members={expiringMembers}
@@ -128,6 +138,7 @@ export default async function DashboardPage() {
         />
         <RenewalList
           title="New This Month"
+          pdfStatus="new"
           description="Joined this calendar month, newest first"
           emptyTitle="Nobody has joined yet this month."
           members={newMembers}
@@ -138,8 +149,6 @@ export default async function DashboardPage() {
           icon={UserPlusIcon}
         />
       </div>
-
-      <Fab href="/members/new" label="Add Member" icon={PlusIcon} />
     </div>
   );
 }

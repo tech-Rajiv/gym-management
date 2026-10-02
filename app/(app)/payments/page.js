@@ -6,7 +6,7 @@ import PaymentTable from "@/components/payments/PaymentTable";
 import PaymentSearch from "@/components/payments/PaymentSearch";
 import { getPayments } from "@/lib/db/payments";
 import { PlusIcon } from "@/components/ui/icons";
-import Fab from "@/components/ui/Fab";
+import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import { requireAdmin } from "@/lib/auth";
 import { resolvePaymentPeriod, recentMonths } from "@/lib/utils/paymentPeriod";
 import { today } from "@/lib/utils/dates";
@@ -39,35 +39,42 @@ export default async function PaymentsPage({ searchParams }) {
         title="Payment History"
         description="Every payment received, entered by hand. Aura records payments — it does not process them."
         actions={
-          <Button href="/payments/new" variant="primary" className="desktop-only">
+          <Button href="/payments/new" variant="primary">
             <PlusIcon size={16} />
             Record Payment
           </Button>
         }
       />
 
-      <Card flush tone="success">
+      {/* --- Filters: period, search and method, in their own card -------- */}
+      <section className={styles.filters} aria-label="Filter payments">
         {/* useSearchParams needs a Suspense boundary around it. */}
         <Suspense fallback={null}>
-          <div className={styles.toolbar}>
-            <PaymentSearch
-              method={method ?? "all"}
-              period={period}
-              months={recentMonths(today())}
-            />
-          </div>
+          <PaymentSearch
+            method={method ?? "all"}
+            period={period}
+            months={recentMonths(today())}
+          />
         </Suspense>
+      </section>
 
-        <p className={styles.summary}>
-          {payments.length} {payments.length === 1 ? "payment" : "payments"}
-          <span className={styles.summaryPeriod}>{period.label}</span>
-        </p>
+      {/* --- The list: its count and PDF button, then the payments --------- */}
+      <Card flush tone="success">
+        <div className={styles.summary}>
+          <p className={styles.summaryText}>
+            {payments.length} {payments.length === 1 ? "payment" : "payments"}
+            <span className={styles.summaryPeriod}>{period.label}</span>
+          </p>
+          {/* The payments as shown - period, method and search - as a PDF. */}
+          <DownloadPdfButton
+            list="payments"
+            params={{ q: search, method, month, from, to }}
+            title={`Payment History - ${period.label}`}
+          />
+        </div>
 
         <PaymentTable payments={payments} isSearching={isFiltered} />
       </Card>
-
-      {/* On phones "Record Payment" floats in the corner instead. */}
-      <Fab href="/payments/new" label="Record Payment" icon={PlusIcon} />
     </div>
   );
 }

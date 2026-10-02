@@ -1,20 +1,14 @@
 /* --- Desktop and tablet: a solid tile -------------------------------------
-   Laid out on a small grid:
 
-     [label / hint]   [icon]
-     [  big number        ]
-     [  View list →       ]                                                 */
+     [icon] Label / hint ............ [PDF]
+     42
+     View list ->                                                            */
 
 .card {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    "text  icon"
-    "value value"
-    "more  more";
-  align-items: start;
-  gap: var(--space-2) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   padding: var(--space-5);
   overflow: hidden;
   background: var(--tone-fill);
@@ -23,7 +17,6 @@
   box-shadow: var(--shadow-md);
 }
 
-/* A large soft circle in the corner - decoration only. */
 .card::after {
   content: "";
   position: absolute;
@@ -68,7 +61,6 @@
 }
 
 .icon {
-  grid-area: icon;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,11 +68,6 @@
   height: 44px;
   background-color: var(--color-on-brand-surface);
   border-radius: var(--radius-md);
-}
-
-.text {
-  grid-area: text;
-  min-width: 0;
 }
 
 .label {
@@ -95,7 +82,6 @@
 }
 
 .value {
-  grid-area: value;
   font-size: 2.5rem;
   font-weight: 800;
   line-height: 1;
@@ -103,8 +89,43 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The invisible link that makes the whole card open its list. It sits above
+   the card's contents (z-index 1) and below the PDF button (z-index 3). */
+/* Icon and label on the left, the PDF button on the right, spaced apart. */
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* No stacking context of its own (unlike the card's other children), so
+     the PDF button inside can rise above the cover link. */
+  position: static;
+  z-index: auto;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.pdf {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+.cover:focus-visible {
+  outline: 2px solid var(--color-on-brand);
+  outline-offset: -4px;
+}
+
 .more {
-  grid-area: more;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -122,13 +143,40 @@
 
      [icon]  [label / hint]  [number]                                       */
 
+/* --- Phones: one row ------------------------------------------------------
+     [icon] Label / hint ...... 42  [PDF]                                    */
+
 @media (max-width: 640px) {
   .card {
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas: "icon text value";
+    flex-direction: row;
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
+  }
+
+  /* Its children join the card's row, so the number can sit between the
+     label and the PDF button. */
+  .top {
+    display: contents;
+  }
+
+  .icon {
+    order: 1;
+    width: 40px;
+    height: 40px;
+  }
+
+  .text {
+    order: 2;
+  }
+
+  .value {
+    order: 3;
+    font-size: 1.75rem;
+  }
+
+  .pdf {
+    order: 4;
   }
 
   .card::after {
@@ -136,15 +184,6 @@
     height: 110px;
     right: -30px;
     bottom: -60px;
-  }
-
-  .icon {
-    width: 40px;
-    height: 40px;
-  }
-
-  .value {
-    font-size: 1.75rem;
   }
 
   .more {
