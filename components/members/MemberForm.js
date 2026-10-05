@@ -22,8 +22,10 @@ import styles from "./MemberForm.module.css";
  * One component serves both. Given an existing `member` it sends
  * PATCH /api/members/:id; without one it sends POST /api/members.
  *
- * Adding a member also takes their joining payment - amount, cash or UPI,
- * and date - because a member joins by paying. The API saves the member,
+ * Adding a member also takes their joining payment - cash or UPI, and the
+ * date - because a member joins by paying. The amount is always the chosen
+ * plan's full price (the gym does not take part payments), so it is shown,
+ * not typed, and the server takes it from the plan. The API saves the member,
  * their first term and that payment together, and the form then shows a
  * success popup with what was saved and where to go next.
  *
@@ -53,10 +55,8 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
   const [startDate, setStartDate] = useState(initial("membershipStartDate") || today);
   const [endDate, setEndDate] = useState(initial("membershipEndDate") || "");
 
-  // Adding only: the joining payment. The amount follows the plan's price
-  // until the admin types something else, e.g. for a part payment.
+  // Adding only: the joining payment. Its amount is the plan's price.
   const isNew = !member;
-  const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("cash");
   const [created, setCreated] = useState(null);
   const selectedPlan = plans.find((option) => String(option.id) === String(planId)) ?? null;
@@ -102,8 +102,6 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
     const value = event.target.value;
     setPlanId(value);
     setEndDate(calculateEndDate(value, startDate));
-    const plan = plans.find((option) => String(option.id) === String(value));
-    if (plan) setAmount(String(plan.price));
   };
 
   const handleStartDateChange = (event) => {
@@ -161,6 +159,15 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
             defaultValue={initial("dateOfBirth")}
             error={errorFor("dateOfBirth")}
           />
+          <Input
+            id="joinDate"
+            label="Join Date"
+            type="date"
+            required
+            defaultValue={initial("joinDate") || today}
+            error={errorFor("joinDate")}
+            hint="When they first joined the gym"
+          />
         </div>
       </section>
 
@@ -203,59 +210,29 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Emergency Contact</h2>
-        <p className={styles.sectionHint}>Who to call if something happens at the gym.</p>
-
-        <div className={styles.grid}>
-          <Input
-            id="emergencyContactName"
-            label="Contact Name"
-            defaultValue={initial("emergencyContactName")}
-            error={errorFor("emergencyContactName")}
-          />
-          <Input
-            id="emergencyContactPhone"
-            label="Contact Phone"
-            type="tel"
-            defaultValue={initial("emergencyContactPhone")}
-            error={errorFor("emergencyContactPhone")}
-          />
-        </div>
-      </section>
-
-      <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Membership</h2>
         <p className={styles.sectionHint}>
           Choosing a plan fills in the end date automatically. You can still
           change it if this membership runs to a different date.
         </p>
 
-        <div className={styles.gridThree}>
-          <Select
-            id="membershipPlanId"
-            label="Membership Plan"
-            required
-            options={planOptions}
-            placeholder="Select a plan"
-            value={planId}
-            onChange={handlePlanChange}
-            error={errorFor("membershipPlanId")}
-          />
-          <Input
-            id="joinDate"
-            label="Join Date"
-            type="date"
-            required
-            defaultValue={initial("joinDate") || today}
-            error={errorFor("joinDate")}
-            hint="When they first joined the gym"
-          />
-          {/* Keeps the two membership dates together on the row below on
-              desktop. It collapses away once the grid is a single column. */}
-          <div className={styles.spacer} />
+        <Select
+          id="membershipPlanId"
+          label="Membership Plan"
+          required
+          options={planOptions}
+          placeholder="Select a plan"
+          value={planId}
+          onChange={handlePlanChange}
+          error={errorFor("membershipPlanId")}
+        />
+
+        {/* Start and end side by side on every screen, so the term reads as
+            one "from - to" pair. */}
+        <div className={styles.dateRow}>
           <Input
             id="membershipStartDate"
-            label="Membership Start Date"
+            label="Membership Start"
             type="date"
             required
             value={startDate}
@@ -264,7 +241,7 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
           />
           <Input
             id="membershipEndDate"
-            label="Membership End Date"
+            label="Membership End"
             type="date"
             required
             value={endDate}
@@ -294,18 +271,6 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
                 </span>
               )}
             </div>
-            <Input
-              id="amount"
-              label="Amount received"
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              hint="Enter less than the plan price for a part payment."
-              error={errorFor("amount")}
-            />
             <Select
               id="method"
               label="Method"
@@ -367,7 +332,6 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
 /** The popup shown once a new member, their membership and payment are saved. */
 function MemberCreated({ result }) {
   const { member: m = {}, payment: p = {} } = result;
-  const due = Number(m.price ?? 0) - Number(p.amount ?? 0);
 
   return (
     <SuccessDialog
@@ -391,7 +355,6 @@ function MemberCreated({ result }) {
         },
         { label: "UTR", value: p.reference },
         { label: "Paid on", value: p.paidOn ? formatDate(p.paidOn) : null },
-        { label: "Still due", value: due > 0 ? formatCurrency(due) : null },
       ]}
       actions={[
         {

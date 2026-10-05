@@ -118,12 +118,6 @@ export default async function MemberDetailPage({ params }) {
               <Detail label="Date of Birth">
                 {member.date_of_birth ? formatDate(member.date_of_birth) : "—"}
               </Detail>
-              <Detail label="Emergency Contact">
-                {orDash(member.emergency_contact_name)}
-              </Detail>
-              <Detail label="Emergency Phone">
-                {orDash(member.emergency_contact_phone)}
-              </Detail>
               <Detail label="Address" full>
                 {orDash(member.address)}
               </Detail>
