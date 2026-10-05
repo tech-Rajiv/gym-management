@@ -1,28 +1,225 @@
 .filter {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .pending {
   opacity: 0.6;
 }
 
-/* The period picker - the app's dropdown, a little wider than its content. */
-.picker {
-  min-width: 210px;
+/* The side not in use: dimmed, but still fully usable - touching it brings
+   it back to full strength. */
+.faded {
+  opacity: 0.5;
+  transition: opacity var(--transition);
+}
+
+.faded:hover,
+.faded:focus-within {
+  opacity: 1;
+}
+
+/* --- The month strip -------------------------------------------------------- */
+
+/* Soft edges where there is more to scroll to, on either side. */
+.stripWrap {
+  position: relative;
+  min-width: 0;
+}
+
+.strip {
+  --fade-left: 0px;
+  --fade-right: 0px;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--fade-left),
+    #000 calc(100% - var(--fade-right)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--fade-left),
+    #000 calc(100% - var(--fade-right)),
+    transparent
+  );
+}
+
+.moreLeft .strip {
+  --fade-left: 32px;
+}
+
+.moreRight .strip {
+  --fade-right: 32px;
+}
+
+/* Round arrow buttons over the strip's ends - only where a mouse is used. */
+.arrow {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    margin-top: -15px;
+    padding: 0 0 2px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+    color: var(--color-text);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition);
+  }
+
+  .arrow:hover {
+    border-color: var(--color-primary-border);
+    color: var(--color-primary);
+  }
+
+  .arrowLeft {
+    left: -6px;
+  }
+
+  .arrowRight {
+    right: -6px;
+  }
+}
+
+/* No visible scrollbar - the faded right edge says "there's more", and the
+   strip scrolls by swipe, trackpad or shift + wheel. The bottom padding
+   leaves room for the chosen tile's shadow. */
+.strip {
+  display: flex;
+  gap: var(--space-2);
+  margin: -4px 0 -10px;
+  padding: 4px 2px 12px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.strip::-webkit-scrollbar {
+  display: none;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  gap: 2px;
+  min-width: 108px;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.tile:hover:not(.active) {
+  border-color: var(--color-primary-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tileTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+/* Full month names; phones swap in the short ones. */
+.short {
+  display: none;
+}
+
+.tileHint {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* The chosen period: filled with the brand gradient, like the banners. */
+.active {
+  background: var(--gradient-brand);
+  border-color: transparent;
+  box-shadow: 0 4px 12px -6px var(--color-primary);
+}
+
+.active .tileTitle {
+  color: var(--color-on-brand);
+}
+
+.active .tileHint {
+  color: var(--color-on-brand-muted);
+}
+
+/* --- The custom range ------------------------------------------------------- */
+
+.range {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* When a range is what is applied, its panel takes the brand outline. */
+.rangeActive {
+  border-color: var(--color-primary-border);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 140px;
+  min-width: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .date {
+  width: 100%;
+  min-width: 0;
   height: 38px;
-  background-color: var(--color-surface-secondary);
+  padding: 0 var(--space-2);
+  background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   color: var(--color-text);
   font-size: 0.875rem;
-  box-shadow: var(--shadow-inset);
-  padding: 0 var(--space-3);
+  text-transform: none;
+  letter-spacing: normal;
   transition: border-color var(--transition);
 }
 
@@ -32,34 +229,25 @@
   box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
-.range {
+.rangeActions {
   display: flex;
-  align-items: flex-end;
-  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.dateField {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.apply {
+.apply,
+.clear {
   height: 38px;
   padding: 0 var(--space-4);
-  background-color: var(--color-primary);
-  border: none;
   border-radius: var(--radius-sm);
-  color: var(--color-on-primary);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.apply {
+  background-color: var(--color-primary);
+  border: none;
+  color: var(--color-on-primary);
 }
 
 .apply:hover:not(:disabled) {
@@ -71,56 +259,50 @@
   cursor: not-allowed;
 }
 
-/* Apply and, once a range is applied, Clear - side by side. */
-.rangeActions {
-  display: flex;
-  gap: var(--space-2);
-}
-
 .clear {
-  height: 38px;
-  padding: 0 var(--space-4);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
+  color: var(--color-text-secondary);
 }
 
 .clear:hover {
-  background-color: var(--color-danger-soft);
-  border-color: var(--color-danger-soft);
-  color: var(--color-danger);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
 }
 
-/* Phones: everything full width, 16px text so iOS does not zoom in. */
 @media (max-width: 640px) {
-  .filter,
-  .picker {
-    width: 100%;
+  .tile {
+    min-width: 84px;
+    padding: var(--space-2);
   }
 
+  .tileTitle {
+    font-size: 0.8125rem;
+  }
+
+  .tileHint {
+    font-size: 0.625rem;
+  }
+
+  .long {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
+
+  /* The two dates side by side, Clear / Apply across the full width below. */
   .range {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .rangeActions {
     grid-column: 1 / -1;
   }
 
-  .apply,
-  .clear {
+  .rangeActions > * {
     flex: 1;
-    height: 44px;
-  }
-
-  .date {
-    width: 100%;
-    height: 44px;
-    font-size: 1rem;
   }
 }

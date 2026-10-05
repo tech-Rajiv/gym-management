@@ -5,7 +5,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import PaymentTable from "@/components/payments/PaymentTable";
 import PaymentSearch from "@/components/payments/PaymentSearch";
 import { getPayments } from "@/lib/db/payments";
-import { PlusIcon } from "@/components/ui/icons";
+import { PlusIcon, CardIcon } from "@/components/ui/icons";
 import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import { requireAdmin } from "@/lib/auth";
 import { resolvePeriod, periodOptions } from "@/lib/utils/period";
@@ -38,12 +38,15 @@ export default async function PaymentsPage({ searchParams }) {
   return (
     <div>
       <PageHeader
+        banner
+        icon={<CardIcon size={18} />}
+        eyebrow={`${formatCurrency(total)} received · ${period.label}`}
         title="Payment History"
-        description="Every payment received, entered by hand. Aura records payments — it does not process them."
+        description="Every payment received, newest first."
         actions={
           <Button href="/payments/new" variant="primary">
             <PlusIcon size={16} />
-            Record Payment
+            New Payment
           </Button>
         }
       />

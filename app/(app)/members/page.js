@@ -12,8 +12,8 @@ import {
   DEFAULT_MEMBER_FILTER,
 } from "@/lib/utils/membershipStatus";
 import {
-  PlusIcon,
   MembersIcon,
+  PlusIcon,
   UserPlusIcon,
   ClockIcon,
   CalendarXIcon,
@@ -63,12 +63,19 @@ export default async function MembersPage({ searchParams }) {
   return (
     <div>
       <PageHeader
+        banner
+        icon={<MembersIcon size={18} />}
+        eyebrow={
+          search
+            ? `${counts.all ?? 0} matching "${search}"`
+            : `${counts.all ?? 0} ${counts.all === 1 ? "member" : "members"} training`
+        }
         title="Manage Members"
-        description="View, add and update the people training at your gym."
+        description="Everyone training at your gym."
         actions={
           <Button href="/members/new" variant="primary">
             <PlusIcon size={16} />
-            Add Member
+            New Member
           </Button>
         }
       />
