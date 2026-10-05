@@ -19,7 +19,8 @@ export default function Sidebar() {
 
   return (
     <aside className={styles.sidebar} aria-label="Main navigation">
-      <div className={styles.brand}>
+      {/* The brand always leads home. */}
+      <Link href="/dashboard" className={styles.brand} aria-label={`${APP_NAME} - go to the dashboard`}>
         <span className={styles.logo}>
           <DumbbellIcon size={18} />
         </span>
@@ -27,7 +28,7 @@ export default function Sidebar() {
           <span className={styles.brandName}>{APP_NAME}</span>
           <span className={styles.brandTag}>Management</span>
         </span>
-      </div>
+      </Link>
 
       <nav className={styles.nav}>
         {NAV_SECTIONS.map((section, index) => (

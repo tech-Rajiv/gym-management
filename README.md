@@ -119,6 +119,33 @@ disappear from the everyday lists and the dashboard, appear under the **Left**
 filter as faded rows, and keep their record, terms and payments. **Restore**
 brings them back - which matters because the phone number stays taken.
 
+### Date filters
+
+Payment History and History Logs share one date filter
+(`components/ui/PeriodFilter.js`): **All time**, **This month**, **Last
+month**, or a **custom range** (with Clear once applied). Payments also have a
+search. The period lives in the URL (`?month=2026-09` or
+`?from=2026-09-01&to=2026-09-10`) and is checked in `lib/utils/period.js`, so
+a malformed link simply shows everything. History Logs compares each entry's
+date in the gym's own timezone.
+
+### Dashboard
+
+Four figures - Total Members, Expiring Soon, Expired and New This Month - each
+opening the members list filtered to the same people. Below them, three short
+lists (Expired first, then Expiring Soon, then New This Month) show the first
+three members each; "See N more" opens the full filtered list.
+
+### Member lists
+
+The Members page and the dashboard's Expired / Expiring Soon lists share one
+row design (`components/members/MemberListItem.js`): name and status, the
+plan's start and end dates and days left, with three roomy buttons - Renew,
+Call, WhatsApp. Less frequent actions (View, Edit, Mark as left / Restore) are
+in each row's "⋯" menu. WhatsApp opens with a payment reminder already written. The phone number is
+never shown - Call and WhatsApp use it. The members filters are All, New This
+Month, Expiring Soon, Expired and Left.
+
 ### Saving shows a receipt
 
 Adding a member and recording a payment no longer jump to another page. A
@@ -174,8 +201,9 @@ server and PostgreSQL does the filtering, so:
 - a filtered view can be bookmarked, shared or refreshed;
 - the browser never holds the full member list;
 - the dashboard's stat cards can link straight to a filtered list —
-  **Total Members** opens `/members`, and **Expiring Soon** opens
-  `/members?status=expiring`, each showing exactly the number on the card.
+  **Total Members** opens `/members`, **Expiring Soon** opens
+  `/members?status=expiring` and **Expired** opens `/members?status=expired`,
+  each showing exactly the number on the card.
 
 The filter's SQL uses the same date comparisons and the same window as the
 badges do in JavaScript, so a filtered list always agrees with the statuses
@@ -266,6 +294,57 @@ would shift by a day when formatted in the wrong timezone.
 
 Queries never use `current_date`. Neon's clock is UTC and the gym is not, so
 the application works out today's date in `GYM_TIMEZONE` and passes it in.
+
+## PDF downloads
+
+The member and payment lists have a **PDF** button: the dashboard figures
+and lists, Members and Payments. The PDF is the list as filtered on screen -
+but all of it, not just what the page shows - with a branded header, the
+filters used, totals, and page numbers.
+
+PDFs are built on the server from the database with jsPDF + jspdf-autotable
+(`lib/pdf/`), served by `GET /api/export/:list` with the page's filters:
+
+| List | URL | Filters |
+| --- | --- | --- |
+| members | `/api/export/members` | `status`, `q` |
+| payments | `/api/export/payments` | `q`, `month` or `from` / `to` |
+
+The PDF fonts have no rupee sign, so amounts are written "Rs. 1,500".
+
+## Daily report email
+
+Every morning at 6:00 AM (India time) the app emails a report - Expired,
+Expiring Soon and New This Month - using **Upstash QStash** to trigger it and
+**Resend** to send it. The dashboard's **Email me the report** button sends the
+same email immediately, as a preview.
+
+```text
+QStash (6:00 AM IST)  ->  POST /api/cron/daily-report   (QStash signature checked)
+Dashboard button      ->  POST /api/reports/daily       (admin session checked)
+                      both -> lib/reports/dailyReport.js -> Resend
+```
+
+Set up once, after deploying:
+
+1. In `.env` (and in the hosting provider's environment variables):
+
+   | Variable | Purpose |
+   | --- | --- |
+   | `RESEND_API_KEY` | Resend API key |
+   | `QSTASH_URL`, `QSTASH_TOKEN` | QStash API, for creating the schedule |
+   | `QSTASH_CURRENT_SIGNING_KEY`, `QSTASH_NEXT_SIGNING_KEY` | Verify that 6 AM calls really come from QStash |
+   | `APP_URL` | The deployed site, e.g. `https://your-app.vercel.app` - QStash calls it, and the email links to it |
+   | `REPORT_EMAIL_TO` | Optional. Who gets the report (default `support.aurafitness@gmail.com`, the Resend account's own address) |
+   | `REPORT_EMAIL_FROM` | Optional. The sender (default `Aura Fitness <onboarding@resend.dev>`) |
+
+2. Run `npm run report:schedule` to create the schedule. Running it again
+   updates it; `npm run report:schedule -- status` shows it and
+   `npm run report:schedule -- delete` stops it.
+
+Resend's test sender (`onboarding@resend.dev`) only delivers to the address
+that owns the Resend account. To email anyone else, verify a domain at
+resend.com/domains and set `REPORT_EMAIL_FROM` to an address on it.
 
 ## Configuration
 

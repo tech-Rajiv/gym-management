@@ -34,7 +34,7 @@ export default function PaymentTable({
       <EmptyState
         icon={<SearchIcon size={20} />}
         title="No payments found."
-        description="No payments match your search. Try a different name, phone number or reference."
+        description="No payments match these filters. Try a different search, method or period."
       />
     ) : (
       <EmptyState

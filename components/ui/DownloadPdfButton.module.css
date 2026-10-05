@@ -1,0 +1,70 @@
+.button {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color var(--transition), border-color var(--transition),
+    color var(--transition);
+}
+
+.button svg {
+  color: var(--color-primary);
+}
+
+.button:hover {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+.iconOnly {
+  width: 36px;
+  padding: 0;
+}
+
+/* On a solid coloured card (the dashboard figures): translucent white. */
+.onColor {
+  background-color: var(--color-on-brand-surface);
+  border-color: transparent;
+  color: var(--color-on-brand);
+}
+
+.onColor svg {
+  color: inherit;
+}
+
+.onColor:hover {
+  background-color: var(--color-on-brand-surface-hover);
+  border-color: transparent;
+  color: var(--color-on-brand);
+}
+
+@media (max-width: 640px) {
+  .button {
+    height: 40px;
+  }
+
+  .iconOnly {
+    width: 40px;
+  }
+}
+
+button.button {
+  cursor: pointer;
+}
+
+button.button:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}

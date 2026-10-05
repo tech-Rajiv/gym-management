@@ -17,7 +17,9 @@ import styles from "./FilterTabs.module.css";
  * @param {string} param        the query parameter to write, e.g. "status"
  * @param {string} active       the value currently applied
  * @param {string} defaultValue the value meaning "no filter", left out of the URL
- * @param {{value: string, label: string, count?: number}[]} options
+ * @param {{value: string, label: string, count?: number,
+ *          icon?: React.ReactNode}[]} options
+ *        `icon` is an element (<ClockIcon size={15} />), shown before the label
  */
 export default function FilterTabs({
   param,
@@ -63,6 +65,7 @@ export default function FilterTabs({
             aria-pressed={isActive}
             className={`${styles.filter} ${isActive ? styles.filterActive : ""}`}
           >
+            {option.icon}
             {option.label}
             {option.count !== undefined && (
               <span className={styles.count}>{option.count}</span>

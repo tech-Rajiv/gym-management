@@ -196,3 +196,45 @@ export const TagIcon = (props) => (
     <circle cx="7.5" cy="7.5" r="1.5" />
   </Icon>
 );
+
+export const WhatsAppIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 21l1.65-3.8A9 9 0 1 1 7.8 20.3L3 21Z" />
+    <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Zm0 0a5 5 0 0 0 5 5m0 0h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1Z" />
+  </Icon>
+);
+
+/** A rupee note - for taking a payment. */
+export const RupeeIcon = (props) => (
+  <Icon {...props}>
+    <path d="M6 4h12M6 9h12M14.5 4a4.5 4.5 0 0 1 0 9H6l9 7" />
+  </Icon>
+);
+
+export const ChevronDownIcon = (props) => (
+  <Icon {...props}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+);
+
+export const CheckIcon = (props) => (
+  <Icon {...props}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </Icon>
+);
+
+/** A calendar crossed out - a membership whose end date has passed. */
+export const CalendarXIcon = (props) => (
+  <Icon {...props}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M16 3v4M8 3v4M3 11h18" />
+    <path d="m9.5 14 5 5M14.5 14l-5 5" />
+  </Icon>
+);
+
+export const DownloadIcon = (props) => (
+  <Icon {...props}>
+    <path d="M12 3v12M7 10l5 5 5-5" />
+    <path d="M5 21h14" />
+  </Icon>
+);

@@ -18,8 +18,11 @@ import { NextResponse } from "next/server";
 
 const SESSION_COOKIE = "aura_session";
 
-/** Reachable without being signed in. */
-const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+/**
+ * Reachable without being signed in. The daily-report route is called by
+ * Upstash QStash, not a person; it checks QStash's signature itself.
+ */
+const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/cron/daily-report"];
 
 export function proxy(request) {
   const { pathname } = request.nextUrl;

@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import CurrentCoverage from "@/components/members/CurrentCoverage";
 import SuccessDialog from "@/components/ui/SuccessDialog";
+import SearchSelect from "@/components/ui/SearchSelect";
 import { DashboardIcon, CardIcon, MembersIcon } from "@/components/ui/icons";
 import { PAYMENT_METHODS, describePayment, getMethodLabel } from "@/lib/utils/paymentStatus";
 import {
@@ -144,8 +145,7 @@ export default function PaymentForm({
   };
 
   /** Choosing a member refills everything that depends on them. */
-  const handleMemberChange = (event) => {
-    const value = event.target.value;
+  const handleMemberChange = (value) => {
     setMemberId(value);
 
     const next = defaultsFor(findMember(value));
@@ -180,10 +180,23 @@ export default function PaymentForm({
     ? describePayment(member.membership_price, member.membership_amount_paid)
     : null;
 
-  const memberOptions = members.map((m) => ({
-    value: m.id,
-    label: `${m.full_name} — ${m.phone}`,
-  }));
+  // Name on the first line; phone and current plan underneath. The phone is
+  // also searchable without its spaces, so "9000000014" finds "+91 90000 00014".
+  const memberOptions = members.map((m) => {
+    const cover = m.membership_end_date ? describeMembership(m.membership_end_date, today) : null;
+    return {
+      value: m.id,
+      label: m.full_name,
+      detail: [
+        m.phone,
+        m.plan_name,
+        cover ? `${cover.label} · ends ${formatDate(m.membership_end_date)}` : "No membership",
+      ]
+        .filter(Boolean)
+        .join(" · "),
+      search: m.phone.replace(/\D/g, ""),
+    };
+  });
 
   const planOptions = plans.map((plan) => ({
     value: plan.id,
@@ -200,11 +213,14 @@ export default function PaymentForm({
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Member</h2>
 
-        <Select
+        <SearchSelect
           id="memberId"
           label="Member"
           required
           placeholder="Select a member"
+          searchable
+          searchPlaceholder="Search by name or phone…"
+          emptyText="No member matches that search."
           options={memberOptions}
           value={memberId}
           onChange={handleMemberChange}

@@ -6,8 +6,10 @@ import PaymentTable from "@/components/payments/PaymentTable";
 import PaymentSearch from "@/components/payments/PaymentSearch";
 import { getPayments } from "@/lib/db/payments";
 import { PlusIcon } from "@/components/ui/icons";
-import Fab from "@/components/ui/Fab";
+import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import { requireAdmin } from "@/lib/auth";
+import { resolvePeriod, periodOptions } from "@/lib/utils/period";
+import { today } from "@/lib/utils/dates";
 import styles from "./payments.module.css";
 
 export const metadata = { title: "Payment History" };
@@ -18,15 +20,18 @@ export const dynamic = "force-dynamic";
 /**
  * Payment History.
  *
- * Every payment, newest first, with search and a cash/UPI filter. Like the
- * members list, both live in the URL, so PostgreSQL does the filtering and a
- * filtered view can be bookmarked.
+ * Every payment, newest first, with a search and a date filter (All time,
+ * This month, Last month, or a custom range). Like the members list, all of them
+ * live in the URL, so PostgreSQL does the filtering and a filtered view can be
+ * bookmarked.
  */
 export default async function PaymentsPage({ searchParams }) {
   await requireAdmin();
-  const { q: search = "", method } = await searchParams;
+  const { q: search = "", month, from, to } = await searchParams;
+  const period = resolvePeriod({ month, from, to });
 
-  const payments = await getPayments({ search, method });
+  const payments = await getPayments({ search, from: period.from, to: period.to });
+  const isFiltered = Boolean(search) || period.mode !== "all";
 
   return (
     <div>
@@ -34,26 +39,38 @@ export default async function PaymentsPage({ searchParams }) {
         title="Payment History"
         description="Every payment received, entered by hand. Aura records payments — it does not process them."
         actions={
-          <Button href="/payments/new" variant="primary" className="desktop-only">
+          <Button href="/payments/new" variant="primary">
             <PlusIcon size={16} />
             Record Payment
           </Button>
         }
       />
 
-      <Card flush tone="success">
+      {/* --- Filters: period and search, in their own card ----------------- */}
+      <section className={styles.filters} aria-label="Filter payments">
         {/* useSearchParams needs a Suspense boundary around it. */}
         <Suspense fallback={null}>
-          <div className={styles.toolbar}>
-            <PaymentSearch method={method ?? "all"} />
-          </div>
+          <PaymentSearch period={period} periodOptions={periodOptions(today())} />
         </Suspense>
+      </section>
 
-        <PaymentTable payments={payments} isSearching={Boolean(search)} />
+      {/* --- The list: its count and PDF button, then the payments --------- */}
+      <Card flush tone="success">
+        <div className={styles.summary}>
+          <p className={styles.summaryText}>
+            {payments.length} {payments.length === 1 ? "payment" : "payments"}
+            <span className={styles.summaryPeriod}>{period.label}</span>
+          </p>
+          {/* The payments as shown - period, method and search - as a PDF. */}
+          <DownloadPdfButton
+            list="payments"
+            params={{ q: search, month, from, to }}
+            title={`Payment History - ${period.label}`}
+          />
+        </div>
+
+        <PaymentTable payments={payments} isSearching={isFiltered} />
       </Card>
-
-      {/* On phones "Record Payment" floats in the corner instead. */}
-      <Fab href="/payments/new" label="Record Payment" icon={PlusIcon} />
     </div>
   );
 }

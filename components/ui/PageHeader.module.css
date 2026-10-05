@@ -57,11 +57,3 @@
     justify-content: center;
   }
 }
-
-/* When every action is desktop-only (moved to a floating button on phones),
-   drop the empty row it would otherwise leave under the title. */
-@media (max-width: 1024px) {
-  .actions:not(:has(> :not(:global(.desktop-only)))) {
-    display: none;
-  }
-}

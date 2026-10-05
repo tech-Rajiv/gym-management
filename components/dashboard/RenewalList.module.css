@@ -1,0 +1,19 @@
+/* "See 7 more →" - a full-width footer that opens the filtered list. */
+.more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface-secondary);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background-color var(--transition);
+}
+
+.more:hover {
+  background-color: var(--color-primary-soft);
+}

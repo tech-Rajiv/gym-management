@@ -1,21 +1,34 @@
-"use client";
-
-import { useState } from "react";
-import MemberRow from "./MemberRow";
-import MemberStatusDialog from "./MemberStatusDialog";
+import MemberListItem, { MemberList } from "./MemberListItem";
+import MemberRowMenu from "./MemberRowMenu";
 import EmptyState from "@/components/ui/EmptyState";
+import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { MembersIcon, SearchIcon, InboxIcon } from "@/components/ui/icons";
 import { MEMBER_FILTERS, DEFAULT_MEMBER_FILTER } from "@/lib/utils/membershipStatus";
-import tableStyles from "@/components/ui/Table.module.css";
-import styles from "./MemberTable.module.css";
+import { describePayment, getMethodLabel } from "@/lib/utils/paymentStatus";
+import { formatDate } from "@/lib/utils/dates";
+import { formatCurrency } from "@/lib/utils/format";
+
+/** "Last paid ₹4,000 on Sep 09, 2026 · Cash · ₹500 due", or "No payment yet". */
+function lastPaymentLine(member) {
+  if (!member.last_payment_on) return "No payment yet";
+  const { amountDue } = describePayment(member.membership_price, member.membership_amount_paid);
+  return [
+    `Last paid ${formatCurrency(member.last_payment_amount)} on ${formatDate(member.last_payment_on)}`,
+    getMethodLabel(member.last_payment_method),
+    amountDue > 0 ? `${formatCurrency(amountDue)} due` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
 
 /**
- * The members list.
+ * The members list, in the same clean row design as the dashboard's
+ * Expired / Expiring Soon lists (MemberListItem). The row carries Renew, Call
+ * and WhatsApp; View, Edit and Mark as left (or Restore, for someone who has
+ * left) are in its "⋯" menu.
  *
- * A Client Component for one reason: it remembers which member the "mark as
- * left" or "restore" dialog is asking about. The rows themselves are plain presentational
- * components, and the data was fetched on the server by the page above.
+ * The data was fetched on the server by the page above.
  *
  * An empty list has three different meanings, and each needs its own advice:
  * nothing matched the search, nothing matched the filter, or there are no
@@ -29,8 +42,6 @@ export default function MemberTable({
   isSearching = false,
   filter = DEFAULT_MEMBER_FILTER,
 }) {
-  // { member, mode: 'left' | 'restore' } while a dialog is open.
-  const [statusChange, setStatusChange] = useState(null);
 
   if (members.length === 0) {
     if (isSearching) {
@@ -48,7 +59,7 @@ export default function MemberTable({
       return (
         <EmptyState
           icon={<InboxIcon size={20} />}
-          title={`No ${label?.toLowerCase()} members.`}
+          title={`No members in ${label}.`}
           description="Nobody falls into this group right now. Try a different filter."
         />
       );
@@ -69,41 +80,24 @@ export default function MemberTable({
   }
 
   return (
-    <>
-      <div className={tableStyles.wrapper}>
-        <table className={`${tableStyles.table} ${styles.wide}`}>
-          <thead>
-            <tr>
-              <th>Member</th>
-              <th className={styles.joinColumn}>Join Date</th>
-              <th>Expiry / Plan</th>
-              <th>Status</th>
-              <th>Last Payment</th>
-              <th className={tableStyles.actionsHeader}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((member) => (
-              <MemberRow
-                key={member.id}
-                member={member}
-                onChangeStatus={(target, mode) => setStatusChange({ member: target, mode })}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Rendered only while a member is selected, so the dialog always opens
-          with fresh state and the right name. */}
-      {statusChange && (
-        <MemberStatusDialog
-          member={statusChange.member}
-          mode={statusChange.mode}
-          open
-          onClose={() => setStatusChange(null)}
-        />
-      )}
-    </>
+    <MemberList>
+      {members.map((member) => {
+        const isLeft = member.member_status === "left";
+        return (
+          <MemberListItem
+            key={member.id}
+            member={member}
+            faded={isLeft}
+            renew={isLeft ? false : undefined}
+            status={isLeft ? <Badge variant="neutral">Left</Badge> : undefined}
+            note={
+              isLeft && member.left_on ? `Left the gym on ${formatDate(member.left_on)}` : undefined
+            }
+            extra={lastPaymentLine(member)}
+            menu={<MemberRowMenu member={member} />}
+          />
+        );
+      })}
+    </MemberList>
   );
 }

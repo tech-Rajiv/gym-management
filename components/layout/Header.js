@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { APP_NAME } from "@/lib/config";
 import { CalendarIcon, DumbbellIcon } from "@/components/ui/icons";
 import { getInitials } from "@/lib/utils/format";
@@ -20,12 +21,13 @@ export default function Header({ todayLabel, admin }) {
 
   return (
     <header className={styles.header}>
-      <span className={styles.brand}>
+      {/* The brand always leads home. */}
+      <Link href="/dashboard" className={styles.brand} aria-label={`${APP_NAME} - go to the dashboard`}>
         <span className={styles.logo}>
           <DumbbellIcon size={16} />
         </span>
         <span className={styles.brandName}>{APP_NAME}</span>
-      </span>
+      </Link>
 
       <span className={styles.date}>
         <CalendarIcon size={15} />

@@ -64,6 +64,13 @@
   color: var(--color-on-brand-muted);
 }
 
+.welcomeActions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
 .welcomeAction {
   display: inline-flex;
   align-items: center;
@@ -88,7 +95,7 @@
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-4);
   margin-bottom: var(--space-5);
 }
@@ -98,11 +105,35 @@
   gap: var(--space-5);
 }
 
-/* Two lists side by side once there is room for their action buttons. */
-@media (min-width: 1440px) {
-  .lists {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
+/* Four cards need a wide screen; two per row below that. */
+@media (max-width: 1280px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Narrower screens: the banner's text above, its buttons below. */
+@media (max-width: 1024px) {
+  .welcome {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .welcomeActions {
+    justify-content: flex-start;
+  }
+}
+
+/* Phones: the two banner buttons share the width, one above the other. */
+@media (max-width: 640px) {
+  .welcomeActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .welcomeAction {
+    justify-content: center;
+    height: 44px;
   }
 }
 
