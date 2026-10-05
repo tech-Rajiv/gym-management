@@ -113,8 +113,9 @@ or made-up cookie does not match and is sent to the login page. There is no
 expiry: a login lasts until **Logout** (browsers cap a cookie at about 400
 days). `proxy.js` only turns away requests that have no cookie at all.
 
-The signing key is `AUTH_SECRET` when set, otherwise one derived from
-`DATABASE_URL`. Changing either signs everyone out. Because nothing is stored,
+The signing key is `AUTH_SECRET` from `.env` - required, and it must also be
+set in the hosting provider's environment variables. Changing it signs
+everyone out. Because nothing is stored,
 Logout signs out only the browser it is pressed in, and a change to an admin's
 name shows after they next log in.
 
@@ -359,6 +360,7 @@ Set in `.env`, with sensible defaults in `lib/config.js`:
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `DATABASE_URL` | — | Neon connection string. Required. |
+| `AUTH_SECRET` | — | Signs the login cookie. Required. Any long random text. |
 | `GYM_TIMEZONE` | `Asia/Kolkata` | The gym's local timezone. |
 | `EXPIRING_SOON_DAYS` | `7` | How early a membership counts as expiring. |
 
