@@ -35,23 +35,30 @@ function Row({ label, children }) {
  * the payment, the membership it paid for, and who paid. Download receipt
  * (PDF) and Delete sit at the top.
  */
-export default async function PaymentPage({ params }) {
+export default async function PaymentPage({ params, searchParams }) {
   await requireAdmin();
 
   const { id } = await params;
+  const { from } = await searchParams;
   const paymentId = toId(id);
   const payment = paymentId ? await getPaymentById(paymentId) : null;
   if (!payment) notFound();
 
   const created = new Date(payment.created_at);
 
+  // Opened from the member's profile: go back there, not to Payment History.
+  const back =
+    from === "member"
+      ? { href: `/members/${payment.member_id}`, label: `Back to ${payment.member_name}` }
+      : { href: "/payments", label: "Back to payments" };
+
   return (
     <div className={styles.page}>
-      <Link href="/payments" className={styles.back}>
+      <Link href={back.href} className={styles.back}>
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        Back to payments
+        {back.label}
       </Link>
 
       <article className={styles.receipt}>
@@ -61,7 +68,7 @@ export default async function PaymentPage({ params }) {
             <span className={styles.icon} aria-hidden="true">
               <RupeeIcon size={22} />
             </span>
-            <PaymentDetailActions payment={payment} />
+            <PaymentDetailActions payment={payment} afterDelete={back.href} />
           </div>
           <p className={styles.label}>Payment received · Receipt #{payment.id}</p>
           <p className={styles.amount}>{formatCurrency(payment.amount)}</p>

@@ -9,6 +9,7 @@ import { pdfResponse } from "@/lib/pdf/tablePdf";
  *   payments      ?q=&month= or ?from=&to=
  *   plan-members  ?plan=<plan id>
  *   payment       ?id=<payment id>   - one payment's receipt
+ *   member-payments ?member=<member id>
  *
  * Downloads the list as a PDF, with the same filters as the page it came
  * from. Signed-in admins only. See lib/pdf/exports.js.

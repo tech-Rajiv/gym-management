@@ -15,8 +15,9 @@ import { EyeIcon, EditIcon, UserMinusIcon, RestoreIcon } from "@/components/ui/i
  *
  * @param {object} member needs id, first_name, last_name, full_name and
  *                        member_status
+ * @param {boolean} [showView] leave out "View member" on the member's own page
  */
-export default function MemberRowMenu({ member }) {
+export default function MemberRowMenu({ member, showView = true }) {
   const [dialog, setDialog] = useState(null);
   const isLeft = member.member_status === "left";
 
@@ -25,7 +26,9 @@ export default function MemberRowMenu({ member }) {
       <RowMenu
         label={`More for ${member.full_name}`}
         items={[
-          { label: "View member", icon: <EyeIcon size={16} />, href: `/members/${member.id}` },
+          ...(showView
+            ? [{ label: "View member", icon: <EyeIcon size={16} />, href: `/members/${member.id}` }]
+            : []),
           { label: "Edit member", icon: <EditIcon size={16} />, href: `/members/${member.id}/edit` },
           isLeft
             ? {

@@ -9,9 +9,10 @@ import styles from "./PaymentDetailActions.module.css";
 
 /**
  * Download receipt (PDF) and Delete, on a payment's own page. After a delete
- * the payment no longer exists, so the page returns to Payment History.
+ * the payment no longer exists, so the page goes back to where it was opened
+ * from - Payment History, or the member's profile.
  */
-export default function PaymentDetailActions({ payment }) {
+export default function PaymentDetailActions({ payment, afterDelete = "/payments" }) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
 
@@ -34,7 +35,7 @@ export default function PaymentDetailActions({ payment }) {
           open
           onClose={() => setDeleting(false)}
           onDeleted={() => {
-            router.push("/payments");
+            router.push(afterDelete);
             router.refresh();
           }}
         />
