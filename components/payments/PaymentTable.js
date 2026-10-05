@@ -21,14 +21,23 @@ import { formatCurrency } from "@/lib/utils/format";
 import { getMethodLabel } from "@/lib/utils/paymentStatus";
 import styles from "./PaymentTable.module.css";
 
-/** "Today", "Yesterday", or "Sat, Oct 03, 2026" - the heading over a day's payments. */
+/**
+ * A day's heading: "Today · Mon, Oct 05", "Yesterday · Sun, Oct 04", or
+ * "Sat, Oct 03" - with the year added when it is not this year.
+ */
 function dayHeading(date, todayDate) {
-  if (date === todayDate) return "Today";
-  if (date === addDays(todayDate, -1)) return "Yesterday";
-  const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" }).format(
-    new Date(`${date}T00:00:00Z`)
-  );
-  return `${weekday}, ${formatDate(date)}`;
+  const at = new Date(`${date}T00:00:00Z`);
+  const sameYear = date.slice(0, 4) === todayDate.slice(0, 4);
+  const label = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "2-digit",
+    ...(sameYear ? {} : { year: "numeric" }),
+    timeZone: "UTC",
+  }).format(at);
+  if (date === todayDate) return { relative: "Today", label };
+  if (date === addDays(todayDate, -1)) return { relative: "Yesterday", label };
+  return { relative: null, label };
 }
 
 /** The payments, newest first, gathered under one heading per day. */
@@ -45,8 +54,11 @@ function groupByDay(payments) {
 /**
  * Payment history as payment records - like a bank statement:
  *
- *   TODAY                                   ₹5,500 · 2 payments  [PDF]
- *   [₹]  Parmar shiv Shiv                                ₹4,000   ⋯
+ *   Today · Mon, Oct 05                    ₹5,500 · 2 payments  [⬇]
+ *   ┌───────────────────────────────────────────────────────────┐
+ *   │ [₹]  Parmar shiv Shiv                          ₹4,000   ⋯ │
+ *   └───────────────────────────────────────────────────────────┘
+ *       (a gap, then the next day)
  *        Quarterly · Oct 05, 2026 → Jan 02, 2027
  *        [Cash]  remark
  *
@@ -87,26 +99,30 @@ export default function PaymentTable({ payments, isSearching = false, addHref = 
       <div className={styles.days}>
         {groupByDay(payments).map((day) => {
           const total = day.payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
+          const heading = dayHeading(day.date, todayDate);
+          const headingText = heading.relative ? `${heading.relative}, ${heading.label}` : heading.label;
           return (
-            <section key={day.date} className={styles.day} aria-label={dayHeading(day.date, todayDate)}>
+            <section key={day.date} className={styles.day} aria-label={headingText}>
+              {/* The date as a plain heading above the day's own box. */}
               <header className={styles.dayHeader}>
-                <h3 className={styles.dayTitle}>{dayHeading(day.date, todayDate)}</h3>
-                <div className={styles.dayRight}>
-                  <span className={styles.dayTotal}>
-                    {formatCurrency(total)}
-                    <span className={styles.dayCount}>
-                      {" "}· {day.payments.length} {day.payments.length === 1 ? "payment" : "payments"}
-                    </span>
+                <h3 className={styles.dayTitle}>
+                  {heading.relative && <span className={styles.relative}>{heading.relative}</span>}
+                  {heading.label}
+                </h3>
+                <span className={styles.dayTotal}>
+                  {formatCurrency(total)}
+                  <span className={styles.dayCount}>
+                    {" "}· {day.payments.length} {day.payments.length === 1 ? "payment" : "payments"}
                   </span>
-                  <DownloadPdfButton
-                    list="payments"
-                    params={{ from: day.date, to: day.date }}
-                    title={`Payments on ${formatDate(day.date)}`}
-                    description="will be saved as a PDF - every payment received that day, with all its details."
-                    iconOnly
-                    className={styles.dayPdf}
-                  />
-                </div>
+                </span>
+                <DownloadPdfButton
+                  list="payments"
+                  params={{ from: day.date, to: day.date }}
+                  title={`Payments on ${formatDate(day.date)}`}
+                  description="will be saved as a PDF - every payment received that day, with all its details."
+                  iconOnly
+                  className={styles.dayPdf}
+                />
               </header>
 
               <ul className={styles.list}>

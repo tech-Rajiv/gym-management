@@ -1,41 +1,43 @@
-/* --- One day's payments ------------------------------------------------------ */
+/* --- One day's payments ----------------------------------------------------
+   Like a banking app's history: the days sit apart on a light background,
+   each with its date as a plain heading and its payments in their own white
+   box. The space between days is what marks a new date. */
 
-.day + .day {
-  border-top: 1px solid var(--color-border);
+.days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  background-color: var(--color-surface-secondary);
 }
 
 .dayHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-5);
-  background-color: var(--color-surface-secondary);
-  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-2);
+  padding: 0 var(--space-1);
 }
 
 .dayTitle {
-  font-size: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
+  color: var(--color-text);
 }
 
-.dayRight {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-/* A smaller icon button, to sit in the slim day header. */
-.dayHeader .dayPdf {
-  width: 30px;
-  height: 30px;
-  min-height: 0;
+/* "Today ·" / "Yesterday ·" in front of the date. */
+.relative::after {
+  content: " · ";
+  color: var(--color-text-muted);
 }
 
 .dayTotal {
+  flex-shrink: 0;
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-text);
@@ -48,10 +50,29 @@
   color: var(--color-text-muted);
 }
 
+/* A quiet icon button: no box until hovered. */
+.dayHeader .dayPdf {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.dayHeader .dayPdf:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+}
+
 .list {
   margin: 0;
   padding: 0;
+  overflow: hidden;
   list-style: none;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 /* --- One payment record ------------------------------------------------------ */
@@ -180,8 +201,13 @@
 }
 
 @media (max-width: 640px) {
+  .days {
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-3);
+  }
+
   .dayHeader {
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    gap: var(--space-2);
   }
 
   .record {
