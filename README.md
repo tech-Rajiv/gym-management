@@ -103,14 +103,20 @@ rather than leaking `DATABASE_URL` towards the browser.
 
 ### Signing in
 
-Only people with a row in the `admins` table can sign in. A login creates a
-row in `admin_sessions` with a random token, and the browser keeps only that
-token in an httpOnly cookie for 30 days.
+Only people with a row in the `admins` table can sign in. Logging in is the
+only time the database is asked; nothing about sessions is stored.
 
-`proxy.js` turns away any request without the cookie, but that is only an
-early exit - a cookie can be stale or made up. Every page (through
-`requireAdmin()`) and every API route (through `withAdmin()`) looks the token
-up in the database, and that is what actually protects the data.
+Instead the browser gets an httpOnly cookie holding the admin's id, name and
+email, signed with HMAC-SHA256. Every page (through `requireAdmin()`) and every
+API route (through `withAdmin()`) checks that signature in memory - an edited
+or made-up cookie does not match and is sent to the login page. There is no
+expiry: a login lasts until **Logout** (browsers cap a cookie at about 400
+days). `proxy.js` only turns away requests that have no cookie at all.
+
+The signing key is `AUTH_SECRET` when set, otherwise one derived from
+`DATABASE_URL`. Changing either signs everyone out. Because nothing is stored,
+Logout signs out only the browser it is pressed in, and a change to an admin's
+name shows after they next log in.
 
 ### Members are never deleted
 

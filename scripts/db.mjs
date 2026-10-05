@@ -107,7 +107,6 @@ const commands = {
     await sql`DROP VIEW IF EXISTS payment_overview`;
     await sql`DROP VIEW IF EXISTS member_overview`;
     await sql`DROP TABLE IF EXISTS audit_logs`;
-    await sql`DROP TABLE IF EXISTS admin_sessions`;
     await sql`DROP TABLE IF EXISTS admins`;
     await sql`DROP TABLE IF EXISTS payments`;
     await sql`DROP TABLE IF EXISTS memberships`;

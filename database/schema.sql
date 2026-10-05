@@ -200,19 +200,11 @@ VALUES ('Hiren', 'hiren@gmail.com', 'hiren')
 ON CONFLICT (email) DO NOTHING;
 
 -- ---------------------------------------------------------------------------
--- admin_sessions
--- One row per signed-in browser. The cookie holds only the random token; who
--- it belongs to is looked up here on every request, so a cookie cannot be
--- edited into someone else's session, and logging out ends it for real.
+-- Sessions are not stored. Who is signed in is carried in a signed cookie and
+-- checked without a query (lib/auth.js). Older databases had an
+-- admin_sessions table; it is dropped here.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS admin_sessions (
-  token       text PRIMARY KEY,
-  admin_id    integer NOT NULL REFERENCES admins (id) ON DELETE CASCADE,
-  expires_at  timestamptz NOT NULL,
-  created_at  timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_admin_sessions_admin_id ON admin_sessions (admin_id);
+DROP TABLE IF EXISTS admin_sessions;
 
 -- ---------------------------------------------------------------------------
 -- audit_logs
