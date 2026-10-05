@@ -15,6 +15,7 @@ import { DashboardIcon, CardIcon, MembersIcon } from "@/components/ui/icons";
 import { memberToFormValues } from "@/lib/validations/member";
 import { apiRequest, formToObject } from "@/lib/client/api";
 import styles from "./MemberForm.module.css";
+import { planOptionLabel, cardioLabel } from "@/lib/utils/plans";
 
 /**
  * The Add Member and Edit Member form.
@@ -112,7 +113,7 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
 
   const planOptions = plans.map((plan) => ({
     value: plan.id,
-    label: `${plan.name} — ${plan.duration_days} days, ${formatCurrency(plan.price)}`,
+    label: planOptionLabel(plan),
   }));
 
   return (
@@ -267,7 +268,8 @@ export default function MemberForm({ member, plans, today, submitLabel = "Save M
               </span>
               {selectedPlan && (
                 <span className={styles.planPriceHint}>
-                  {selectedPlan.name} · {selectedPlan.duration_days} days
+                  {selectedPlan.name} · {selectedPlan.duration_days} days ·{" "}
+                  {cardioLabel(selectedPlan.includes_cardio)}
                 </span>
               )}
             </div>

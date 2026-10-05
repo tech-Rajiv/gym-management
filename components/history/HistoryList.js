@@ -63,7 +63,7 @@ export default function HistoryList({ logs }) {
                       <Badge variant={entry.badge.variant}>{entry.badge.label}</Badge>
                       {entry.href && (
                         <Link href={entry.href} className={styles.link}>
-                          {log.entity_type === "plan" ? "View plans" : "View member"}
+                          {log.entity_type === "plan" ? "View plan" : "View member"}
                         </Link>
                       )}
                     </div>

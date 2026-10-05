@@ -10,6 +10,7 @@ import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import { requireAdmin } from "@/lib/auth";
 import { resolvePeriod, periodOptions } from "@/lib/utils/period";
 import { today } from "@/lib/utils/dates";
+import { formatCurrency } from "@/lib/utils/format";
 import styles from "./payments.module.css";
 
 export const metadata = { title: "Payment History" };
@@ -32,6 +33,7 @@ export default async function PaymentsPage({ searchParams }) {
 
   const payments = await getPayments({ search, from: period.from, to: period.to });
   const isFiltered = Boolean(search) || period.mode !== "all";
+  const total = payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
 
   return (
     <div>
@@ -59,9 +61,10 @@ export default async function PaymentsPage({ searchParams }) {
         <div className={styles.summary}>
           <p className={styles.summaryText}>
             {payments.length} {payments.length === 1 ? "payment" : "payments"}
+            <span className={styles.summaryTotal}>{formatCurrency(total)}</span>
             <span className={styles.summaryPeriod}>{period.label}</span>
           </p>
-          {/* The payments as shown - period, method and search - as a PDF. */}
+          {/* The payments as shown - period and search - as a PDF. */}
           <DownloadPdfButton
             list="payments"
             params={{ q: search, month, from, to }}

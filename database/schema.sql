@@ -37,6 +37,12 @@ CREATE TABLE IF NOT EXISTS membership_plans (
 -- A name only has to be unique among the plans on sale, so a deleted
 -- (deactivated) "Monthly" does not stop a new "Monthly" being created. Older
 -- databases had a plain UNIQUE on name; it is dropped here.
+-- Whether the plan includes cardio - the main thing that sets one plan apart
+-- from another of the same length, so it is a field of its own rather than a
+-- line in the description.
+ALTER TABLE membership_plans
+  ADD COLUMN IF NOT EXISTS includes_cardio boolean NOT NULL DEFAULT false;
+
 ALTER TABLE membership_plans DROP CONSTRAINT IF EXISTS membership_plans_name_key;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_membership_plans_active_name
   ON membership_plans (lower(name)) WHERE is_active;

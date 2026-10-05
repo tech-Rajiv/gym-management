@@ -20,6 +20,7 @@ import { formatDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/format";
 import { apiRequest, formToObject } from "@/lib/client/api";
 import styles from "./PaymentForm.module.css";
+import { planOptionLabel, cardioLabel } from "@/lib/utils/plans";
 
 const NEW_TERM = "new";
 const CURRENT_TERM = "current";
@@ -200,7 +201,7 @@ export default function PaymentForm({
 
   const planOptions = plans.map((plan) => ({
     value: plan.id,
-    label: `${plan.name} — ${plan.duration_days} days, ${formatCurrency(plan.price)}`,
+    label: planOptionLabel(plan),
   }));
 
   return (
@@ -275,7 +276,7 @@ export default function PaymentForm({
                 </span>
                 {selectedPlan && (
                   <span className={styles.planPriceHint}>
-                    {selectedPlan.duration_days} days · set on the Plans page
+                    {selectedPlan.duration_days} days · {cardioLabel(selectedPlan.includes_cardio)}
                   </span>
                 )}
               </div>

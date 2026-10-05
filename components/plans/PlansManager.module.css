@@ -1,6 +1,6 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: var(--space-4);
 }
 
@@ -10,122 +10,222 @@
   border-radius: var(--radius-lg);
 }
 
-/* --- A plan card --------------------------------------------------------- */
+/* --- A plan card ------------------------------------------------------------
+   White, with a coloured top border that follows the card's rounded corners.
+   The plan name's link is stretched over the whole card, so a tap anywhere
+   opens the plan. */
 
 .plan {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-5);
-  background: linear-gradient(170deg, var(--tone-soft) 0%, var(--color-surface) 55%);
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--tone-soft) 0%, var(--color-surface) 38%);
   border: 1px solid var(--color-border);
   border-top: 4px solid var(--tone);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+/* No transform on hover: it would move the "⋯" menu, which is placed
+   against the window. */
+.plan:hover {
+  border-color: var(--tone-border);
+  border-top-color: var(--tone);
   box-shadow: var(--shadow-md);
 }
 
-.primary {
-  --tone: var(--tone-primary);
-  --tone-soft: var(--tone-primary-soft);
+.cover {
+  color: inherit;
+  text-decoration: none;
 }
 
-.success {
-  --tone: var(--color-success);
-  --tone-soft: var(--color-success-soft);
+.cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
-.warning {
-  --tone: var(--tone-warning);
-  --tone-soft: var(--tone-warning-soft);
+.cover:focus-visible {
+  outline: none;
 }
 
-.danger {
-  --tone: var(--tone-danger);
-  --tone-soft: var(--tone-danger-soft);
+.plan:has(.cover:focus-visible) {
+  outline: 3px solid var(--color-primary-soft);
+  outline-offset: 2px;
 }
+
+/* Above the stretched link, so Edit / Delete never open the plan. */
+.menu {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  margin: -6px -10px -6px 0;
+}
+
+/* Five close shades of the brand colour. */
+.indigo {
+  --tone: #4f46e5;
+  --tone-soft: #f3f3ff;
+  --tone-border: #c7c4f7;
+}
+
+.violet {
+  --tone: #7c3aed;
+  --tone-soft: #f6f1ff;
+  --tone-border: #d6c4f8;
+}
+
+.blue {
+  --tone: #2563eb;
+  --tone-soft: #f1f5ff;
+  --tone-border: #c0d3f9;
+}
+
+.purple {
+  --tone: #9333ea;
+  --tone-soft: #f9f1ff;
+  --tone-border: #dfc2f7;
+}
+
+.sky {
+  --tone: #0369a1;
+  --tone-soft: #f0f7fc;
+  --tone-border: #b9d8ea;
+}
+
+/* --- Inside the card -------------------------------------------------------- */
 
 .planTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  padding: var(--space-5) var(--space-5) 0;
 }
 
 .planName {
-  font-size: 1.0625rem;
-  font-weight: 700;
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
-.duration {
-  padding: 2px var(--space-3);
-  background-color: var(--tone);
-  border-radius: var(--radius-full);
-  color: var(--color-on-brand);
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
+.priceLine {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-5) 0;
 }
 
 .price {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
   color: var(--tone);
   font-variant-numeric: tabular-nums;
 }
 
-.description {
-  font-size: 0.8125rem;
+.per {
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
 
-.usage {
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+/* Who is on the plan, as the card's footer. */
+.members {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-top: auto;
-  padding-top: var(--space-3);
+  padding: var(--space-3) var(--space-5);
   border-top: 1px solid var(--color-border);
   font-size: 0.8125rem;
-  color: var(--color-text-secondary);
 }
 
-.planActions {
+.avatars {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.avatar {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -8px;
+  background-color: var(--tone-soft);
+  border: 2px solid var(--color-surface);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 1px var(--tone-border);
+  color: var(--tone);
+  font-size: 0.6875rem;
+  font-weight: 700;
 }
 
-.planActions .deleteButton:hover:not(:disabled) {
-  background-color: var(--color-danger-soft);
-  color: var(--color-danger);
+.avatar:first-child {
+  margin-left: 0;
 }
 
-/* --- Dialog form ----------------------------------------------------------- */
-
-.form {
+.memberText {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.memberText strong {
+  font-weight: 600;
   color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-}
-
-.formNote {
-  margin-top: var(--space-3);
-  font-size: 0.8125rem;
+.memberHint {
   color: var(--color-text-secondary);
+}
+
+.arrow {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform var(--transition), color var(--transition);
+}
+
+.plan:hover .arrow {
+  color: var(--tone);
+  transform: translateX(3px);
 }
 
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;
     gap: var(--space-3);
+  }
+
+  .planTop {
+    padding: var(--space-4) var(--space-4) 0;
+  }
+
+  .priceLine {
+    padding: var(--space-2) var(--space-4) 0;
+  }
+
+  .features {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+
+  .members {
+    padding: var(--space-3) var(--space-4);
   }
 }

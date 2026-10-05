@@ -35,9 +35,11 @@
   padding-top: var(--space-6);
 }
 
+/* Cancel on the left, the action on the right - one row on every screen. */
 .footer {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
   background-color: var(--color-surface-secondary);
@@ -45,8 +47,14 @@
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
+/* On a phone the two buttons share the row equally - easy thumb targets. */
 @media (max-width: 640px) {
   .footer {
-    flex-direction: column-reverse;
+    padding: var(--space-4);
+  }
+
+  .footer > * {
+    flex: 1;
+    justify-content: center;
   }
 }

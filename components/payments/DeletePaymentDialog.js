@@ -17,7 +17,7 @@ import styles from "./DeletePaymentDialog.module.css";
  * is the thing an owner would reasonably worry about: correcting a mistyped
  * receipt should never take away somebody's gym access.
  */
-export default function DeletePaymentDialog({ payment, open, onClose }) {
+export default function DeletePaymentDialog({ payment, open, onClose, onDeleted }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState(null);
@@ -34,7 +34,8 @@ export default function DeletePaymentDialog({ payment, open, onClose }) {
     }
 
     onClose();
-    router.refresh();
+    if (onDeleted) onDeleted();
+    else router.refresh();
   };
 
   const handleClose = () => {

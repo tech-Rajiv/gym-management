@@ -1,38 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
-import Modal from "@/components/ui/Modal";
-import Input from "@/components/ui/Input";
-import Alert from "@/components/ui/Alert";
 import EmptyState from "@/components/ui/EmptyState";
-import { apiRequest, formToObject } from "@/lib/client/api";
+import CardioBadge from "./CardioBadge";
+import { PlanFormDialog } from "./PlanDialogs";
+import PlanMenu from "./PlanMenu";
 import { formatCurrency } from "@/lib/utils/format";
-import { PlusIcon, EditIcon, TrashIcon, MembersIcon, CalendarIcon } from "@/components/ui/icons";
+import { memberPreview } from "@/lib/utils/plans";
+import { PlusIcon, CalendarIcon, ArrowRightIcon } from "@/components/ui/icons";
 import styles from "./PlansManager.module.css";
 
-/** One of four accent colours per card, so the plans are told apart at a glance. */
-const ACCENTS = ["primary", "success", "warning", "danger"];
+/**
+ * Each card's accent, in turn. Neighbouring shades of the brand colour rather
+ * than unrelated colours, so the cards are told apart but still read as one set.
+ */
+const ACCENTS = ["indigo", "violet", "blue", "purple", "sky"];
 
 /**
- * The Plans page: a card per plan, with Add, Edit and Delete.
+ * The Plans page: a simple card per plan - name, length, price, whether
+ * cardio is included, and who is on it. The card opens the plan's own page
+ * with its full member list; Edit and Delete are in the card's "⋯" menu.
  *
- * A Client Component because adding and editing happen in dialogs. The plans
- * themselves were loaded on the server; after any change the page refreshes
- * from the server rather than patching local state.
+ * A Client Component because adding happens in a dialog. The plans were
+ * loaded on the server; after a change the page refreshes from the server.
  */
 export default function PlansManager({ plans }) {
   const router = useRouter();
-  // { mode: 'add' | 'edit' | 'delete', plan? } while a dialog is open.
-  const [dialog, setDialog] = useState(null);
-
-  const close = () => setDialog(null);
-  const done = () => {
-    setDialog(null);
-    router.refresh();
-  };
+  const [adding, setAdding] = useState(false);
 
   return (
     <div>
@@ -40,7 +38,7 @@ export default function PlansManager({ plans }) {
         title="Membership Plans"
         description="What the gym sells. These plans and prices are used when adding members and recording payments."
         actions={
-          <Button variant="primary" onClick={() => setDialog({ mode: "add" })}>
+          <Button variant="primary" onClick={() => setAdding(true)}>
             <PlusIcon size={16} />
             Add Plan
           </Button>
@@ -58,179 +56,85 @@ export default function PlansManager({ plans }) {
       ) : (
         <div className={styles.grid}>
           {plans.map((plan, index) => (
-            <article key={plan.id} className={`${styles.plan} ${styles[ACCENTS[index % ACCENTS.length]]}`}>
-              <div className={styles.planTop}>
-                <h2 className={styles.planName}>{plan.name}</h2>
-                <span className={styles.duration}>{plan.duration_days} days</span>
-              </div>
-
-              <p className={styles.price}>{formatCurrency(plan.price)}</p>
-              {plan.description && <p className={styles.description}>{plan.description}</p>}
-
-              <p className={styles.usage}>
-                <MembersIcon size={15} />
-                {plan.member_count} {plan.member_count === 1 ? "member" : "members"} on this plan
-              </p>
-
-              <div className={styles.planActions}>
-                <Button variant="secondary" onClick={() => setDialog({ mode: "edit", plan })}>
-                  <EditIcon size={15} />
-                  Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={styles.deleteButton}
-                  onClick={() => setDialog({ mode: "delete", plan })}
-                >
-                  <TrashIcon size={15} />
-                  Delete
-                </Button>
-              </div>
-            </article>
+            <PlanCard key={plan.id} plan={plan} accent={ACCENTS[index % ACCENTS.length]} />
           ))}
         </div>
       )}
 
-      {(dialog?.mode === "add" || dialog?.mode === "edit") && (
-        <PlanFormDialog plan={dialog.plan} onClose={close} onSaved={done} />
-      )}
-      {dialog?.mode === "delete" && (
-        <DeletePlanDialog plan={dialog.plan} onClose={close} onDeleted={done} />
+      {adding && (
+        <PlanFormDialog
+          onClose={() => setAdding(false)}
+          onSaved={(response) => {
+            setAdding(false);
+            // Straight to the new plan's page; the list behind it is refreshed too.
+            if (response?.id) router.push(`/plans/${response.id}`);
+            router.refresh();
+          }}
+        />
       )}
     </div>
   );
 }
 
-/** Add or edit a plan: name, length in days, price and an optional note. */
-function PlanFormDialog({ plan, onClose, onSaved }) {
-  const [pending, setPending] = useState(false);
-  const [result, setResult] = useState(null);
-  const isEdit = Boolean(plan);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setPending(true);
-    const response = await apiRequest(isEdit ? `/api/plans/${plan.id}` : "/api/plans", {
-      method: isEdit ? "PATCH" : "POST",
-      body: formToObject(event.currentTarget),
-    });
-    setPending(false);
-    if (response.ok) onSaved();
-    else setResult(response);
-  };
+/**
+ *   Monthly                              ⋯
+ *   ₹600  [30 days]
+ *   (✓ Cardio included)
+ *   ─────────────────────────────────────
+ *   (R)(M) Rahul, Meera +4 more          →
+ *
+ * The whole card opens the plan's page (a link stretched over it); the "⋯"
+ * menu sits above that link, so Edit and Delete do not open the page.
+ */
+function PlanCard({ plan, accent }) {
+  const names = (plan.member_names ?? []).filter(Boolean);
+  const preview = memberPreview(names, plan.member_count);
 
   return (
-    <Modal
-      open
-      onClose={onClose}
-      dismissible={!pending}
-      title={isEdit ? `Edit ${plan.name}` : "Add Plan"}
-      footer={
-        <>
-          <Button variant="ghost" onClick={onClose} disabled={pending}>
-            Cancel
-          </Button>
-          <Button type="submit" form="plan-form" variant="primary" disabled={pending}>
-            {pending ? "Saving…" : isEdit ? "Save Changes" : "Add Plan"}
-          </Button>
-        </>
-      }
-    >
-      <form id="plan-form" onSubmit={handleSubmit} className={styles.form} noValidate>
-        {result?.message && <Alert>{result.message}</Alert>}
-        <Input
-          id="name"
-          label="Plan name"
-          required
-          defaultValue={plan?.name ?? ""}
-          placeholder="e.g. Monthly"
-          error={result?.errors?.name}
-        />
-        <div className={styles.formRow}>
-          <Input
-            id="durationDays"
-            label="Length (days)"
-            type="number"
-            min="1"
-            step="1"
-            required
-            defaultValue={plan?.duration_days ?? ""}
-            placeholder="30"
-            error={result?.errors?.durationDays}
-          />
-          <Input
-            id="price"
-            label="Price (₹)"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            defaultValue={plan?.price ?? ""}
-            placeholder="1500"
-            error={result?.errors?.price}
-          />
+    <article className={`${styles.plan} ${styles[accent]}`}>
+      <div className={styles.planTop}>
+        <h2 className={styles.planName}>
+          <Link href={`/plans/${plan.id}`} className={styles.cover}>
+            {plan.name}
+          </Link>
+        </h2>
+        <div className={styles.menu}>
+          <PlanMenu plan={plan} />
         </div>
-        <Input
-          id="description"
-          label="Description"
-          defaultValue={plan?.description ?? ""}
-          placeholder="Optional"
-          error={result?.errors?.description}
-        />
-        {isEdit && (
-          <p className={styles.formNote}>
-            A new price applies from the next payment. Members already on this
-            plan keep the price they paid for their current term.
-          </p>
-        )}
-      </form>
-    </Modal>
-  );
-}
+      </div>
 
-/** Confirmation before taking a plan off sale. */
-function DeletePlanDialog({ plan, onClose, onDeleted }) {
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState(null);
-
-  const handleDelete = async () => {
-    setPending(true);
-    const response = await apiRequest(`/api/plans/${plan.id}`, { method: "DELETE" });
-    setPending(false);
-    if (response.ok) onDeleted();
-    else setError(response.message);
-  };
-
-  return (
-    <Modal
-      open
-      onClose={onClose}
-      dismissible={!pending}
-      title={`Delete ${plan.name}?`}
-      footer={
-        <>
-          <Button variant="ghost" onClick={onClose} disabled={pending}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDelete} disabled={pending}>
-            {pending ? "Deleting…" : "Delete Plan"}
-          </Button>
-        </>
-      }
-    >
-      <p>
-        <strong>{plan.name}</strong> will no longer be offered when adding
-        members or recording payments.
-        {plan.member_count > 0 &&
-          ` The ${plan.member_count} ${
-            plan.member_count === 1 ? "member" : "members"
-          } already on it keep their plan and history - only new sales stop.`}
+      <p className={styles.priceLine}>
+        <span className={styles.price}>{formatCurrency(plan.price)}</span>
+        <span className={styles.per}>/ {plan.duration_days} days</span>
       </p>
-      {error && (
-        <div className={styles.formNote}>
-          <Alert>{error}</Alert>
-        </div>
-      )}
-    </Modal>
+      <div className={styles.features}>
+        <CardioBadge included={plan.includes_cardio} />
+      </div>
+
+      <div className={styles.members}>
+        {preview ? (
+          <>
+            <span className={styles.avatars} aria-hidden="true">
+              {names.map((name, index) => (
+                <span key={`${name}-${index}`} className={styles.avatar}>
+                  {name.charAt(0).toUpperCase()}
+                </span>
+              ))}
+            </span>
+            <span className={styles.memberText}>
+              <strong>{preview}</strong>
+              <span className={styles.memberHint}>
+                {plan.member_count === 1 ? "is on this plan" : "are on this plan"}
+              </span>
+            </span>
+          </>
+        ) : (
+          <span className={styles.memberText}>
+            <span className={styles.memberHint}>No members on this plan yet</span>
+          </span>
+        )}
+        <ArrowRightIcon size={16} className={styles.arrow} />
+      </div>
+    </article>
   );
 }
