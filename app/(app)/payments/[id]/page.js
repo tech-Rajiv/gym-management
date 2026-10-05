@@ -71,7 +71,8 @@ export default async function PaymentPage({ params, searchParams }) {
             <PaymentDetailActions payment={payment} afterDelete={back.href} />
           </div>
           <p className={styles.label}>Payment received · Receipt #{payment.id}</p>
-          <p className={styles.amount}>{formatCurrency(payment.amount)}</p>
+          {/* The page's heading: what this payment was. */}
+          <h1 className={styles.amount}>{formatCurrency(payment.amount)}</h1>
           <p className={styles.sub}>
             from{" "}
             <Link href={`/members/${payment.member_id}`} className={styles.memberLink}>
