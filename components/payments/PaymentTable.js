@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
 import RowMenu from "@/components/ui/RowMenu";
+import Avatar from "@/components/ui/Avatar";
 import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import DeletePaymentDialog from "./DeletePaymentDialog";
 import {
@@ -13,8 +14,8 @@ import {
   SearchIcon,
   TrashIcon,
   EyeIcon,
-  RupeeIcon,
   ArrowRightIcon,
+  CalendarIcon,
 } from "@/components/ui/icons";
 import { formatDate, today, addDays } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/format";
@@ -106,8 +107,11 @@ export default function PaymentTable({ payments, isSearching = false, addHref = 
               {/* The date as a plain heading above the day's own box. */}
               <header className={styles.dayHeader}>
                 <h3 className={styles.dayTitle}>
-                  {heading.relative && <span className={styles.relative}>{heading.relative}</span>}
-                  {heading.label}
+                  <CalendarIcon size={15} className={styles.dayIcon} />
+                  <span className={styles.dayText}>
+                    {heading.relative && <span className={styles.relative}>{heading.relative}</span>}
+                    {heading.label}
+                  </span>
                 </h3>
                 <span className={styles.dayTotal}>
                   {formatCurrency(total)}
@@ -156,9 +160,12 @@ function PaymentRecord({ payment, onDelete }) {
 
   return (
     <li className={styles.record}>
-      <span className={styles.icon} aria-hidden="true">
-        <RupeeIcon size={18} />
-      </span>
+      <Avatar
+        src={payment.member_photo_url}
+        name={payment.member_name}
+        gender={payment.member_gender}
+        size={40}
+      />
 
       <div className={styles.details}>
         <div className={styles.topLine}>

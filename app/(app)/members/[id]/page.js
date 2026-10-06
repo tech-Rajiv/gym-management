@@ -6,12 +6,13 @@ import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import MemberActions from "@/components/members/MemberActions";
 import CurrentCoverage from "@/components/members/CurrentCoverage";
 import MemberPayments from "@/components/members/MemberPayments";
+import MemberPhoto from "@/components/members/MemberPhoto";
 import { getMemberById } from "@/lib/db/members";
 import { getPaymentsByMemberId } from "@/lib/db/payments";
 import { requireAdmin } from "@/lib/auth";
 import { describeMembership } from "@/lib/utils/membershipStatus";
 import { formatDate, calculateAge } from "@/lib/utils/dates";
-import { orDash, titleCase, getInitials, formatCurrency } from "@/lib/utils/format";
+import { orDash, titleCase, formatCurrency } from "@/lib/utils/format";
 import { PhoneIcon, MailIcon, CalendarIcon, CardIcon, MembersIcon } from "@/components/ui/icons";
 import styles from "./member.module.css";
 
@@ -81,9 +82,10 @@ export default async function MemberDetailPage({ params }) {
 
       {/* --- Who they are ------------------------------------------------- */}
       <section className={styles.header} aria-label="Member">
-        <span className={styles.avatar} aria-hidden="true">
-          {getInitials(member.first_name, member.last_name)}
-        </span>
+        {/* Their photo - tap to add, change or remove it. */}
+        <div className={styles.avatar}>
+          <MemberPhoto member={member} size={56} />
+        </div>
         <div className={styles.identity}>
           <h1 className={styles.name}>
             {member.full_name}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Badge from "@/components/ui/Badge";
+import Avatar from "@/components/ui/Avatar";
 import PaymentDetailActions from "@/components/payments/PaymentDetailActions";
 import { getPaymentById } from "@/lib/db/payments";
 import { toId } from "@/lib/db";
@@ -121,7 +122,13 @@ export default async function PaymentPage({ params, searchParams }) {
           <h2 className={styles.sectionTitle}>Member</h2>
           <dl className={styles.rows}>
             <Row label="Name">
-              <Link href={`/members/${payment.member_id}`} className={styles.memberLink}>
+              <Link href={`/members/${payment.member_id}`} className={`${styles.memberLink} ${styles.withAvatar}`}>
+                <Avatar
+                  src={payment.member_photo_url}
+                  name={payment.member_name}
+                  gender={payment.member_gender}
+                  size={28}
+                />
                 {payment.member_name}
               </Link>
             </Row>

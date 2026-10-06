@@ -267,18 +267,8 @@
 }
 
 .avatar {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
   margin-left: -8px;
-  background-color: var(--tone-soft);
-  border: 2px solid var(--color-surface-secondary);
-  border-radius: var(--radius-full);
-  box-shadow: 0 0 0 1px var(--tone-border);
-  color: var(--tone);
-  font-size: 0.6875rem;
-  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--color-surface-secondary);
 }
 
 .avatar:first-child {

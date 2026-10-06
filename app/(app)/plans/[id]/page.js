@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Card from "@/components/ui/Card";
+import Avatar from "@/components/ui/Avatar";
 import EmptyState from "@/components/ui/EmptyState";
 import DownloadPdfButton from "@/components/ui/DownloadPdfButton";
 import CardioBadge from "@/components/plans/CardioBadge";
@@ -128,6 +129,7 @@ export default async function PlanPage({ params }) {
                 <tr key={member.id}>
                   <td>
                     <Link href={`/members/${member.id}`} className={styles.name}>
+                      <Avatar src={member.photo_url} name={member.full_name} gender={member.gender} size={30} />
                       {member.full_name}
                     </Link>
                   </td>

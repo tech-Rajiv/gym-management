@@ -7,6 +7,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import EmptyState from "@/components/ui/EmptyState";
 import CardioBadge from "./CardioBadge";
+import Avatar from "@/components/ui/Avatar";
 import { PlanFormDialog } from "./PlanDialogs";
 import PlanMenu from "./PlanMenu";
 import { formatCurrency } from "@/lib/utils/format";
@@ -185,9 +186,14 @@ function PlanCard({ plan, accent, totalMembers, popular, bestValue }) {
             <>
               <span className={styles.avatars} aria-hidden="true">
                 {names.map((name, index) => (
-                  <span key={`${name}-${index}`} className={styles.avatar}>
-                    {name.charAt(0).toUpperCase()}
-                  </span>
+                  <Avatar
+                    key={`${name}-${index}`}
+                    src={plan.member_avatars?.[index]?.photo}
+                    name={name}
+                    gender={plan.member_avatars?.[index]?.gender}
+                    size={26}
+                    className={styles.avatar}
+                  />
                 ))}
               </span>
               <span className={styles.memberText}>{preview}</span>

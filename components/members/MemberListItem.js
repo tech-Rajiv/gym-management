@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
+import Avatar from "@/components/ui/Avatar";
 import { PhoneIcon, WhatsAppIcon, RupeeIcon } from "@/components/ui/icons";
 import { formatDate } from "@/lib/utils/dates";
 import { describeMembership } from "@/lib/utils/membershipStatus";
@@ -65,7 +66,7 @@ function whatsAppMessage(member, membership) {
  *
  * Presentational only, so Server and Client Components can both render it.
  *
- * @param {object}  member  id, full_name, phone, plan_name,
+ * @param {object}  member  id, full_name, phone, photo_url, plan_name,
  *                          membership_start_date, membership_end_date
  * @param {boolean} [renew]  show Renew; defaults to expired / expiring / none
  * @param {node}    [status] replaces the membership badge (e.g. "Left")
@@ -86,10 +87,21 @@ export default function MemberListItem({
   const membership = describeMembership(member.membership_end_date);
   const showRenew = renew ?? ["expired", "expiring_soon", "none"].includes(membership.status);
   const hasTerm = Boolean(member.membership_end_date);
+  // The avatar sits in its own column beside all the text lines.
+  const lines = 2 + ((note ?? hasTerm) ? 1 : 0) + (extra ? 1 : 0);
 
   return (
     <li className={`${styles.row} ${faded ? styles.faded : ""}`}>
       <div className={styles.details}>
+        <Link
+          href={`/members/${member.id}`}
+          className={styles.avatarCell}
+          style={{ gridRow: `1 / span ${lines}` }}
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <Avatar src={member.photo_url} name={member.full_name} gender={member.gender} size={44} />
+        </Link>
         <p className={styles.nameLine}>
           <Link href={`/members/${member.id}`} className={styles.name}>
             {member.full_name}

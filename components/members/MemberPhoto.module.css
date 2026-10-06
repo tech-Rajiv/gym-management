@@ -1,0 +1,70 @@
+/* The avatar is the button; a small camera badge says it can be changed. */
+.trigger {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.trigger:focus-visible {
+  outline: 3px solid var(--color-primary-soft);
+  outline-offset: 2px;
+}
+
+.badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-surface);
+  border-radius: var(--radius-full);
+  color: var(--color-on-primary);
+  transition: transform var(--transition);
+}
+
+.trigger:hover .badge {
+  transform: scale(1.08);
+}
+
+/* The real file picker is hidden; the dialog's button opens it. */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  text-align: center;
+}
+
+.previewName {
+  margin-top: var(--space-2);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.previewHint {
+  max-width: 300px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.removeButton {
+  color: var(--color-danger);
+}

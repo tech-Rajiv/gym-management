@@ -20,14 +20,27 @@
 }
 
 .dayTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.dayText {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text);
+}
+
+/* A small, muted calendar icon before the date. */
+.dayIcon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 
 /* "Today ·" / "Yesterday ·" in front of the date. */
