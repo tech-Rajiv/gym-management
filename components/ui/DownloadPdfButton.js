@@ -24,10 +24,12 @@ function fileNameFrom(response, fallback) {
  * It is a button, never a link, so it can sit on a card that is itself a
  * link (the dashboard figures) without opening that link.
  *
- * @param {'members'|'payments'} list
+ * @param {'members'|'payments'|'plan-members'} list
  * @param {object} [params]  the page's filters, e.g. { status: "expired" };
  *                           empty values are left out
  * @param {string} [title]   what is being downloaded, for the confirmation
+ * @param {string} [description] what the confirmation says will be saved;
+ *                               defaults to "the whole list, with the filters"
  * @param {boolean} [iconOnly] a small square icon button, for card headers
  * @param {'default'|'onColor'} [variant] onColor sits on a coloured card
  */
@@ -35,6 +37,7 @@ export default function DownloadPdfButton({
   list,
   params = {},
   title = "this list",
+  description = "will be saved as a PDF - the whole list, with the filters you have applied.",
   iconOnly = false,
   variant = "default",
   className = "",
@@ -126,8 +129,7 @@ export default function DownloadPdfButton({
           }
         >
           <p>
-            <strong>{title}</strong> will be saved as a PDF - the whole list, with
-            the filters you have applied.
+            <strong>{title}</strong> {description}
           </p>
         </Modal>
       )}

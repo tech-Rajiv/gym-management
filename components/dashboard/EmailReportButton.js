@@ -9,7 +9,7 @@ import { MailIcon } from "@/components/ui/icons";
 import styles from "./EmailReportButton.module.css";
 
 /**
- * "Email me the report" - sends the daily report now, the same email the
+ * "Email report" - sends the daily report now, the same email the
  * 6 AM schedule sends, so the admin can see what arrives each morning.
  *
  *   1. a click asks first: "Send today's report?" naming the address
@@ -43,7 +43,7 @@ export default function EmailReportButton({ to }) {
         disabled={sending}
       >
         {sending ? <Spinner /> : <MailIcon size={16} />}
-        {sending ? "Sending…" : "Email me the report"}
+        {sending ? "Sending…" : "Email report"}
       </button>
 
       {confirming && (

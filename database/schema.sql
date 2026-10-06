@@ -37,6 +37,12 @@ CREATE TABLE IF NOT EXISTS membership_plans (
 -- A name only has to be unique among the plans on sale, so a deleted
 -- (deactivated) "Monthly" does not stop a new "Monthly" being created. Older
 -- databases had a plain UNIQUE on name; it is dropped here.
+-- Whether the plan includes cardio - the main thing that sets one plan apart
+-- from another of the same length, so it is a field of its own rather than a
+-- line in the description.
+ALTER TABLE membership_plans
+  ADD COLUMN IF NOT EXISTS includes_cardio boolean NOT NULL DEFAULT false;
+
 ALTER TABLE membership_plans DROP CONSTRAINT IF EXISTS membership_plans_name_key;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_membership_plans_active_name
   ON membership_plans (lower(name)) WHERE is_active;
@@ -80,6 +86,12 @@ CREATE INDEX IF NOT EXISTS idx_members_is_demo ON members (is_demo) WHERE is_dem
 ALTER TABLE members ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active'
   CHECK (status IN ('active', 'left'));
 ALTER TABLE members ADD COLUMN IF NOT EXISTS left_at timestamptz;
+
+-- The member's photo, stored on Cloudinary: the image address to show, and
+-- Cloudinary's id for it so a replaced or removed photo can be deleted there.
+-- No photo means a drawn placeholder face is shown instead.
+ALTER TABLE members ADD COLUMN IF NOT EXISTS photo_url text;
+ALTER TABLE members ADD COLUMN IF NOT EXISTS photo_public_id text;
 
 CREATE INDEX IF NOT EXISTS idx_members_status ON members (status);
 
@@ -311,7 +323,8 @@ SELECT
   paid.last_paid_on,
   -- Appended last: CREATE OR REPLACE VIEW can add columns only at the end.
   m.status              AS member_status,
-  m.left_at
+  m.left_at,
+  m.photo_url
 FROM members m
 LEFT JOIN LATERAL (
   SELECT ms.*
@@ -354,7 +367,10 @@ SELECT
   plan.name                          AS plan_name,
   ms.start_date                      AS membership_start_date,
   ms.end_date                        AS membership_end_date,
-  ms.price                           AS membership_price
+  ms.price                           AS membership_price,
+  -- Appended last: CREATE OR REPLACE VIEW can add columns only at the end.
+  m.photo_url                        AS member_photo_url,
+  m.gender                           AS member_gender
 FROM payments pay
 JOIN members m ON m.id = pay.member_id
 LEFT JOIN memberships ms ON ms.id = pay.membership_id

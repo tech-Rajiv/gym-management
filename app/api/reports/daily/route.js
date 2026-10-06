@@ -4,7 +4,7 @@ import { sendDailyReport } from "@/lib/reports/dailyReport";
 /**
  * POST /api/reports/daily
  *
- * The dashboard's "Email me the report" button: sends the daily report right
+ * The dashboard's "Email report" button: sends the daily report right
  * now - the very same email the 6 AM schedule sends - so the admin can see
  * what will arrive in the morning. Signed-in admins only.
  */

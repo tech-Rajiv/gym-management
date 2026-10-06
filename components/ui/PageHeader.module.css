@@ -1,17 +1,19 @@
+/* Title and action share the top row; the description runs underneath. */
 .header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-4);
   margin-bottom: var(--space-6);
-  flex-wrap: wrap;
 }
 
 .title {
   font-size: 1.375rem;
+  min-width: 0;
 }
 
 .description {
+  grid-column: 1 / -1;
   margin-top: var(--space-1);
   font-size: 0.875rem;
   color: var(--color-text-secondary);
@@ -19,8 +21,17 @@
 
 .actions {
   display: flex;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* The page's main action - "+ Add Member", "+ Add Plan", "Record Payment" -
+   as a compact pill at the top right, rather than a full-width bar. */
+.actions :is(a, button) {
+  height: 38px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .back {
@@ -39,6 +50,7 @@
 
 @media (max-width: 640px) {
   .header {
+    column-gap: var(--space-3);
     margin-bottom: var(--space-5);
   }
 
@@ -46,14 +58,196 @@
     font-size: 1.1875rem;
   }
 
-  /* Actions take the full width and split it evenly, which gives each a
-     comfortable tap target instead of two small buttons in a corner. */
-  .actions {
-    width: 100%;
+  .actions :is(a, button) {
+    height: 36px;
+    padding: 0 var(--space-3);
+    gap: 6px;
+  }
+}
+
+/* --- Banner: the dashboard's colours, as a slim rectangle -------------------
+   eyebrow                                     (full width)
+   Title ................................ [Action]
+   description                                 (full width) */
+
+.banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "eyebrow eyebrow"
+    "title actions"
+    "desc desc";
+  align-items: center;
+  column-gap: var(--space-5);
+  margin-bottom: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  overflow: hidden;
+  background: var(--gradient-brand);
+  border-radius: var(--radius-lg);
+  color: var(--color-on-brand);
+  box-shadow: var(--shadow-md);
+}
+
+/* Two soft circles, as on the dashboard banner. */
+.banner::before,
+.banner::after {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-full);
+  background-color: var(--color-on-brand-surface);
+  pointer-events: none;
+}
+
+.banner::before {
+  width: 160px;
+  height: 160px;
+  top: -80px;
+  right: -30px;
+}
+
+.banner::after {
+  width: 90px;
+  height: 90px;
+  bottom: -60px;
+  right: 180px;
+}
+
+.banner > * {
+  position: relative;
+}
+
+.eyebrow {
+  grid-area: eyebrow;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-on-brand-muted);
+}
+
+.bannerTitle {
+  grid-area: title;
+  min-width: 0;
+  margin-top: var(--space-2);
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--color-on-brand);
+}
+
+/* The section's icon in a translucent tile, beside the title. */
+.bannerTitle:has(.titleIcon) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.titleIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  background-color: var(--color-on-brand-surface);
+  border: 1px solid var(--color-on-brand-surface-hover);
+  border-radius: var(--radius-sm);
+  color: var(--color-on-brand);
+}
+
+.bannerDescription {
+  grid-area: desc;
+  margin-top: var(--space-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-on-brand-muted);
+}
+
+.bannerActions {
+  grid-area: actions;
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* The action as a white pill with brand-coloured text, like the dashboard's
+   "Add New Member". */
+.bannerActions :is(a, button) {
+  height: 38px;
+  padding: 0 var(--space-5);
+  background-color: var(--color-surface);
+  border: 0;
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition);
+}
+
+.bannerActions :is(a, button):hover:not(:disabled) {
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .banner {
+    column-gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    padding: var(--space-5) var(--space-4);
   }
 
-  .actions > * {
-    flex: 1;
-    justify-content: center;
+  .bannerTitle {
+    font-size: 1.0625rem;
+    white-space: nowrap;
+  }
+
+  .bannerTitle:has(.titleIcon) {
+    gap: var(--space-2);
+  }
+
+  .titleIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .titleIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .bannerDescription {
+    font-size: 0.75rem;
+  }
+
+  .bannerActions :is(a, button) {
+    height: 36px;
+    padding: 0 var(--space-3);
+    gap: 4px;
+    font-size: 0.8125rem;
+  }
+
+  .bannerActions :is(a, button) svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* The smallest phones: a touch smaller still, so title and button keep
+   sharing one row. */
+@media (max-width: 380px) {
+  .bannerTitle {
+    font-size: 0.9375rem;
+  }
+
+  .titleIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .bannerActions :is(a, button) {
+    padding: 0 10px;
+    font-size: 0.75rem;
   }
 }

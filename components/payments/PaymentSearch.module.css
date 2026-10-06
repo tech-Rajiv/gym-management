@@ -1,6 +1,6 @@
 .controls {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
   width: 100%;
@@ -11,6 +11,16 @@
   .controls {
     align-items: stretch;
     flex-direction: column;
+    /* Wrapping a column would let the month strip set the width. */
+    flex-wrap: nowrap;
     gap: var(--space-3);
+  }
+}
+
+/* Desktop: the period tiles take the room they need, the search beside them. */
+@media (min-width: 641px) {
+  .controls > :first-child {
+    flex: 1 1 420px;
+    min-width: 0;
   }
 }

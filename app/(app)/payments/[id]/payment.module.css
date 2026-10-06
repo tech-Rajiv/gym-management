@@ -1,0 +1,168 @@
+.page {
+  max-width: 640px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  transition: color var(--transition);
+}
+
+.back:hover {
+  color: var(--color-primary);
+}
+
+/* --- The receipt card ------------------------------------------------------- */
+
+.receipt {
+  overflow: hidden;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.hero {
+  padding: var(--space-5);
+  background: linear-gradient(180deg, var(--color-success-soft) 0%, var(--color-surface) 100%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.heroTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-success);
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.amount {
+  margin-top: var(--space-1);
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+}
+
+.sub {
+  margin-top: var(--space-1);
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+.memberLink {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.withAvatar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.memberLink:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- Sections of label / value lines ---------------------------------------- */
+
+.section {
+  padding: var(--space-4) var(--space-5);
+}
+
+.section + .section {
+  border-top: 1px dashed var(--color-border);
+}
+
+.sectionTitle {
+  margin-bottom: var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.rows {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  font-size: 0.875rem;
+}
+
+.row dt {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.row dd {
+  margin: 0;
+  min-width: 0;
+  font-weight: 500;
+  color: var(--color-text);
+  text-align: right;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.footer {
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-surface-secondary);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px) {
+  .hero,
+  .section {
+    padding-inline: var(--space-4);
+  }
+
+  .footer {
+    padding-inline: var(--space-4);
+  }
+
+  .amount {
+    font-size: 2rem;
+  }
+}

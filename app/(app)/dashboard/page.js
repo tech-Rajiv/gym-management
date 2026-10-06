@@ -14,7 +14,6 @@ import { today, formatDate } from "@/lib/utils/dates";
 import {
   MembersIcon,
   ClockIcon,
-  PlusIcon,
   CalendarXIcon,
   UserPlusIcon,
 } from "@/components/ui/icons";
@@ -66,8 +65,8 @@ export default async function DashboardPage() {
           {/* Sends the morning report now, to preview it. */}
           <EmailReportButton to={REPORT_EMAIL_TO} />
           <Link href="/members/new" className={styles.welcomeAction}>
-            <PlusIcon size={16} />
-            Add Member
+            <UserPlusIcon size={16} />
+            Add New Member
           </Link>
         </div>
       </section>

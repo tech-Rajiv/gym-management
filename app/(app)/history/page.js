@@ -55,8 +55,11 @@ export default async function HistoryPage({ searchParams }) {
   return (
     <div>
       <PageHeader
+        banner
+        icon={<HistoryIcon size={18} />}
+        eyebrow={`${total} ${total === 1 ? "entry" : "entries"} · ${period.label}`}
         title="History Logs"
-        description="Every change made to members, payments and plans, with who made it and when."
+        description="Every change, with who made it and when."
       />
 
       <Card flush tone="primary">

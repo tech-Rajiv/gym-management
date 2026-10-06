@@ -1,37 +1,27 @@
+/* The buttons are placed straight into the member header's grid (areas
+   "pay" and "menu"), so a phone can put them on different rows. */
 .actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  display: contents;
 }
 
-/* Marking someone as left is the one action that takes them off the lists,
-   so its hover warns in the danger colour. */
-.actions .leave:hover:not(:disabled) {
-  background-color: var(--color-danger-soft);
-  border-color: var(--color-danger-soft);
-  color: var(--color-danger);
+.pay {
+  grid-area: pay;
+}
+
+.menu {
+  grid-area: menu;
+  justify-self: end;
 }
 
 @media (max-width: 640px) {
-  .actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2);
+  .pay {
     width: 100%;
+    margin-top: var(--space-4);
+    justify-content: center;
   }
 
-  /* The confirmation <dialog> also lives in here; it keeps its own size. */
-  .actions > :not(dialog) {
-    width: 100%;
-  }
-
-  /* The main action spans the full row; the other two share the next one. */
-  .actions > :first-child:not(:only-child) {
-    grid-column: 1 / -1;
-  }
-
-  /* A left member has only Edit and Restore - one row, side by side. */
-  .twoUp > :first-child {
-    grid-column: auto;
+  .menu {
+    align-self: start;
+    margin-right: calc(-1 * var(--space-2));
   }
 }

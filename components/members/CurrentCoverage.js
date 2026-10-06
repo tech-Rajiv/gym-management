@@ -8,9 +8,8 @@ import styles from "./CurrentCoverage.module.css";
 const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
 /**
- * The member's current term, laid out to answer the questions asked at the
- * desk: from which date are they covered, until which date, how much of it is
- * left, and have they paid for it.
+ * The member's current term, kept simple: the plan and its status, Start and
+ * End side by side, how much of it is left, and one line on its payment.
  *
  * Used on the member's profile and in the Record Payment form.
  *
@@ -46,6 +45,8 @@ export default function CurrentCoverage({ member, referenceDate: givenDate }) {
     progressText = `${plural(status.daysRemaining, "day")} left`;
   }
 
+  const paid = dues.amountPaid > 0;
+
   return (
     <div className={styles.coverage}>
       <div className={styles.top}>
@@ -53,26 +54,19 @@ export default function CurrentCoverage({ member, referenceDate: givenDate }) {
         <Badge variant={status.variant}>{status.label}</Badge>
       </div>
 
+      {/* Start and end side by side, on every screen. */}
       <div className={styles.range}>
         <div className={styles.dateBox}>
-          <span className={styles.dateLabel}>Covered from</span>
+          <span className={styles.dateLabel}>Start</span>
           <span className={styles.dateValue}>{formatDate(start)}</span>
         </div>
-        <span className={styles.arrow} aria-hidden="true">→</span>
         <div className={`${styles.dateBox} ${styles[`end_${status.variant}`] ?? ""}`}>
-          <span className={styles.dateLabel}>Covered till</span>
+          <span className={styles.dateLabel}>End</span>
           <span className={styles.dateValue}>{formatDate(end)}</span>
         </div>
       </div>
 
       <div className={styles.progress}>
-        <div className={styles.progressMeta}>
-          <span>
-            {plural(totalDays, "day")} term
-            {!notStarted && status.daysRemaining >= 0 ? ` · day ${daysUsed}` : ""}
-          </span>
-          <strong className={styles[`text_${status.variant}`]}>{progressText}</strong>
-        </div>
         <div
           className={styles.track}
           role="progressbar"
@@ -86,23 +80,19 @@ export default function CurrentCoverage({ member, referenceDate: givenDate }) {
             style={{ width: `${percentUsed}%` }}
           />
         </div>
+        <div className={styles.progressMeta}>
+          <span>{plural(totalDays, "day")} plan</span>
+          <strong className={styles[`text_${status.variant}`]}>{progressText}</strong>
+        </div>
       </div>
 
-      <div className={styles.payment}>
-        <div>
-          <span className={styles.dateLabel}>Payment for this term</span>
-          <p className={styles.paymentValue}>
-            {formatCurrency(dues.amountPaid)} paid of {formatCurrency(dues.price)}
-          </p>
-          <p className={styles.paymentHint}>
-            {dues.amountDue > 0
-              ? `${formatCurrency(dues.amountDue)} still due`
-              : "Fully paid"}
-            {member.last_paid_on ? ` · last paid on ${formatDate(member.last_paid_on)}` : ""}
-          </p>
-        </div>
-        <Badge variant={dues.variant}>{dues.label}</Badge>
-      </div>
+      <p className={`${styles.payment} ${paid ? styles.paid : styles.unpaid}`}>
+        {paid
+          ? `Paid ${formatCurrency(dues.amountPaid)}${
+              member.last_paid_on ? ` on ${formatDate(member.last_paid_on)}` : ""
+            }`
+          : `Not paid yet · plan price ${formatCurrency(dues.price)}`}
+      </p>
     </div>
   );
 }

@@ -1,3 +1,17 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  transition: color var(--transition);
+}
+
+.back:hover {
+  color: var(--color-primary);
+}
+
 .layout {
   display: grid;
   gap: var(--space-5);
@@ -6,7 +20,7 @@
 
 @media (min-width: 1024px) {
   .layout {
-    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -17,9 +31,7 @@
   min-width: 0;
 }
 
-/* On one column the two stacks dissolve into a single list, reordered so the
-   membership comes straight after the member's name - it is what the desk
-   looks up most - and the contact details come last. */
+/* On one column: membership, then payments, then the other details. */
 @media (max-width: 1023px) {
   .stack {
     display: contents;
@@ -28,24 +40,119 @@
   .layout {
     display: flex;
     flex-direction: column;
-    /* Every card takes the full width, rather than shrinking to its content. */
     align-items: stretch;
-  }
-
-  .profileCard {
-    order: 1;
+    gap: var(--space-4);
   }
 
   .coverageCard {
-    order: 2;
+    order: 1;
   }
 
   .historyCard {
-    order: 3;
+    order: 2;
   }
 
   .detailsCard {
-    order: 4;
+    order: 3;
+  }
+}
+
+/* --- Header: who the member is -------------------------------------------- */
+
+.header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "avatar identity pay menu"
+    "contact contact contact contact";
+  align-items: center;
+  column-gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.avatar {
+  grid-area: avatar;
+  display: flex;
+}
+
+.identity {
+  grid-area: identity;
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-size: 1.25rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.about {
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.contact {
+  grid-area: contact;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.contactItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.contactItem:hover {
+  color: var(--color-primary);
+}
+
+.contactItem svg {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+/* On a phone: avatar, name and "⋯" across the top, contact lines, then
+   Add Payment across the full width at the bottom. */
+@media (max-width: 640px) {
+  .header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "avatar identity menu"
+      "contact contact contact"
+      "pay pay pay";
+    column-gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    padding: var(--space-4);
+  }
+
+
+  .name {
+    font-size: 1.125rem;
+  }
+
+  .contact {
+    flex-direction: column;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
   }
 }
 
@@ -57,67 +164,6 @@
   border-radius: var(--radius-md);
   color: var(--color-warning);
   font-size: 0.875rem;
-}
-
-.profile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  text-align: center;
-}
-
-.avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  margin-bottom: var(--space-2);
-  background-color: var(--color-primary-soft);
-  border: 1px solid var(--color-primary-border);
-  border-radius: var(--radius-full);
-  color: var(--color-primary);
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.profileName {
-  font-size: 1.0625rem;
-}
-
-.profileMeta {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
-}
-
-.contact {
-  width: 100%;
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.contactRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-
-a.contactRow:hover {
-  color: var(--color-primary);
-}
-
-.contactRow svg {
-  flex-shrink: 0;
-  color: var(--color-text-muted);
 }
 
 /* A two-column list of label/value pairs. */
@@ -150,31 +196,4 @@ a.contactRow:hover {
   white-space: pre-wrap;
   color: var(--color-text-secondary);
   line-height: 1.6;
-}
-
-/* On a phone the profile reads across: avatar on the left, name, details and
-   status beside it, and the contact lines underneath. */
-@media (max-width: 640px) {
-  .profile {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    justify-items: start;
-    column-gap: var(--space-4);
-    row-gap: var(--space-1);
-    text-align: left;
-  }
-
-  .avatar {
-    grid-row: span 3;
-    width: 56px;
-    height: 56px;
-    margin-bottom: 0;
-  }
-
-  .contact {
-    grid-column: 1 / -1;
-    margin-top: var(--space-3);
-    padding-top: var(--space-3);
-  }
 }

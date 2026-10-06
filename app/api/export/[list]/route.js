@@ -5,8 +5,11 @@ import { pdfResponse } from "@/lib/pdf/tablePdf";
 /**
  * GET /api/export/:list?<the page's filters>
  *
- *   members   ?status=&q=
- *   payments  ?q=&month= or ?from=&to=
+ *   members       ?status=&q=
+ *   payments      ?q=&month= or ?from=&to=
+ *   plan-members  ?plan=<plan id>
+ *   payment       ?id=<payment id>   - one payment's receipt
+ *   member-payments ?member=<member id>
  *
  * Downloads the list as a PDF, with the same filters as the page it came
  * from. Signed-in admins only. See lib/pdf/exports.js.
@@ -19,6 +22,7 @@ export const GET = withAdmin(async (request, { params }) => {
   if (!build) return notFound("There is no such list to download.");
 
   const filters = Object.fromEntries(new URL(request.url).searchParams);
-  const { buffer, filename } = await build(filters);
-  return pdfResponse(buffer, filename);
+  const result = await build(filters);
+  if (!result) return notFound("That record could not be found.");
+  return pdfResponse(result.buffer, result.filename);
 });

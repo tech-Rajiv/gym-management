@@ -1,0 +1,121 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  color: var(--color-text);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.formNote {
+  margin-top: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+/* --- Cardio choice --------------------------------------------------------- */
+
+.cardio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.cardioLegend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.required {
+  color: var(--color-primary);
+  margin-left: 2px;
+}
+
+.cardioOptions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.cardioOption {
+  --tone: var(--color-text-secondary);
+  --tone-soft: var(--color-surface-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-surface-secondary);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition), background-color var(--transition), color var(--transition);
+}
+
+.cardioOption:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* The real radio stays in the page for keyboards and screen readers. */
+.cardioOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cardioOption:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.cardioMark {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-strong);
+  color: transparent;
+}
+
+.included {
+  --tone: var(--color-success);
+  --tone-soft: var(--color-success-soft);
+}
+
+.excluded {
+  --tone: var(--color-danger);
+  --tone-soft: var(--color-danger-soft);
+}
+
+.checked {
+  background-color: var(--tone-soft);
+  border-color: var(--tone);
+  color: var(--tone);
+  font-weight: 600;
+}
+
+.checked .cardioMark {
+  background-color: var(--tone);
+  border-color: var(--tone);
+  color: var(--color-on-brand);
+}
+
+.error {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+}

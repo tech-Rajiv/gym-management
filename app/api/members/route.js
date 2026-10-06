@@ -12,7 +12,8 @@ import {
  *
  * Adds a member together with their first membership term and the payment
  * they made for it - a member joins by paying, so both are recorded at once,
- * in one statement. Answers with what was saved, for the success popup.
+ * in one statement. The payment is the plan's full price, taken from the plan
+ * on the server; the form sends only how and when it was paid. Answers with what was saved, for the success popup.
  *
  *     form  ->  API route  ->  validation  ->  repository  ->  PostgreSQL
  */
@@ -39,7 +40,7 @@ export const POST = withAdmin(async (request, _context, admin) => {
   // Read back from the database, so the popup shows what was really stored.
   const [saved, receipt] = await Promise.all([
     getMemberById(created.memberId),
-    getPaymentById(created.paymentId),
+    created.paymentId ? getPaymentById(created.paymentId) : null,
   ]);
 
   return ok(

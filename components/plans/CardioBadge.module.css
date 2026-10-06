@@ -1,0 +1,49 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  padding: 4px var(--space-3) 4px 4px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  color: var(--color-on-brand);
+}
+
+.included {
+  background-color: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.included .mark {
+  background-color: var(--color-success);
+}
+
+.excluded {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.excluded .mark {
+  background-color: var(--color-text-muted);
+}
+
+.large {
+  padding: 6px var(--space-4) 6px 6px;
+  font-size: 0.9375rem;
+}
+
+.large .mark {
+  width: 26px;
+  height: 26px;
+}

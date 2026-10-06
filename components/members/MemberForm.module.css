@@ -29,10 +29,24 @@
   gap: var(--space-4);
 }
 
-.gridThree {
+/* The term's start and end, side by side on every screen. */
+.dateRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+/* Date inputs have a built-in minimum width; let them shrink to the column on phones. */
+.dateRow > *,
+.dateRow input {
+  min-width: 0;
+}
+
+.dateRow input {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 var(--space-2);
 }
 
 .full {
@@ -79,15 +93,8 @@
 }
 
 @media (max-width: 768px) {
-  .grid,
-  .gridThree {
+  .grid {
     grid-template-columns: 1fr;
-  }
-
-  /* With one column there is no row to balance, so the spacer would just add
-     an empty gap between the fields. */
-  .spacer {
-    display: none;
   }
 }
 
@@ -108,5 +115,14 @@
 
   .form {
     gap: var(--space-4);
+  }
+}
+
+/* The smallest phones: a touch smaller text keeps the whole date visible in
+   each half-width box. */
+@media (max-width: 359px) {
+  .dateRow input {
+    font-size: 0.75rem;
+    padding: 0 6px;
   }
 }

@@ -1,22 +1,197 @@
-/* Payment history is read date-first, so the date is the row's heading and the
-   member's name sits under it. */
-.date {
-  display: block;
-  font-weight: 500;
+/* --- One day's payments ----------------------------------------------------
+   Like a banking app's history: the days sit apart on a light background,
+   each with its date as a plain heading and its payments in their own white
+   box. The space between days is what marks a new date. */
+
+.days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  background-color: var(--color-surface-secondary);
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  padding: 0 var(--space-1);
+}
+
+.dayTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--color-text);
+}
+
+.dayText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A small, muted calendar icon before the date. */
+.dayIcon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+/* "Today ·" / "Yesterday ·" in front of the date. */
+.relative::after {
+  content: " · ";
+  color: var(--color-text-muted);
+}
+
+.dayTotal {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dayCount {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* A quiet icon button: no box until hovered. */
+.dayHeader .dayPdf {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.dayHeader .dayPdf:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* --- One payment record ------------------------------------------------------ */
+
+.record {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-3) var(--space-4) var(--space-5);
+  transition: background-color var(--transition);
+}
+
+.record + .record {
+  border-top: 1px solid var(--color-border);
+}
+
+.record:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-success-soft);
+  border-radius: var(--radius-full);
+  color: var(--color-success);
+}
+
+.cover {
+  min-width: 0;
+  color: inherit;
+}
+
+.cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.cover:focus-visible {
+  outline: none;
+}
+
+.record:has(.cover:focus-visible) {
+  outline: 3px solid var(--color-primary-soft);
+  outline-offset: -3px;
+}
+
+.record:hover .member {
+  color: var(--color-primary);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.topLine {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .member {
   display: block;
-  margin-top: 2px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.amount {
+  flex-shrink: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+}
+
+.term {
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
 }
 
-.term,
-.reference {
-  display: block;
-  margin-top: 2px;
+.plan {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-1);
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
@@ -25,33 +200,36 @@
   font-variant-numeric: tabular-nums;
 }
 
-.amount {
-  font-weight: 600;
-  color: var(--color-text);
-  white-space: nowrap;
+.remark {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-style: italic;
 }
 
-/* Long notes must not push the amount column off the table. */
-.remarkCell {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.menu {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-top: -4px;
 }
 
-.wide {
-  min-width: 940px;
-}
-
-@media (max-width: 768px) {
-  .wide {
-    min-width: 0;
+@media (max-width: 640px) {
+  .days {
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-3);
   }
 
-  /* Once rows are cards there is room for the note to wrap. */
-  .remarkCell {
-    max-width: none;
-    white-space: normal;
-    text-align: right;
+  .dayHeader {
+    gap: var(--space-2);
+  }
+
+  .record {
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-2) var(--space-4) var(--space-4);
+  }
+
+  .icon {
+    width: 36px;
+    height: 36px;
   }
 }
