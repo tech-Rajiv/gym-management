@@ -110,7 +110,9 @@ const commands = {
     await sql`DROP TABLE IF EXISTS audit_logs`;
     await sql`DROP TABLE IF EXISTS saas_payments`;
     await sql`DROP TABLE IF EXISTS saas_subscriptions`;
+    await sql`DROP TABLE IF EXISTS operators`;
     await sql`DROP TABLE IF EXISTS founders`;
+    await sql`DROP TABLE IF EXISTS owners`;
     await sql`DROP TABLE IF EXISTS admins`;
     await sql`DROP TABLE IF EXISTS payments`;
     await sql`DROP TABLE IF EXISTS memberships`;
@@ -135,15 +137,15 @@ async function ensureFounder() {
   }
 
   const inserted = await sql`
-    INSERT INTO founders (name, email, password)
+    INSERT INTO operators (name, email, password)
     VALUES (${name}, ${email}, ${password})
     ON CONFLICT (email) DO NOTHING
     RETURNING id
   `;
   console.log(
     inserted.length > 0
-      ? `Founder login created for ${email}.`
-      : `Founder login already exists for ${email}.`
+      ? `Operator login created for ${email}.`
+      : `Operator login already exists for ${email}.`
   );
 }
 

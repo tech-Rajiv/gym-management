@@ -30,7 +30,7 @@ export function proxy(request) {
   requestHeaders.set("x-pathname", pathname);
   const next = () => NextResponse.next({ request: { headers: requestHeaders } });
 
-  if (PUBLIC_PATHS.includes(pathname)) return next();
+  if (PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/founder/")) return next();
 
   if (request.cookies.get(SESSION_COOKIE)?.value) return next();
 

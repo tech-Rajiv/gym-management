@@ -1,16 +1,104 @@
 .page {
   min-height: 100dvh;
-  padding: var(--space-6) var(--space-4) var(--space-8);
-  background: var(--color-background);
+  background: var(--color-founder-page);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--header-height);
+  padding: 0 var(--space-6);
+  background-color: var(--color-founder-bar);
+  color: var(--color-founder-bar-text);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.role {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--color-founder-bar-surface);
+  color: var(--color-founder-bar-text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-founder-bar-muted);
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-founder-bar-surface);
+  border-radius: 8px;
+  color: var(--color-founder-bar-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.whoName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-founder-bar-text);
+  white-space: nowrap;
 }
 
 .inner {
   width: 100%;
-  max-width: 960px;
+  max-width: 1080px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  padding: var(--space-6) var(--space-4) var(--space-8);
+}
+
+.hello {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.helloNote {
+  margin: var(--space-1) 0 0;
+  max-width: 38rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.45;
 }
 
 .top {
@@ -44,6 +132,14 @@
   overflow-x: auto;
 }
 
+.gymCards,
+.payCards {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -68,8 +164,225 @@
   vertical-align: middle;
 }
 
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.stat {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stat strong {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .gymName {
   font-weight: 600;
+}
+
+.gymName a,
+a.gymName {
+  color: inherit;
+  text-decoration: none;
+}
+
+.gymName a:hover {
+  color: var(--color-primary);
+}
+
+.gymName .open {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.open {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.open:hover {
+  text-decoration: underline;
+}
+
+.gymCard .open {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.back {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--color-primary);
+}
+
+.headingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.fact {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.fact dt {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fact dd {
+  margin: var(--space-1) 0 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.paymentId {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  word-break: break-all;
+}
+
+.gymCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.gymCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.ownerLine {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.meta dt {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.meta dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.payCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.payAmount {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.gymList header {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .tableWrap {
+    display: none;
+  }
+
+  .gymCards,
+  .payCards {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hello {
+    font-size: 1.375rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0 var(--space-4);
+  }
+
+  .whoName {
+    display: none;
+  }
+}
+
+@media (min-width: 800px) {
+  .stats,
+  .facts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .muted {

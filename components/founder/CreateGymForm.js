@@ -61,7 +61,7 @@ export default function CreateGymForm() {
         error={result?.errors?.password}
       />
 
-      <Button type="submit" variant="primary" disabled={pending}>
+      <Button type="submit" variant="primary" fullWidth disabled={pending}>
         {pending ? "Adding gym…" : "Add gym"}
       </Button>
     </form>

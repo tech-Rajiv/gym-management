@@ -8,9 +8,9 @@ import { describeSubscription, subscriptionAllowsAccess } from "@/lib/utils/subs
 /**
  * POST /api/auth/login   { email, password }
  *
- * Checks the email and password against the admins table - the only database
- * call involved in being signed in - and sets the signed session cookie. Only
- * people with a row in the admins table can get in. See lib/auth.js.
+ * Checks the email and password against the owners and operators tables -
+ * the only database call involved in being signed in - and sets the signed
+ * session cookie. See lib/auth.js.
  *
  * A wrong email and a wrong password get the same message, so the form does
  * not reveal which admin emails exist.

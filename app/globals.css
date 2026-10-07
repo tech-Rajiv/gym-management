@@ -39,6 +39,14 @@
   --color-accent: #f97316;
   --color-accent-soft: rgba(249, 115, 22, 0.1);
 
+  /* Founder console. Deliberately not the gym's purple header. */
+  --color-founder-bar: #14342f;
+  --color-founder-bar-text: #f4f7f6;
+  --color-founder-bar-muted: rgba(244, 247, 246, 0.72);
+  --color-founder-bar-surface: rgba(255, 255, 255, 0.12);
+  --color-founder-bar-surface-hover: rgba(255, 255, 255, 0.2);
+  --color-founder-page: #f3f6f4;
+
   /* The brand gradient: dashboard welcome banner, phone header, login page,
      logo marks and the floating "add" button. */
   --gradient-brand: linear-gradient(135deg, #4f46e5 0%, #7c3aed 60%, #a855f7 100%);

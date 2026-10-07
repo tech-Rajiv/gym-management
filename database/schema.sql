@@ -16,6 +16,11 @@
 --     local "today" into every query instead.
 -- ============================================================================
 
+-- Older setups called these owners and operators. Rename first so the
+-- CREATE TABLE statements below keep the existing rows.
+ALTER TABLE IF EXISTS admins RENAME TO owners;
+ALTER TABLE IF EXISTS founders RENAME TO operators;
+
 -- ---------------------------------------------------------------------------
 -- membership_plans
 -- The catalogue of plans the gym sells. Plans are data rather than a hardcoded
@@ -190,13 +195,13 @@ CREATE INDEX IF NOT EXISTS idx_payments_membership_id ON payments (membership_id
 CREATE INDEX IF NOT EXISTS idx_payments_paid_on ON payments (paid_on DESC);
 
 -- ---------------------------------------------------------------------------
--- admins
--- The people allowed to sign in. Only someone with a row here can log in.
+-- owners
+-- One login per gym. A row here can sign in and see only that gym.
 --
 -- The password is stored as plain text for now. Hash it (and compare with the
 -- hash) before this holds any password that matters.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS admins (
+CREATE TABLE IF NOT EXISTS owners (
   id          integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   name        text NOT NULL CHECK (length(trim(name)) > 0),
   email       text NOT NULL UNIQUE,
@@ -219,14 +224,14 @@ DROP TABLE IF EXISTS admin_sessions;
 -- audit_logs
 -- Every change made through the application: who did it, what they did, and
 -- to which record. Rows are only ever inserted - nothing updates or deletes
--- them - so the history stays trustworthy as more admins are added.
+-- them - so the history stays trustworthy as more owners are added.
 --
 -- admin_name and entity_label are copies taken at the time, so a log still
 -- reads correctly after the admin or the member is renamed.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS audit_logs (
   id            integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  admin_id      integer REFERENCES admins (id) ON DELETE SET NULL,
+  admin_id      integer REFERENCES owners (id) ON DELETE SET NULL,
   admin_name    text NOT NULL,
   -- create | update | left | restore | delete
   action        text NOT NULL,
@@ -275,15 +280,16 @@ CREATE TRIGGER trg_payments_updated_at
   BEFORE UPDATE ON payments
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-DROP TRIGGER IF EXISTS trg_admins_updated_at ON admins;
-CREATE TRIGGER trg_admins_updated_at
-  BEFORE UPDATE ON admins
+DROP TRIGGER IF EXISTS trg_admins_updated_at ON owners;
+DROP TRIGGER IF EXISTS trg_owners_updated_at ON owners;
+CREATE TRIGGER trg_owners_updated_at
+  BEFORE UPDATE ON owners
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ---------------------------------------------------------------------------
 -- gyms
 -- One row per gym that uses this application. Existing Aura Fitness data is
--- gym 1. A gym owner (admins.gym_id) only ever works inside their own gym.
+-- gym 1. A gym owner (owners.gym_id) only ever works inside their own gym.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS gyms (
   id         integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -304,13 +310,13 @@ SELECT setval(
 );
 
 -- ---------------------------------------------------------------------------
--- founders
--- The person who runs the SaaS (you), not a gym owner. Separate from admins
+-- operators
+-- The person who runs the SaaS (you), not a gym owner. Separate from owners
 -- so a founder login can see every gym, and a gym login cannot.
 -- The account itself is created from FOUNDER_EMAIL / FOUNDER_PASSWORD in .env
 -- by `npm run db:setup`, so the password is not stored in this file.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS founders (
+CREATE TABLE IF NOT EXISTS operators (
   id         integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   name       text NOT NULL CHECK (length(trim(name)) > 0),
   email      text NOT NULL UNIQUE,
@@ -352,14 +358,14 @@ CREATE TABLE IF NOT EXISTS saas_payments (
 );
 
 -- gym_id is added nullable, filled, then required, so existing rows are kept.
-ALTER TABLE admins            ADD COLUMN IF NOT EXISTS gym_id integer;
+ALTER TABLE owners            ADD COLUMN IF NOT EXISTS gym_id integer;
 ALTER TABLE members           ADD COLUMN IF NOT EXISTS gym_id integer;
 ALTER TABLE membership_plans  ADD COLUMN IF NOT EXISTS gym_id integer;
 ALTER TABLE memberships       ADD COLUMN IF NOT EXISTS gym_id integer;
 ALTER TABLE payments          ADD COLUMN IF NOT EXISTS gym_id integer;
 ALTER TABLE audit_logs        ADD COLUMN IF NOT EXISTS gym_id integer;
 
-UPDATE admins           SET gym_id = 1 WHERE gym_id IS NULL;
+UPDATE owners           SET gym_id = 1 WHERE gym_id IS NULL;
 UPDATE members          SET gym_id = 1 WHERE gym_id IS NULL;
 UPDATE membership_plans SET gym_id = 1 WHERE gym_id IS NULL;
 UPDATE memberships ms
@@ -374,22 +380,23 @@ UPDATE payments p
    AND p.gym_id IS NULL;
 UPDATE audit_logs SET gym_id = 1 WHERE gym_id IS NULL;
 
-ALTER TABLE admins           ALTER COLUMN gym_id SET NOT NULL;
+ALTER TABLE owners           ALTER COLUMN gym_id SET NOT NULL;
 ALTER TABLE members          ALTER COLUMN gym_id SET NOT NULL;
 ALTER TABLE membership_plans ALTER COLUMN gym_id SET NOT NULL;
 ALTER TABLE memberships      ALTER COLUMN gym_id SET NOT NULL;
 ALTER TABLE payments         ALTER COLUMN gym_id SET NOT NULL;
 ALTER TABLE audit_logs       ALTER COLUMN gym_id SET NOT NULL;
 
-ALTER TABLE admins           DROP CONSTRAINT IF EXISTS admins_gym_id_fkey;
+ALTER TABLE owners           DROP CONSTRAINT IF EXISTS admins_gym_id_fkey;
+ALTER TABLE owners           DROP CONSTRAINT IF EXISTS owners_gym_id_fkey;
 ALTER TABLE members          DROP CONSTRAINT IF EXISTS members_gym_id_fkey;
 ALTER TABLE membership_plans DROP CONSTRAINT IF EXISTS membership_plans_gym_id_fkey;
 ALTER TABLE memberships      DROP CONSTRAINT IF EXISTS memberships_gym_id_fkey;
 ALTER TABLE payments         DROP CONSTRAINT IF EXISTS payments_gym_id_fkey;
 ALTER TABLE audit_logs       DROP CONSTRAINT IF EXISTS audit_logs_gym_id_fkey;
 
-ALTER TABLE admins
-  ADD CONSTRAINT admins_gym_id_fkey FOREIGN KEY (gym_id) REFERENCES gyms (id);
+ALTER TABLE owners
+  ADD CONSTRAINT owners_gym_id_fkey FOREIGN KEY (gym_id) REFERENCES gyms (id);
 ALTER TABLE members
   ADD CONSTRAINT members_gym_id_fkey FOREIGN KEY (gym_id) REFERENCES gyms (id);
 ALTER TABLE membership_plans
@@ -443,7 +450,8 @@ ALTER TABLE payments
   FOREIGN KEY (membership_id, gym_id) REFERENCES memberships (id, gym_id)
   ON DELETE SET NULL (membership_id);
 
-CREATE INDEX IF NOT EXISTS idx_admins_gym_id ON admins (gym_id);
+ALTER INDEX IF EXISTS idx_admins_gym_id RENAME TO idx_owners_gym_id;
+CREATE INDEX IF NOT EXISTS idx_owners_gym_id ON owners (gym_id);
 CREATE INDEX IF NOT EXISTS idx_members_gym_id ON members (gym_id);
 CREATE INDEX IF NOT EXISTS idx_membership_plans_gym_id ON membership_plans (gym_id);
 CREATE INDEX IF NOT EXISTS idx_memberships_gym_id ON memberships (gym_id);
@@ -451,18 +459,19 @@ CREATE INDEX IF NOT EXISTS idx_payments_gym_id ON payments (gym_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_gym_id ON audit_logs (gym_id);
 
 -- Hiren belongs to Aura Fitness. ON CONFLICT leaves a changed password alone.
-INSERT INTO admins (name, email, password, gym_id)
+INSERT INTO owners (name, email, password, gym_id)
 VALUES ('Hiren', 'hiren@gmail.com', 'hiren', 1)
-ON CONFLICT (email) DO UPDATE SET gym_id = COALESCE(admins.gym_id, EXCLUDED.gym_id);
+ON CONFLICT (email) DO UPDATE SET gym_id = COALESCE(owners.gym_id, EXCLUDED.gym_id);
 
 DROP TRIGGER IF EXISTS trg_gyms_updated_at ON gyms;
 CREATE TRIGGER trg_gyms_updated_at
   BEFORE UPDATE ON gyms
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-DROP TRIGGER IF EXISTS trg_founders_updated_at ON founders;
-CREATE TRIGGER trg_founders_updated_at
-  BEFORE UPDATE ON founders
+DROP TRIGGER IF EXISTS trg_founders_updated_at ON operators;
+DROP TRIGGER IF EXISTS trg_operators_updated_at ON operators;
+CREATE TRIGGER trg_operators_updated_at
+  BEFORE UPDATE ON operators
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 DROP TRIGGER IF EXISTS trg_saas_subscriptions_updated_at ON saas_subscriptions;
