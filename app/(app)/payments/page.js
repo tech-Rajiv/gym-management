@@ -27,11 +27,16 @@ export const dynamic = "force-dynamic";
  * bookmarked.
  */
 export default async function PaymentsPage({ searchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { q: search = "", month, from, to } = await searchParams;
   const period = resolvePeriod({ month, from, to });
 
-  const payments = await getPayments({ search, from: period.from, to: period.to });
+  const payments = await getPayments({
+    gymId: admin.gymId,
+    search,
+    from: period.from,
+    to: period.to,
+  });
   const isFiltered = Boolean(search) || period.mode !== "all";
   const total = payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
 

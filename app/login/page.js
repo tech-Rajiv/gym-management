@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import LoginForm from "@/components/auth/LoginForm";
-import { getCurrentAdmin } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
+import { getGymSubscription } from "@/lib/db/gyms";
+import { describeSubscription, subscriptionAllowsAccess } from "@/lib/utils/subscription";
 import { APP_NAME } from "@/lib/config";
 import { DumbbellIcon } from "@/components/ui/icons";
 import styles from "./login.module.css";
@@ -17,7 +19,12 @@ export const dynamic = "force-dynamic";
  * on this form instead of bouncing between two redirects.
  */
 export default async function LoginPage() {
-  if (await getCurrentAdmin()) redirect("/dashboard");
+  const session = await getSession();
+  if (session?.role === "founder") redirect("/founder");
+  if (session?.role === "owner") {
+    const subscription = describeSubscription(await getGymSubscription(session.gymId));
+    redirect(subscriptionAllowsAccess(subscription) ? "/dashboard" : "/subscription/pay");
+  }
 
   return (
     <main className={styles.page}>

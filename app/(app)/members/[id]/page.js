@@ -9,7 +9,7 @@ import MemberPayments from "@/components/members/MemberPayments";
 import MemberPhoto from "@/components/members/MemberPhoto";
 import { getMemberById } from "@/lib/db/members";
 import { getPaymentsByMemberId } from "@/lib/db/payments";
-import { requireAdmin } from "@/lib/auth";
+import { getCurrentAdmin, requireAdmin } from "@/lib/auth";
 import { describeMembership } from "@/lib/utils/membershipStatus";
 import { formatDate, calculateAge } from "@/lib/utils/dates";
 import { orDash, titleCase, formatCurrency } from "@/lib/utils/format";
@@ -19,8 +19,9 @@ import styles from "./member.module.css";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
+  const admin = await getCurrentAdmin();
   const { id } = await params;
-  const member = await getMemberById(id);
+  const member = admin ? await getMemberById(id, admin.gymId) : null;
   return { title: member ? member.full_name : "Member not found" };
 }
 
@@ -44,15 +45,15 @@ function Detail({ label, children, full = false }) {
  *   4. their other details.
  */
 export default async function MemberDetailPage({ params }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const { id } = await params;
-  const member = await getMemberById(id);
+  const member = await getMemberById(id, admin.gymId);
 
   // notFound() renders app/not-found.js, the honest answer for an unknown id.
   if (!member) notFound();
 
-  const payments = await getPaymentsByMemberId(member.id);
+  const payments = await getPaymentsByMemberId(member.id, admin.gymId);
   const totalPaid = payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
 
   const isLeft = member.member_status === "left";

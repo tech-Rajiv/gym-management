@@ -83,6 +83,7 @@ const commands = {
   async setup() {
     const count = await runSqlFile("schema.sql");
     console.log(`Schema applied (${count} statements).`);
+    await ensureFounder();
   },
 
   async seed() {
@@ -107,17 +108,44 @@ const commands = {
     await sql`DROP VIEW IF EXISTS payment_overview`;
     await sql`DROP VIEW IF EXISTS member_overview`;
     await sql`DROP TABLE IF EXISTS audit_logs`;
+    await sql`DROP TABLE IF EXISTS saas_payments`;
+    await sql`DROP TABLE IF EXISTS saas_subscriptions`;
+    await sql`DROP TABLE IF EXISTS founders`;
     await sql`DROP TABLE IF EXISTS admins`;
     await sql`DROP TABLE IF EXISTS payments`;
     await sql`DROP TABLE IF EXISTS memberships`;
     await sql`DROP TABLE IF EXISTS members`;
     await sql`DROP TABLE IF EXISTS membership_plans`;
+    await sql`DROP TABLE IF EXISTS gyms`;
     await sql`DROP FUNCTION IF EXISTS set_updated_at`;
     console.log("Dropped existing tables.");
     await commands.setup();
     await commands.seed();
   },
 };
+
+/** The founder account, from .env. Re-running does not change a password already set. */
+async function ensureFounder() {
+  const email = process.env.FOUNDER_EMAIL?.trim();
+  const password = process.env.FOUNDER_PASSWORD;
+  const name = process.env.FOUNDER_NAME?.trim() || "Founder";
+  if (!email || !password) {
+    console.log("Set FOUNDER_EMAIL and FOUNDER_PASSWORD in .env to create the founder login.");
+    return;
+  }
+
+  const inserted = await sql`
+    INSERT INTO founders (name, email, password)
+    VALUES (${name}, ${email}, ${password})
+    ON CONFLICT (email) DO NOTHING
+    RETURNING id
+  `;
+  console.log(
+    inserted.length > 0
+      ? `Founder login created for ${email}.`
+      : `Founder login already exists for ${email}.`
+  );
+}
 
 const command = process.argv[2];
 

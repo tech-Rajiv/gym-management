@@ -1,0 +1,105 @@
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background: #fff6df;
+  border-radius: var(--radius-md);
+}
+
+.mark img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.expiring .mark,
+.unpaid .mark,
+.expired .mark {
+  background: #fff1f2;
+}
+
+.identity {
+  min-width: 0;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gym {
+  margin: 2px 0 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.lead {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.rows {
+  margin: var(--space-4) 0 0;
+}
+
+.rows > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.rows dt {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.rows dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.warn {
+  color: #be123c;
+}
+
+.note {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.notice > button {
+  height: 44px;
+  margin-top: var(--space-4);
+}

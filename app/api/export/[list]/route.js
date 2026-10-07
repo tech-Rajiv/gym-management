@@ -22,7 +22,7 @@ export const GET = withAdmin(async (request, { params }) => {
   if (!build) return notFound("There is no such list to download.");
 
   const filters = Object.fromEntries(new URL(request.url).searchParams);
-  const result = await build(filters);
+  const result = await build(filters, admin.gymId);
   if (!result) return notFound("That record could not be found.");
   return pdfResponse(result.buffer, result.filename);
 });

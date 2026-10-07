@@ -5,7 +5,7 @@ import Avatar from "@/components/ui/Avatar";
 import PaymentDetailActions from "@/components/payments/PaymentDetailActions";
 import { getPaymentById } from "@/lib/db/payments";
 import { toId } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { getCurrentAdmin, requireAdmin } from "@/lib/auth";
 import { formatDate, formatTime, toGymDate } from "@/lib/utils/dates";
 import { formatCurrency } from "@/lib/utils/format";
 import { getMethodLabel } from "@/lib/utils/paymentStatus";
@@ -16,8 +16,9 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
+  const admin = await getCurrentAdmin();
   const paymentId = toId(id);
-  const payment = paymentId ? await getPaymentById(paymentId) : null;
+  const payment = admin && paymentId ? await getPaymentById(paymentId, admin.gymId) : null;
   return { title: payment ? `Payment #${payment.id}` : "Payment not found" };
 }
 
@@ -37,12 +38,12 @@ function Row({ label, children }) {
  * (PDF) and Delete sit at the top.
  */
 export default async function PaymentPage({ params, searchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const { id } = await params;
   const { from } = await searchParams;
   const paymentId = toId(id);
-  const payment = paymentId ? await getPaymentById(paymentId) : null;
+  const payment = paymentId ? await getPaymentById(paymentId, admin.gymId) : null;
   if (!payment) notFound();
 
   const created = new Date(payment.created_at);

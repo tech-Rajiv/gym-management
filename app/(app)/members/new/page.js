@@ -23,8 +23,8 @@ export const dynamic = "force-dynamic";
  * have to fetch anything itself.
  */
 export default async function NewMemberPage() {
-  await requireAdmin();
-  const plans = await getMembershipPlans();
+  const admin = await requireAdmin();
+  const plans = await getMembershipPlans(admin.gymId);
 
   return (
     <div>

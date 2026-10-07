@@ -18,6 +18,7 @@ export default function Modal({
   open,
   onClose,
   title,
+  label,
   children,
   footer,
   dismissible = true,
@@ -71,6 +72,7 @@ export default function Modal({
       className={styles.dialog}
       onClick={handleBackdropClick}
       aria-labelledby={title ? "modal-title" : undefined}
+      aria-label={!title ? label : undefined}
     >
       {/* A dialog with no title (such as SuccessDialog, which has its own
           heading inside) skips the header bar. */}

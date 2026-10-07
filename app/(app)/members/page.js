@@ -49,13 +49,13 @@ export const dynamic = "force-dynamic";
  * `searchParams` is a promise in this version of Next.js and has to be awaited.
  */
 export default async function MembersPage({ searchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { q: search = "", status } = await searchParams;
   const filter = normalizeMemberFilter(status);
 
   const [members, counts] = await Promise.all([
-    getMembers({ search, status: filter }),
-    getMemberStatusCounts({ search }),
+    getMembers({ gymId: admin.gymId, search, status: filter }),
+    getMemberStatusCounts({ gymId: admin.gymId, search }),
   ]);
 
   const filterLabel = MEMBER_FILTERS.find((option) => option.value === filter)?.label ?? "All";

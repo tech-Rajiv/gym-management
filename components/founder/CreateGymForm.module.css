@@ -1,0 +1,14 @@
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 720px) {
+  .form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form > :last-child {
+    justify-self: start;
+  }
+}

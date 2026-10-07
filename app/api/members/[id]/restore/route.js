@@ -16,7 +16,7 @@ export const POST = withAdmin(async (_request, { params }, admin) => {
   const changed = await restoreMember(memberId, admin);
   if (changed) return ok({ id: memberId, status: "active" });
 
-  const member = await getMemberById(memberId);
+  const member = await getMemberById(memberId, admin.gymId);
   return member
     ? fail({ message: "This member is already active." }, 409)
     : notFound("This member no longer exists.");

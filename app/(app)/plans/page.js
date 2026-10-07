@@ -14,8 +14,8 @@ export const dynamic = "force-dynamic";
  * price changes it from the next payment on; terms already sold keep theirs.
  */
 export default async function PlansPage() {
-  await requireAdmin();
-  const plans = await getPlansWithUsage();
+  const admin = await requireAdmin();
+  const plans = await getPlansWithUsage(admin.gymId);
 
   return <PlansManager plans={plans} />;
 }

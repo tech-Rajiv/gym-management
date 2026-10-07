@@ -3,6 +3,7 @@ import { APP_NAME } from "@/lib/config";
 import { CalendarIcon, DumbbellIcon } from "@/components/ui/icons";
 import { getInitials } from "@/lib/utils/format";
 import LogoutButton from "./LogoutButton";
+import SubscriptionBadge from "./SubscriptionBadge";
 import styles from "./Header.module.css";
 
 /**
@@ -16,7 +17,7 @@ import styles from "./Header.module.css";
  * On phones the brand appears here, since the sidebar that carries it on
  * desktop is hidden.
  */
-export default function Header({ todayLabel, admin }) {
+export default function Header({ todayLabel, admin, subscription }) {
   const [first = "", last = ""] = admin.name.split(" ");
 
   return (
@@ -36,10 +37,14 @@ export default function Header({ todayLabel, admin }) {
 
       <div className={styles.spacer} />
 
-      <span className={styles.admin} title={admin.email}>
-        <span className={styles.avatar} aria-hidden="true">
-          {getInitials(first, last)}
-        </span>
+      <span className={styles.admin} title={admin.gymName ? `${admin.name} · ${admin.gymName}` : admin.email}>
+        {subscription ? (
+          <SubscriptionBadge gymName={admin.gymName || "Gym"} subscription={subscription} />
+        ) : (
+          <span className={styles.avatar} aria-hidden="true">
+            {getInitials(first, last)}
+          </span>
+        )}
         <span className={styles.adminName}>{admin.name}</span>
       </span>
 

@@ -39,8 +39,8 @@ export const POST = withAdmin(async (request, _context, admin) => {
 
   // Read back from the database, so the popup shows what was really stored.
   const [saved, receipt] = await Promise.all([
-    getMemberById(created.memberId),
-    created.paymentId ? getPaymentById(created.paymentId) : null,
+    getMemberById(created.memberId, admin.gymId),
+    created.paymentId ? getPaymentById(created.paymentId, admin.gymId) : null,
   ]);
 
   return ok(
