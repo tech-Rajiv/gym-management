@@ -67,7 +67,8 @@ function whatsAppMessage(member, membership) {
  * Presentational only, so Server and Client Components can both render it.
  *
  * @param {object}  member  id, full_name, phone, photo_url, plan_name,
- *                          membership_start_date, membership_end_date
+ *                          membership_start_date, membership_end_date,
+ *                          coverage_start_date (start of the paid-up period)
  * @param {boolean} [renew]  show Renew; defaults to expired / expiring / none
  * @param {node}    [status] replaces the membership badge (e.g. "Left")
  * @param {node}    [note]   replaces the "3 days left" line
@@ -114,7 +115,8 @@ export default function MemberListItem({
             <>
               <span className={styles.planName}>{member.plan_name}</span>
               {" · "}
-              {formatDate(member.membership_start_date)} → {formatDate(member.membership_end_date)}
+              {formatDate(member.coverage_start_date ?? member.membership_start_date)} →{" "}
+              {formatDate(member.membership_end_date)}
             </>
           ) : (
             "No membership on record"

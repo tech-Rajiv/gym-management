@@ -24,8 +24,12 @@ export default function CurrentCoverage({ member, referenceDate: givenDate }) {
   // The payment form passes the server's date in, so the browser never has to
   // work out the gym's "today" itself.
   const referenceDate = givenDate ?? today();
-  const start = member.membership_start_date;
+  // The whole paid-up period: when terms are paid in advance (Oct 05-Nov 03,
+  // then Nov 04-Dec 03), it runs from the earliest one still going to the
+  // last one's end - Oct 05 to Dec 03 - not just the latest term.
+  const start = member.coverage_start_date ?? member.membership_start_date;
   const end = member.membership_end_date;
+  const termsAhead = Number(member.active_terms ?? 0);
   const status = describeMembership(end, referenceDate);
   const dues = describePayment(member.membership_price, member.membership_amount_paid);
 
@@ -46,6 +50,15 @@ export default function CurrentCoverage({ member, referenceDate: givenDate }) {
   }
 
   const paid = dues.amountPaid > 0;
+  // Several terms paid: the total paid across them, and when the latest
+  // (renewed-in-advance) term starts.
+  const coverageTotal = Number(member.coverage_amount_paid ?? 0);
+  const renewedAhead =
+    termsAhead > 1 && member.membership_start_date > referenceDate
+      ? `Renewed in advance · ${member.plan_name} from ${formatDate(member.membership_start_date)}`
+      : termsAhead > 1
+        ? `${termsAhead} terms paid in a row`
+        : null;
 
   return (
     <div className={styles.coverage}>
@@ -53,6 +66,8 @@ export default function CurrentCoverage({ member, referenceDate: givenDate }) {
         <span className={styles.plan}>{member.plan_name}</span>
         <Badge variant={status.variant}>{status.label}</Badge>
       </div>
+
+      {renewedAhead && <p className={styles.ahead}>{renewedAhead}</p>}
 
       {/* Start and end side by side, on every screen. */}
       <div className={styles.range}>
@@ -81,17 +96,21 @@ export default function CurrentCoverage({ member, referenceDate: givenDate }) {
           />
         </div>
         <div className={styles.progressMeta}>
-          <span>{plural(totalDays, "day")} plan</span>
+          <span>
+            {plural(totalDays, "day")} {termsAhead > 1 ? "paid" : "plan"}
+          </span>
           <strong className={styles[`text_${status.variant}`]}>{progressText}</strong>
         </div>
       </div>
 
       <p className={`${styles.payment} ${paid ? styles.paid : styles.unpaid}`}>
-        {paid
-          ? `Paid ${formatCurrency(dues.amountPaid)}${
-              member.last_paid_on ? ` on ${formatDate(member.last_paid_on)}` : ""
-            }`
-          : `Not paid yet · plan price ${formatCurrency(dues.price)}`}
+        {termsAhead > 1 && coverageTotal > 0
+          ? `Paid ${formatCurrency(coverageTotal)} for this period · ${termsAhead} terms`
+          : paid
+            ? `Paid ${formatCurrency(dues.amountPaid)}${
+                member.last_paid_on ? ` on ${formatDate(member.last_paid_on)}` : ""
+              }`
+            : `Not paid yet · plan price ${formatCurrency(dues.price)}`}
       </p>
     </div>
   );

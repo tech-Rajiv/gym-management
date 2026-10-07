@@ -21,6 +21,14 @@
   font-weight: 700;
 }
 
+/* "Renewed in advance · Monthly from Nov 04" - a short note under the plan. */
+.ahead {
+  margin-top: calc(-1 * var(--space-2));
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
 /* --- The two dates, side by side on every screen ------------------------ */
 
 .range {

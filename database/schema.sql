@@ -324,7 +324,15 @@ SELECT
   -- Appended last: CREATE OR REPLACE VIEW can add columns only at the end.
   m.status              AS member_status,
   m.left_at,
-  m.photo_url
+  m.photo_url,
+  -- The whole paid-up period, not just the latest term. A member who paid
+  -- for Oct 05-Nov 03 and, in advance, Nov 04-Dec 03 is covered from Oct 05
+  -- to Dec 03: the start is the earliest term that has not ended yet (in the
+  -- gym's timezone), and the end is membership_end_date as above. With no
+  -- term still running, it is simply the latest term's start.
+  COALESCE(cov.start_date, cm.start_date) AS coverage_start_date,
+  COALESCE(cov.terms, 0)                  AS active_terms,
+  COALESCE(cov.amount_paid, 0)            AS coverage_amount_paid
 FROM members m
 LEFT JOIN LATERAL (
   SELECT ms.*
@@ -341,7 +349,23 @@ LEFT JOIN LATERAL (
     max(pay.paid_on) AS last_paid_on
   FROM payments pay
   WHERE pay.membership_id = cm.id
-) paid ON true;
+) paid ON true
+LEFT JOIN LATERAL (
+  SELECT
+    min(ms.start_date) AS start_date,
+    count(*)::int      AS terms,
+    (SELECT sum(pay.amount) FROM payments pay
+      WHERE pay.membership_id IN (
+        SELECT t.id FROM memberships t
+        WHERE t.member_id = m.id AND t.status <> 'cancelled'
+          AND t.end_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date
+      )) AS amount_paid
+  FROM memberships ms
+  WHERE ms.member_id = m.id
+    AND ms.status <> 'cancelled'
+    -- Asia/Kolkata is the gym's timezone (GYM_TIMEZONE in lib/config.js).
+    AND ms.end_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date
+) cov ON true;
 
 -- ---------------------------------------------------------------------------
 -- payment_overview
