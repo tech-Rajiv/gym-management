@@ -78,7 +78,7 @@ export default async function FounderPage() {
     <main className={styles.page}>
       <FounderBar name={session.name} />
       <div className={styles.inner}>
-        <div>
+        <div className={styles.intro}>
           <h1 className={styles.hello}>Hello, {first}</h1>
           <p className={styles.helloNote}>{message}</p>
         </div>

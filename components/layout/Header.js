@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { APP_NAME } from "@/lib/config";
 import { CalendarIcon, DumbbellIcon } from "@/components/ui/icons";
 import { getInitials } from "@/lib/utils/format";
 import LogoutButton from "./LogoutButton";
@@ -19,15 +18,16 @@ import styles from "./Header.module.css";
  */
 export default function Header({ todayLabel, admin, subscription }) {
   const [first = "", last = ""] = admin.name.split(" ");
+  const gymName = admin.gymName || "Gym";
 
   return (
     <header className={styles.header}>
-      {/* The brand always leads home. */}
-      <Link href="/dashboard" className={styles.brand} aria-label={`${APP_NAME} - go to the dashboard`}>
+      {/* On a phone this is the gym's name. Desktop shows it in the sidebar. */}
+      <Link href="/dashboard" className={styles.brand} aria-label={`${gymName} - go to the dashboard`}>
         <span className={styles.logo}>
           <DumbbellIcon size={16} />
         </span>
-        <span className={styles.brandName}>{APP_NAME}</span>
+        <span className={styles.brandName}>{gymName}</span>
       </Link>
 
       <span className={styles.date}>

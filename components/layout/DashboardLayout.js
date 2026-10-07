@@ -14,7 +14,7 @@ import styles from "./DashboardLayout.module.css";
 export default function DashboardLayout({ todayLabel, admin, subscription, children }) {
   return (
     <div className={styles.shell}>
-      <Sidebar />
+      <Sidebar gymName={admin.gymName} />
 
       <div className={styles.main}>
         <Header todayLabel={todayLabel} admin={admin} subscription={subscription} />

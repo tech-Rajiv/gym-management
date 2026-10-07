@@ -1,6 +1,5 @@
 import Link from "next/link";
 import FounderLogout from "@/components/founder/FounderLogout";
-import { APP_NAME } from "@/lib/config";
 import { getInitials, titleCase } from "@/lib/utils/format";
 import styles from "@/app/founder/founder.module.css";
 
@@ -14,9 +13,8 @@ export default function FounderBar({ name }) {
 
   return (
     <header className={styles.header}>
-      <Link href="/founder" className={styles.brand} aria-label={`${APP_NAME} founder`}>
-        <span className={styles.role}>Founder</span>
-        <span className={styles.brandName}>{APP_NAME}</span>
+      <Link href="/founder" className={styles.brand} aria-label="Founder">
+        <span className={styles.brandName}>Founder</span>
       </Link>
 
       <span className={styles.spacer} />
