@@ -35,6 +35,10 @@
   background: #fff1f2;
 }
 
+.welcome .mark {
+  background: #fff6df;
+}
+
 .identity {
   min-width: 0;
 }

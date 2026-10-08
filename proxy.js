@@ -20,9 +20,16 @@ const SESSION_COOKIE = "aura_session";
 
 /**
  * Reachable without being signed in. The daily-report route is called by
- * Upstash QStash, not a person; it checks QStash's signature itself.
+ * Upstash QStash, and the subscription webhook by Razorpay. Each checks
+ * its own signature.
  */
-const PUBLIC_PATHS = ["/login", "/founder", "/api/auth/login", "/api/cron/daily-report"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/founder",
+  "/api/auth/login",
+  "/api/cron/daily-report",
+  "/api/subscription/webhook",
+];
 
 export function proxy(request) {
   const { pathname } = request.nextUrl;

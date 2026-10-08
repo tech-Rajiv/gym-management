@@ -21,7 +21,7 @@ function loadRazorpay() {
 }
 
 /** Razorpay checkout for one period of gym software cover. */
-export default function PaySubscription({ gymName, subscription }) {
+export default function PaySubscription({ gymName, subscription, coverStarts, coverEnds }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState(null);
@@ -82,7 +82,8 @@ export default function PaySubscription({ gymName, subscription }) {
         gymName={gymName}
         subscription={subscription}
         price={formatCurrency(SAAS_PRICE_RUPEES)}
-        priceNote={`${SAAS_PERIOD_DAYS} days of cover. Paying again before the end date adds another ${SAAS_PERIOD_DAYS} days after it.`}
+        coverStarts={coverStarts}
+        coverEnds={coverEnds}
         actionLabel="Pay subscription"
         onAction={handlePay}
         pending={pending}

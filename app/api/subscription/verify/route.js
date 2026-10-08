@@ -1,9 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import Razorpay from "razorpay";
 import { fail, ok, readJson, withAdmin } from "@/lib/api";
-import { SAAS_PERIOD_DAYS, SAAS_PRICE_RUPEES } from "@/lib/config";
-import { getGymSubscription, recordSubscriptionPayment } from "@/lib/db/gyms";
-import { addDays, daysBetween, today } from "@/lib/utils/dates";
+import { settleSubscriptionPayment } from "@/lib/subscription/settle";
 
 /**
  * POST /api/subscription/verify
@@ -33,26 +30,12 @@ export const POST = withAdmin(async (request, _context, admin) => {
     return fail({ message: "The payment could not be confirmed." }, 400);
   }
 
-  const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
-  const order = await razorpay.orders.fetch(orderId);
-  const amountPaise = SAAS_PRICE_RUPEES * 100;
-  if (String(order?.notes?.gymId) !== String(admin.gymId) || Number(order?.amount) !== amountPaise) {
-    return fail({ message: "That payment does not belong to this gym." }, 400);
-  }
-
-  const referenceDate = today();
-  const current = await getGymSubscription(admin.gymId);
-  const stillCovered = current?.paid_until && daysBetween(referenceDate, current.paid_until) >= 0;
-  const coveredUntil = addDays(stillCovered ? current.paid_until : referenceDate, SAAS_PERIOD_DAYS);
-
-  const paidUntil = await recordSubscriptionPayment({
-    gymId: admin.gymId,
-    amount: SAAS_PRICE_RUPEES,
-    paidOn: referenceDate,
-    coveredUntil,
+  const settled = await settleSubscriptionPayment({
     orderId,
     paymentId,
+    expectedGymId: admin.gymId,
   });
+  if (!settled.ok) return fail({ message: settled.message }, settled.status);
 
-  return ok({ paidUntil });
+  return ok({ paidUntil: settled.paidUntil });
 });
