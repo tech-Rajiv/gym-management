@@ -25,12 +25,12 @@ export const dynamic = "force-dynamic";
  * the form ready to go.
  */
 export default async function NewPaymentPage({ searchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { member: memberParam } = await searchParams;
 
   const [members, plans] = await Promise.all([
-    getMembers(),
-    getMembershipPlans(),
+    getMembers({ gymId: admin.gymId }),
+    getMembershipPlans(admin.gymId),
   ]);
 
   // A payment has to belong to somebody, so there is nothing useful to show

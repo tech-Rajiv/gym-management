@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { APP_NAME } from "@/lib/config";
 import { CalendarIcon, DumbbellIcon } from "@/components/ui/icons";
 import { getInitials } from "@/lib/utils/format";
 import LogoutButton from "./LogoutButton";
+import SubscriptionBadge from "./SubscriptionBadge";
 import styles from "./Header.module.css";
 
 /**
@@ -16,17 +16,18 @@ import styles from "./Header.module.css";
  * On phones the brand appears here, since the sidebar that carries it on
  * desktop is hidden.
  */
-export default function Header({ todayLabel, admin }) {
+export default function Header({ todayLabel, admin, subscription }) {
   const [first = "", last = ""] = admin.name.split(" ");
+  const gymName = admin.gymName || "Gym";
 
   return (
     <header className={styles.header}>
-      {/* The brand always leads home. */}
-      <Link href="/dashboard" className={styles.brand} aria-label={`${APP_NAME} - go to the dashboard`}>
+      {/* On a phone this is the gym's name. Desktop shows it in the sidebar. */}
+      <Link href="/dashboard" className={styles.brand} aria-label={`${gymName} - go to the dashboard`}>
         <span className={styles.logo}>
           <DumbbellIcon size={16} />
         </span>
-        <span className={styles.brandName}>{APP_NAME}</span>
+        <span className={styles.brandName}>{gymName}</span>
       </Link>
 
       <span className={styles.date}>
@@ -36,10 +37,14 @@ export default function Header({ todayLabel, admin }) {
 
       <div className={styles.spacer} />
 
-      <span className={styles.admin} title={admin.email}>
-        <span className={styles.avatar} aria-hidden="true">
-          {getInitials(first, last)}
-        </span>
+      <span className={styles.admin} title={admin.gymName ? `${admin.name} · ${admin.gymName}` : admin.email}>
+        {subscription ? (
+          <SubscriptionBadge gymName={admin.gymName || "Gym"} subscription={subscription} />
+        ) : (
+          <span className={styles.avatar} aria-hidden="true">
+            {getInitials(first, last)}
+          </span>
+        )}
         <span className={styles.adminName}>{admin.name}</span>
       </span>
 

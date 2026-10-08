@@ -21,7 +21,7 @@ export const PATCH = withAdmin(async (request, { params }, admin) => {
   const { valid, errors, values } = validatePlan(body);
   if (!valid) return fail({ errors });
 
-  const existing = await getMembershipPlanById(planId);
+  const existing = await getMembershipPlanById(planId, admin.gymId);
   if (!existing || !existing.is_active) return notFound("This plan no longer exists.");
 
   try {

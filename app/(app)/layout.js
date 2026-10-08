@@ -1,6 +1,10 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { requireAdmin } from "@/lib/auth";
+import { getGymSubscription } from "@/lib/db/gyms";
 import { today, formatDate } from "@/lib/utils/dates";
+import { describeSubscription, subscriptionAllowsAccess } from "@/lib/utils/subscription";
 
 /**
  * The signed-in part of the application.
@@ -17,9 +21,29 @@ import { today, formatDate } from "@/lib/utils/dates";
  */
 export default async function AppLayout({ children }) {
   const admin = await requireAdmin();
+  const referenceDate = today();
+  const subscription = describeSubscription(
+    await getGymSubscription(admin.gymId),
+    referenceDate
+  );
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname") ?? "";
+  const onPayPage = pathname === "/subscription/pay";
+  // Cover has ended: end the session. Signing in again explains why, then
+  // opens the payment page. The payment page itself keeps the session.
+  // A prefetch must not clear the cookie, or opening the payment page would
+  // sign the owner out before they can pay.
+  if (!subscriptionAllowsAccess(subscription) && !onPayPage) {
+    const isPrefetch = headerList.get("next-router-prefetch") === "1";
+    redirect(isPrefetch ? "/subscription/pay" : "/api/auth/end-session");
+  }
 
   return (
-    <DashboardLayout todayLabel={formatDate(today())} admin={admin}>
+    <DashboardLayout
+      todayLabel={formatDate(referenceDate)}
+      admin={admin}
+      subscription={subscription}
+    >
       {children}
     </DashboardLayout>
   );

@@ -1,14 +1,16 @@
 import { cookies } from "next/headers";
 import { ok, fail, readJson } from "@/lib/api";
-import { findAdminByCredentials } from "@/lib/db/auth";
+import { findAccountByCredentials } from "@/lib/db/auth";
+import { getGymSubscription } from "@/lib/db/gyms";
 import { SESSION_COOKIE, createSessionToken, sessionCookieOptions } from "@/lib/auth";
+import { describeSubscription, subscriptionAllowsAccess } from "@/lib/utils/subscription";
 
 /**
  * POST /api/auth/login   { email, password }
  *
- * Checks the email and password against the admins table - the only database
- * call involved in being signed in - and sets the signed session cookie. Only
- * people with a row in the admins table can get in. See lib/auth.js.
+ * Checks the email and password against the owners and operators tables -
+ * the only database call involved in being signed in - and sets the signed
+ * session cookie. See lib/auth.js.
  *
  * A wrong email and a wrong password get the same message, so the form does
  * not reveal which admin emails exist.
@@ -24,15 +26,34 @@ export async function POST(request) {
   if (Object.keys(errors).length > 0) return fail({ errors });
 
   try {
-    const admin = await findAdminByCredentials(email, password);
-    if (!admin) {
-      return fail({ message: "That email and password do not match an admin account." }, 401);
+    const account = await findAccountByCredentials(email, password);
+    if (!account) {
+      return fail({ message: "That email and password do not match an account." }, 401);
     }
 
     const cookieStore = await cookies();
-    cookieStore.set(SESSION_COOKIE, createSessionToken(admin), sessionCookieOptions());
+    cookieStore.set(SESSION_COOKIE, createSessionToken(account), sessionCookieOptions());
 
-    return ok({ admin: { name: admin.name } });
+    if (account.role === "founder") {
+      return ok({ admin: { name: account.name }, next: "/founder" });
+    }
+
+    const subscription = describeSubscription(await getGymSubscription(account.gymId));
+    const subscriptionNeeded = !subscriptionAllowsAccess(subscription);
+    return ok({
+      admin: { name: account.name },
+      gymName: account.gymName,
+      subscriptionNeeded,
+      subscription: {
+        state: subscription.state,
+        label: subscription.label,
+        headline: subscription.headline,
+        detail: subscription.detail,
+        paidUntil: subscription.paidUntil,
+        daysLeft: subscription.daysLeft,
+      },
+      next: subscriptionNeeded ? "/subscription/pay" : "/dashboard",
+    });
   } catch (error) {
     return fail({ message: error?.message ?? "Could not log in. Please try again." }, 500);
   }

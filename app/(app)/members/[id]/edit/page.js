@@ -4,13 +4,14 @@ import MemberForm from "@/components/members/MemberForm";
 import { getMemberById } from "@/lib/db/members";
 import { getMembershipPlans, getMembershipPlanById } from "@/lib/db/plans";
 import { today } from "@/lib/utils/dates";
-import { requireAdmin } from "@/lib/auth";
+import { getCurrentAdmin, requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
+  const admin = await getCurrentAdmin();
   const { id } = await params;
-  const member = await getMemberById(id);
+  const member = admin ? await getMemberById(id, admin.gymId) : null;
   return { title: member ? `Edit ${member.full_name}` : "Edit Member" };
 }
 
@@ -22,11 +23,14 @@ export async function generateMetadata({ params }) {
  * someone new.
  */
 export default async function EditMemberPage({ params }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { id } = await params;
 
   // Both are needed before anything can render, so they run together.
-  const [member, plans] = await Promise.all([getMemberById(id), getMembershipPlans()]);
+  const [member, plans] = await Promise.all([
+    getMemberById(id, admin.gymId),
+    getMembershipPlans(admin.gymId),
+  ]);
 
   if (!member) notFound();
 
@@ -35,7 +39,7 @@ export default async function EditMemberPage({ params }) {
   const currentPlanOnSale = plans.some((plan) => plan.id === member.membership_plan_id);
   const retiredPlan =
     member.membership_plan_id && !currentPlanOnSale
-      ? await getMembershipPlanById(member.membership_plan_id)
+      ? await getMembershipPlanById(member.membership_plan_id, admin.gymId)
       : null;
   const planOptions = retiredPlan
     ? [...plans, { ...retiredPlan, name: `${retiredPlan.name} (no longer sold)` }]

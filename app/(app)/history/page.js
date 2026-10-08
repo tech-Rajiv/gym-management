@@ -26,15 +26,15 @@ export const dynamic = "force-dynamic";
  * and a view can be bookmarked.
  */
 export default async function HistoryPage({ searchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const { month, from, to, page: pageParam } = await searchParams;
   const period = resolvePeriod({ month, from, to });
   const page = Math.max(1, Number.parseInt(pageParam, 10) || 1);
 
   const [logs, total] = await Promise.all([
-    getAuditLogs({ from: period.from, to: period.to, page }),
-    getAuditCount({ from: period.from, to: period.to }),
+    getAuditLogs({ gymId: admin.gymId, from: period.from, to: period.to, page }),
+    getAuditCount({ gymId: admin.gymId, from: period.from, to: period.to }),
   ]);
 
   const pageCount = Math.max(1, Math.ceil(total / AUDIT_PAGE_SIZE));

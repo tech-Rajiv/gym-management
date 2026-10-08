@@ -1,0 +1,53 @@
+.circle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.crown {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.expiring .crown,
+.unpaid .crown,
+.expired .crown {
+  animation: attention 1.4s ease-in-out infinite;
+}
+
+@keyframes attention {
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expiring .crown,
+  .unpaid .crown,
+  .expired .crown {
+    animation: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .circle {
+    background-color: var(--color-on-brand-surface);
+    border-color: transparent;
+    color: var(--color-on-brand);
+  }
+}

@@ -1,7 +1,7 @@
 /**
  * Database management script.
  *
- *   npm run db:setup       create tables, indexes, views and the first admin
+ *   npm run db:setup       create tables, indexes and views
  *   npm run db:seed        insert demo plans and members
  *   npm run db:seed:clear  remove only the demo members (plans are kept)
  *   npm run db:reset       drop everything, then set up and seed from scratch
@@ -107,11 +107,17 @@ const commands = {
     await sql`DROP VIEW IF EXISTS payment_overview`;
     await sql`DROP VIEW IF EXISTS member_overview`;
     await sql`DROP TABLE IF EXISTS audit_logs`;
+    await sql`DROP TABLE IF EXISTS saas_payments`;
+    await sql`DROP TABLE IF EXISTS saas_subscriptions`;
+    await sql`DROP TABLE IF EXISTS operators`;
+    await sql`DROP TABLE IF EXISTS founders`;
+    await sql`DROP TABLE IF EXISTS owners`;
     await sql`DROP TABLE IF EXISTS admins`;
     await sql`DROP TABLE IF EXISTS payments`;
     await sql`DROP TABLE IF EXISTS memberships`;
     await sql`DROP TABLE IF EXISTS members`;
     await sql`DROP TABLE IF EXISTS membership_plans`;
+    await sql`DROP TABLE IF EXISTS gyms`;
     await sql`DROP FUNCTION IF EXISTS set_updated_at`;
     console.log("Dropped existing tables.");
     await commands.setup();

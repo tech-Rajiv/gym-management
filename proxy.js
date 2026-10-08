@@ -20,15 +20,26 @@ const SESSION_COOKIE = "aura_session";
 
 /**
  * Reachable without being signed in. The daily-report route is called by
- * Upstash QStash, not a person; it checks QStash's signature itself.
+ * Upstash QStash, and the subscription webhook by Razorpay. Each checks
+ * its own signature.
  */
-const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/cron/daily-report"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/founder",
+  "/api/auth/login",
+  "/api/cron/daily-report",
+  "/api/subscription/webhook",
+];
 
 export function proxy(request) {
   const { pathname } = request.nextUrl;
-  if (PUBLIC_PATHS.includes(pathname)) return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+  const next = () => NextResponse.next({ request: { headers: requestHeaders } });
 
-  if (request.cookies.get(SESSION_COOKIE)?.value) return NextResponse.next();
+  if (PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/founder/")) return next();
+
+  if (request.cookies.get(SESSION_COOKIE)?.value) return next();
 
   // An API caller wants JSON it can act on, not the login page's HTML.
   if (pathname.startsWith("/api/")) {

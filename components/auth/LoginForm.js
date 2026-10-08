@@ -25,9 +25,9 @@ export default function LoginForm() {
     });
 
     if (response.ok) {
-      router.replace("/dashboard");
+      router.replace(response.next || "/dashboard");
       router.refresh();
-      return; // Stay "pending" while the dashboard loads.
+      return; // Stay "pending" while the next page loads.
     }
 
     setResult(response);

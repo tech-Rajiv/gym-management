@@ -30,7 +30,7 @@ export const POST = withAdmin(async (request, _context, admin) => {
   // A new term is charged at its plan's current price, taken from the
   // database rather than the request, so it cannot be altered in the browser.
   if (data.isNewTerm) {
-    const plan = await getMembershipPlanById(data.membershipPlanId);
+    const plan = await getMembershipPlanById(data.membershipPlanId, admin.gymId);
     if (!plan || !plan.is_active) {
       return fail({
         message: "Please correct the highlighted fields.",
@@ -46,7 +46,7 @@ export const POST = withAdmin(async (request, _context, admin) => {
       : { paymentId: await createPayment(data, admin) };
 
     // What was saved, read back from the database, for the success popup.
-    const receipt = await getPaymentById(result.paymentId);
+    const receipt = await getPaymentById(result.paymentId, admin.gymId);
     return ok({ id: result.paymentId, memberId: data.memberId, receipt }, 201);
   } catch (error) {
     return fail(

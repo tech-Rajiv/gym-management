@@ -9,7 +9,7 @@ import PlanMenu from "@/components/plans/PlanMenu";
 import { getMembershipPlanById } from "@/lib/db/plans";
 import { getMembers } from "@/lib/db/members";
 import { toId } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { getCurrentAdmin, requireAdmin } from "@/lib/auth";
 import { formatCurrency } from "@/lib/utils/format";
 import { formatDate } from "@/lib/utils/dates";
 import { MembersIcon } from "@/components/ui/icons";
@@ -19,8 +19,9 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
+  const admin = await getCurrentAdmin();
   const planId = toId(id);
-  const plan = planId ? await getMembershipPlanById(planId) : null;
+  const plan = admin && planId ? await getMembershipPlanById(planId, admin.gymId) : null;
   return { title: plan ? plan.name : "Plan not found" };
 }
 
@@ -34,14 +35,14 @@ export async function generateMetadata({ params }) {
  * an old link, but read-only.
  */
 export default async function PlanPage({ params }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const { id } = await params;
   const planId = toId(id);
-  const plan = planId ? await getMembershipPlanById(planId) : null;
+  const plan = planId ? await getMembershipPlanById(planId, admin.gymId) : null;
   if (!plan) notFound();
 
-  const members = await getMembers({ planId: plan.id });
+  const members = await getMembers({ gymId: admin.gymId, planId: plan.id });
   const count = members.length;
 
   return (

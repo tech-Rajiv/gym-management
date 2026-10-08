@@ -14,7 +14,7 @@
 -- ============================================================================
 
 -- Re-running the seed replaces the demo members rather than duplicating them.
-DELETE FROM members WHERE is_demo = true;
+DELETE FROM members WHERE is_demo = true AND gym_id = 1;
 
 -- ---------------------------------------------------------------------------
 -- Membership plans
@@ -22,8 +22,8 @@ DELETE FROM members WHERE is_demo = true;
 -- ---------------------------------------------------------------------------
 -- Only plans not already on sale are added, so re-running the seed neither
 -- duplicates them nor resets a price the owner has since changed.
-INSERT INTO membership_plans (name, description, duration_days, price)
-SELECT v.name, v.description, v.duration_days, v.price
+INSERT INTO membership_plans (name, description, duration_days, price, gym_id)
+SELECT v.name, v.description, v.duration_days, v.price, 1
 FROM (
   VALUES
     ('Monthly',     'One month of full gym access',              30,  1500.00),
@@ -33,7 +33,7 @@ FROM (
 ) AS v (name, description, duration_days, price)
 WHERE NOT EXISTS (
   SELECT 1 FROM membership_plans p
-  WHERE lower(p.name) = lower(v.name) AND p.is_active
+  WHERE p.gym_id = 1 AND lower(p.name) = lower(v.name) AND p.is_active
 );
 
 -- ---------------------------------------------------------------------------
@@ -73,24 +73,25 @@ WITH demo (
 new_members AS (
   INSERT INTO members (
     first_name, last_name, phone, email, gender, date_of_birth, address,
-    emergency_contact_name, emergency_contact_phone, notes, join_date, is_demo
+    emergency_contact_name, emergency_contact_phone, notes, join_date, is_demo, gym_id
   )
   SELECT
     first_name, last_name, phone, email, gender, dob, address,
-    ec_name, ec_phone, notes, current_date + join_offset, true
+    ec_name, ec_phone, notes, current_date + join_offset, true, 1
   FROM demo
   RETURNING id, phone
 )
-INSERT INTO memberships (member_id, membership_plan_id, start_date, end_date, price)
+INSERT INTO memberships (member_id, membership_plan_id, start_date, end_date, price, gym_id)
 SELECT
   nm.id,
   p.id,
   current_date + d.start_offset,
   current_date + d.end_offset,
-  p.price
+  p.price,
+  1
 FROM demo d
 JOIN new_members nm ON nm.phone = d.phone
-JOIN membership_plans p ON p.name = d.plan_name AND p.is_active;
+JOIN membership_plans p ON p.gym_id = 1 AND p.name = d.plan_name AND p.is_active;
 
 -- ---------------------------------------------------------------------------
 -- Past memberships for three long-standing members.
@@ -106,16 +107,17 @@ WITH history (phone, plan_name, start_offset, end_offset) AS (
     ('+91 90000 00005',       'Yearly',         -610, -246),
     ('+91 90000 00009',       'Quarterly',      -176,  -86)
 )
-INSERT INTO memberships (member_id, membership_plan_id, start_date, end_date, price)
+INSERT INTO memberships (member_id, membership_plan_id, start_date, end_date, price, gym_id)
 SELECT
   m.id,
   p.id,
   current_date + h.start_offset,
   current_date + h.end_offset,
-  p.price
+  p.price,
+  m.gym_id
 FROM history h
-JOIN members m ON m.phone = h.phone
-JOIN membership_plans p ON p.name = h.plan_name AND p.is_active;
+JOIN members m ON m.gym_id = 1 AND m.phone = h.phone AND m.is_demo
+JOIN membership_plans p ON p.gym_id = m.gym_id AND p.name = h.plan_name AND p.is_active;
 
 -- ---------------------------------------------------------------------------
 -- Demo payments.
@@ -156,7 +158,7 @@ WITH demo_payments (phone, term_end_offset, amount, method, paid_offset, referen
     -- Nothing recorded for Vikram Rana or Devan Parmar, so their terms show
     -- as Unpaid.
 )
-INSERT INTO payments (member_id, membership_id, amount, method, paid_on, reference, remark, is_demo)
+INSERT INTO payments (member_id, membership_id, amount, method, paid_on, reference, remark, is_demo, gym_id)
 SELECT
   m.id,
   ms.id,
@@ -165,9 +167,11 @@ SELECT
   current_date + d.paid_offset,
   d.reference,
   d.remark,
-  true
+  true,
+  m.gym_id
 FROM demo_payments d
-JOIN members m ON m.phone = d.phone
+JOIN members m ON m.gym_id = 1 AND m.phone = d.phone AND m.is_demo
 JOIN memberships ms
   ON ms.member_id = m.id
+ AND ms.gym_id = m.gym_id
  AND ms.end_date = current_date + d.term_end_offset;

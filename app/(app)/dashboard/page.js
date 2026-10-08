@@ -43,10 +43,10 @@ export default async function DashboardPage() {
   // Each list fetches only its first few members; the stat counts say how
   // many there are in all, for the "See N more" buttons.
   const [stats, expiringMembers, expiredMembers, newMembers] = await Promise.all([
-    getDashboardStats(),
-    getExpiringMembers(),
-    getExpiredMembers(),
-    getNewMembersThisMonth(),
+    getDashboardStats({ gymId: admin.gymId }),
+    getExpiringMembers({ gymId: admin.gymId }),
+    getExpiredMembers({ gymId: admin.gymId }),
+    getNewMembersThisMonth({ gymId: admin.gymId }),
   ]);
 
   return (

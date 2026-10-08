@@ -25,8 +25,8 @@ export const PATCH = withAdmin(async (request, { params }, admin) => {
   // A deleted plan may be kept by a member already on it, but nobody can be
   // moved onto one.
   const [plan, current] = await Promise.all([
-    getMembershipPlanById(values.membershipPlanId),
-    getMemberById(memberId),
+    getMembershipPlanById(values.membershipPlanId, admin.gymId),
+    getMemberById(memberId, admin.gymId),
   ]);
   if (!current) return notFound("This member no longer exists.");
   if (!plan || (!plan.is_active && plan.id !== current.membership_plan_id)) {
@@ -57,7 +57,7 @@ export const DELETE = withAdmin(async (_request, { params }, admin) => {
   const changed = await markMemberLeft(memberId, admin);
   if (changed) return ok({ id: memberId, status: "left" });
 
-  const member = await getMemberById(memberId);
+  const member = await getMemberById(memberId, admin.gymId);
   return member
     ? fail({ message: "This member is already marked as left." }, 409)
     : notFound("This member no longer exists.");

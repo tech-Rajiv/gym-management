@@ -11,13 +11,13 @@ import styles from "./DashboardLayout.module.css";
  * navigations (for the current path) and the logout button - are Client
  * Components, so the pages passed in as `children` stay on the server.
  */
-export default function DashboardLayout({ todayLabel, admin, children }) {
+export default function DashboardLayout({ todayLabel, admin, subscription, children }) {
   return (
     <div className={styles.shell}>
-      <Sidebar />
+      <Sidebar gymName={admin.gymName} />
 
       <div className={styles.main}>
-        <Header todayLabel={todayLabel} admin={admin} />
+        <Header todayLabel={todayLabel} admin={admin} subscription={subscription} />
         <main className={styles.content}>{children}</main>
       </div>
 
