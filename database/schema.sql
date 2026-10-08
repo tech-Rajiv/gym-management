@@ -313,8 +313,7 @@ SELECT setval(
 -- operators
 -- The person who runs the SaaS (you), not a gym owner. Separate from owners
 -- so a founder login can see every gym, and a gym login cannot.
--- The account itself is created from FOUNDER_EMAIL / FOUNDER_PASSWORD in .env
--- by `npm run db:setup`, so the password is not stored in this file.
+-- The login row is inserted directly into this table.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS operators (
   id         integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

@@ -1,7 +1,7 @@
 /**
  * Database management script.
  *
- *   npm run db:setup       create tables, indexes, views and the first admin
+ *   npm run db:setup       create tables, indexes and views
  *   npm run db:seed        insert demo plans and members
  *   npm run db:seed:clear  remove only the demo members (plans are kept)
  *   npm run db:reset       drop everything, then set up and seed from scratch
@@ -83,7 +83,6 @@ const commands = {
   async setup() {
     const count = await runSqlFile("schema.sql");
     console.log(`Schema applied (${count} statements).`);
-    await ensureFounder();
   },
 
   async seed() {
@@ -125,29 +124,6 @@ const commands = {
     await commands.seed();
   },
 };
-
-/** The founder account, from .env. Re-running does not change a password already set. */
-async function ensureFounder() {
-  const email = process.env.FOUNDER_EMAIL?.trim();
-  const password = process.env.FOUNDER_PASSWORD;
-  const name = process.env.FOUNDER_NAME?.trim() || "Founder";
-  if (!email || !password) {
-    console.log("Set FOUNDER_EMAIL and FOUNDER_PASSWORD in .env to create the founder login.");
-    return;
-  }
-
-  const inserted = await sql`
-    INSERT INTO operators (name, email, password)
-    VALUES (${name}, ${email}, ${password})
-    ON CONFLICT (email) DO NOTHING
-    RETURNING id
-  `;
-  console.log(
-    inserted.length > 0
-      ? `Operator login created for ${email}.`
-      : `Operator login already exists for ${email}.`
-  );
-}
 
 const command = process.argv[2];
 
