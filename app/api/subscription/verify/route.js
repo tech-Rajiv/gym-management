@@ -11,8 +11,8 @@ import { settleSubscriptionPayment } from "@/lib/subscription/settle";
  * whichever is later.
  */
 export const POST = withAdmin(async (request, _context, admin) => {
-  const keySecret = process.env.TEST_SECRET_KEY;
-  const keyId = process.env.TEST_API_KEY;
+  const keySecret = process.env.LIVE_SECRET_KEY;
+  const keyId = process.env.LIVE_API_KEY;
   if (!keyId || !keySecret) return fail({ message: "Payments are not configured yet." }, 500);
 
   const body = await readJson(request);

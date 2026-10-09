@@ -9,8 +9,8 @@ import { SAAS_PERIOD_DAYS, SAAS_PRICE_RUPEES } from "@/lib/config";
  * The amount is decided here, not in the browser.
  */
 export const POST = withAdmin(async (_request, _context, admin) => {
-  const keyId = process.env.TEST_API_KEY;
-  const keySecret = process.env.TEST_SECRET_KEY;
+  const keyId = process.env.LIVE_API_KEY;
+  const keySecret = process.env.LIVE_SECRET_KEY;
   if (!keyId || !keySecret) {
     return fail({ message: "Payments are not configured yet." }, 500);
   }
