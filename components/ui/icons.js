@@ -19,6 +19,7 @@ function Icon({ children, size = 16, ...props }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      style={{ display: "block", flexShrink: 0 }}
       {...props}
     >
       {children}
@@ -144,6 +145,32 @@ export const CalendarIcon = (props) => (
 export const DumbbellIcon = (props) => (
   <Icon {...props}>
     <path d="M6.5 6.5v11M3 9v6M17.5 6.5v11M21 9v6M6.5 12h11" />
+  </Icon>
+);
+
+/** A building - one gym on the founder console. */
+export const BuildingIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 21h18" />
+    <path d="M5 21V7l7-4 7 4v14" />
+    <path d="M9 21v-6h6v6" />
+    <path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01" />
+  </Icon>
+);
+
+/** A building with a plus - adding a gym on the founder console. */
+export const BuildingPlusIcon = (props) => (
+  <Icon {...props}>
+    <path d="M3 21h12V8l-6-4-6 4v13Z" />
+    <path d="M7 21v-6h4v6" />
+    <path d="M7 10h.01M11 10h.01M7 13h.01M11 13h.01" />
+    <path d="M17 14v6M14 17h6" />
+  </Icon>
+);
+
+export const ArrowLeftIcon = (props) => (
+  <Icon {...props}>
+    <path d="M19 12H5M11 18l-6-6 6-6" />
   </Icon>
 );
 

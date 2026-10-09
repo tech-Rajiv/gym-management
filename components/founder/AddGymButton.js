@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import { PlusIcon } from "@/components/ui/icons";
+import { BuildingPlusIcon } from "@/components/ui/icons";
 import CreateGymForm from "./CreateGymForm";
 import styles from "./AddGymButton.module.css";
 
@@ -13,14 +12,23 @@ export default function AddGymButton() {
 
   return (
     <>
-      <Button variant="primary" size="small" className={styles.button} onClick={() => setOpen(true)}>
-        <PlusIcon size={16} />
+      <button type="button" className={styles.cta} onClick={() => setOpen(true)}>
+        <span className={styles.ctaIcon} aria-hidden="true">
+          <BuildingPlusIcon size={18} />
+        </span>
         Add a gym
-      </Button>
+      </button>
 
       {open && (
         <Modal open onClose={() => setOpen(false)} title="Add a gym">
-          <p className={styles.note}>The owner uses this email and password on the gym login page.</p>
+          <div className={styles.modalIntro}>
+            <span className={styles.modalIcon} aria-hidden="true">
+              <BuildingPlusIcon size={20} />
+            </span>
+            <p className={styles.note}>
+              The owner uses this email and password on the gym login page.
+            </p>
+          </div>
           <CreateGymForm />
         </Modal>
       )}
