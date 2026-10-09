@@ -29,7 +29,7 @@ export default function AddGymButton() {
               The owner uses this email and password on the gym login page.
             </p>
           </div>
-          <CreateGymForm />
+          <CreateGymForm onSuccess={() => setOpen(false)} />
         </Modal>
       )}
     </>

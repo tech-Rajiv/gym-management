@@ -10,17 +10,15 @@ import { apiRequest, formToObject } from "@/lib/client/api";
 import styles from "./CreateGymForm.module.css";
 
 /** Name, owner, email and password for a new gym. */
-export default function CreateGymForm() {
+export default function CreateGymForm({ onSuccess } = {}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState(null);
-  const [done, setDone] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setPending(true);
     setResult(null);
-    setDone(null);
 
     const form = event.currentTarget;
     const response = await apiRequest("/api/founder/gyms", {
@@ -30,18 +28,17 @@ export default function CreateGymForm() {
 
     if (response.ok) {
       form.reset();
-      setDone(`${response.gym.name} is ready. ${response.gym.ownerEmail} can sign in on the gym login page.`);
       router.refresh();
+      onSuccess?.(response.gym);
     } else {
       setResult(response);
+      setPending(false);
     }
-    setPending(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className={styles.form} noValidate>
       {result?.message && <Alert>{result.message}</Alert>}
-      {done && <Alert variant="success">{done}</Alert>}
 
       <Input id="name" label="Gym name" required autoComplete="organization" error={result?.errors?.name} />
       <Input id="ownerName" name="ownerName" label="Owner name" required autoComplete="name" error={result?.errors?.ownerName} />
