@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
+import { BuildingPlusIcon } from "@/components/ui/icons";
 import { apiRequest, formToObject } from "@/lib/client/api";
 import styles from "./CreateGymForm.module.css";
 
@@ -62,7 +63,8 @@ export default function CreateGymForm() {
       />
 
       <Button type="submit" variant="primary" fullWidth disabled={pending}>
-        {pending ? "Adding gym…" : "Add gym"}
+        <BuildingPlusIcon size={18} />
+        {pending ? "Adding gym…" : "Create gym"}
       </Button>
     </form>
   );

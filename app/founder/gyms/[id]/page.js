@@ -3,8 +3,15 @@ import { notFound, redirect } from "next/navigation";
 import LoginForm from "@/components/auth/LoginForm";
 import FounderBar from "@/components/founder/FounderBar";
 import Badge from "@/components/ui/Badge";
-import Card from "@/components/ui/Card";
-import { DumbbellIcon } from "@/components/ui/icons";
+import {
+  ArrowLeftIcon,
+  BuildingIcon,
+  CalendarIcon,
+  ClockIcon,
+  DumbbellIcon,
+  HistoryIcon,
+  RupeeIcon,
+} from "@/components/ui/icons";
 import { getSession } from "@/lib/auth";
 import { getFounderGym, listSubscriptionPayments } from "@/lib/db/gyms";
 import { APP_NAME } from "@/lib/config";
@@ -74,18 +81,24 @@ export default async function FounderGymPage({ params }) {
     status: gym.subscription_status,
     paid_until: gym.paid_until,
   });
+  const coverStarts = gym.paid_until && current ? formatDate(current.coveredFrom) : "—";
+  const coverEnds = gym.paid_until ? formatDate(gym.paid_until) : "—";
 
   return (
     <main className={styles.page}>
       <FounderBar name={session.name} />
       <div className={styles.inner}>
         <Link href="/founder" className={styles.back}>
-          ← All gyms
+          <ArrowLeftIcon size={16} />
+          All gyms
         </Link>
 
         <header className={styles.top}>
           <div>
             <div className={styles.headingRow}>
+              <span className={styles.gymMark} aria-hidden="true">
+                <BuildingIcon size={18} />
+              </span>
               <h1 className={styles.title}>{gym.name}</h1>
               <Badge variant={badgeVariant(subscription.state)}>{subscription.label}</Badge>
             </div>
@@ -99,83 +112,130 @@ export default async function FounderGymPage({ params }) {
 
         <dl className={styles.facts}>
           <div className={styles.fact}>
-            <dt>Cover starts</dt>
-            <dd>{current ? formatDate(current.coveredFrom) : "—"}</dd>
+            <span className={styles.factIcon} aria-hidden="true">
+              <CalendarIcon size={16} />
+            </span>
+            <div>
+              <dt>Cover starts</dt>
+              <dd>{coverStarts}</dd>
+            </div>
           </div>
           <div className={styles.fact}>
-            <dt>Cover ends</dt>
-            <dd>{gym.paid_until ? formatDate(gym.paid_until) : "—"}</dd>
+            <span className={styles.factIcon} aria-hidden="true">
+              <CalendarIcon size={16} />
+            </span>
+            <div>
+              <dt>Cover ends</dt>
+              <dd>{coverEnds}</dd>
+            </div>
           </div>
           <div className={styles.fact}>
-            <dt>Days remaining</dt>
-            <dd>{daysLabel(subscription.daysLeft)}</dd>
+            <span className={styles.factIcon} aria-hidden="true">
+              <ClockIcon size={16} />
+            </span>
+            <div>
+              <dt>Days remaining</dt>
+              <dd>{daysLabel(subscription.daysLeft)}</dd>
+            </div>
           </div>
           <div className={styles.fact}>
-            <dt>Payments</dt>
-            <dd>{payments.length}</dd>
+            <span className={styles.factIcon} aria-hidden="true">
+              <RupeeIcon size={16} />
+            </span>
+            <div>
+              <dt>Payments</dt>
+              <dd>{payments.length}</dd>
+            </div>
           </div>
         </dl>
 
-        <Card
-          title="Payment history"
-          description="Each row is one software payment. The dates are the days that payment covers."
-          flush
-        >
-          {payments.length === 0 ? (
-            <p className={styles.empty}>
-              This gym has not paid yet. The owner pays from their gym login, and the payment shows up here.
-            </p>
-          ) : (
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Paid on</th>
-                    <th>Amount</th>
-                    <th>Cover starts</th>
-                    <th>Cover ends</th>
-                    <th>Payment id</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payments.map((payment) => (
-                    <tr key={payment.id}>
-                      <td>{formatDate(payment.paid_on)}</td>
-                      <td className={styles.count}>{formatCurrency(Number(payment.amount))}</td>
-                      <td>{formatDate(payment.coveredFrom)}</td>
-                      <td>{formatDate(payment.covered_until)}</td>
-                      <td className={styles.paymentId}>{payment.razorpay_payment_id}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <section className={styles.gymSection}>
+          <div className={styles.sectionHead}>
+            <div>
+              <div className={styles.sectionTitleRow}>
+                <span className={styles.sectionIcon} aria-hidden="true">
+                  <HistoryIcon size={16} />
+                </span>
+                <h2 className={styles.sectionTitle}>Payment history</h2>
+              </div>
+              <p className={styles.sectionNote}>
+                Each row is one software payment. The dates are the days that payment covers.
+              </p>
             </div>
+          </div>
+
+          {payments.length === 0 ? (
+            <div className={styles.tablePanel}>
+              <p className={styles.empty}>
+                This gym has not paid yet. The owner pays from their gym login, and the payment shows
+                up here.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className={styles.tablePanel}>
+                <div className={styles.tableWrap}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Paid on</th>
+                        <th>Amount</th>
+                        <th>Cover starts</th>
+                        <th>Cover ends</th>
+                        <th>Payment id</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payments.map((payment) => (
+                        <tr key={payment.id}>
+                          <td>{formatDate(payment.paid_on)}</td>
+                          <td className={styles.count}>{formatCurrency(Number(payment.amount))}</td>
+                          <td>{formatDate(payment.coveredFrom)}</td>
+                          <td>{formatDate(payment.covered_until)}</td>
+                          <td className={styles.paymentId}>{payment.razorpay_payment_id}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <ul className={styles.payCards}>
+                {payments.map((payment) => (
+                  <li key={payment.id} className={styles.payCard}>
+                    <p className={styles.payAmount}>
+                      <RupeeIcon size={18} />
+                      {formatCurrency(Number(payment.amount))}
+                    </p>
+                    <dl className={styles.meta}>
+                      <div>
+                        <dt>
+                          <CalendarIcon size={12} />
+                          Paid on
+                        </dt>
+                        <dd>{formatDate(payment.paid_on)}</dd>
+                      </div>
+                      <div>
+                        <dt>
+                          <CalendarIcon size={12} />
+                          Starts
+                        </dt>
+                        <dd>{formatDate(payment.coveredFrom)}</dd>
+                      </div>
+                      <div>
+                        <dt>
+                          <CalendarIcon size={12} />
+                          Ends
+                        </dt>
+                        <dd>{formatDate(payment.covered_until)}</dd>
+                      </div>
+                    </dl>
+                    <p className={styles.paymentId}>{payment.razorpay_payment_id}</p>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
-          {payments.length > 0 && (
-            <ul className={styles.payCards}>
-              {payments.map((payment) => (
-                <li key={payment.id} className={styles.payCard}>
-                  <p className={styles.payAmount}>{formatCurrency(Number(payment.amount))}</p>
-                  <dl className={styles.meta}>
-                    <div>
-                      <dt>Paid on</dt>
-                      <dd>{formatDate(payment.paid_on)}</dd>
-                    </div>
-                    <div>
-                      <dt>Cover starts</dt>
-                      <dd>{formatDate(payment.coveredFrom)}</dd>
-                    </div>
-                    <div>
-                      <dt>Cover ends</dt>
-                      <dd>{formatDate(payment.covered_until)}</dd>
-                    </div>
-                  </dl>
-                  <p className={styles.paymentId}>{payment.razorpay_payment_id}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+        </section>
       </div>
     </main>
   );
